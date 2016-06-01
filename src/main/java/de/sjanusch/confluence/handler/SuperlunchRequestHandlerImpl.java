@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by Sandro Janusch
@@ -116,7 +117,10 @@ public class SuperlunchRequestHandlerImpl implements SuperlunchRequestHandler {
     private Date getDateForString(final String time) {
         Calendar cal = Calendar.getInstance(Locale.GERMAN);
         cal.setTimeInMillis(Long.valueOf(time));
-        cal.add(Calendar.DAY_OF_WEEK, 1);
+        TimeZone t = cal.getTimeZone();
+        if (!t.getID().equals("Europe/Berlin")) {
+            cal.add(Calendar.DAY_OF_WEEK, 1);
+        }
         return cal.getTime();
     }
 
