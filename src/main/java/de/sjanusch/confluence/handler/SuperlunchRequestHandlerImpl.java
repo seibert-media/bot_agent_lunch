@@ -1,12 +1,5 @@
 package de.sjanusch.confluence.handler;
 
-import com.google.inject.Inject;
-import de.sjanusch.confluence.rest.SuperlunchRestClient;
-import de.sjanusch.model.Weekdays;
-import de.sjanusch.model.superlunch.Lunch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,6 +9,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
+
+import de.sjanusch.confluence.rest.SuperlunchRestClient;
+import de.sjanusch.model.Weekdays;
+import de.sjanusch.model.superlunch.Lunch;
 
 /**
  * Created by Sandro Janusch

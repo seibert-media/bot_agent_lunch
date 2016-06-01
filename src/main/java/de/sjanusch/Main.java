@@ -2,6 +2,7 @@ package de.sjanusch;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import de.sjanusch.guice.GuiceModule;
 import de.sjanusch.runner.BotRunner;
 

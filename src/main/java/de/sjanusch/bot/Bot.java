@@ -1,8 +1,8 @@
 package de.sjanusch.bot;
 
-import de.sjanusch.model.hipchat.Room;
-
 import java.io.IOException;
+
+import de.sjanusch.model.hipchat.Room;
 
 public interface Bot {
 

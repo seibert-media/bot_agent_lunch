@@ -1,9 +1,9 @@
 package de.sjanusch.protocol;
 
-import de.sjanusch.flow.LunchFlow;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import de.sjanusch.flow.LunchFlow;
 
 /**
  * Created by Sandro Janusch

@@ -1,9 +1,9 @@
 package de.sjanusch.confluence.handler;
 
+import java.util.List;
+
 import de.sjanusch.model.Weekdays;
 import de.sjanusch.model.superlunch.Lunch;
-
-import java.util.List;
 
 /**
  * Created by Sandro Janusch

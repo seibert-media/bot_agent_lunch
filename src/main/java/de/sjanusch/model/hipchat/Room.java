@@ -1,18 +1,20 @@
 package de.sjanusch.model.hipchat;
 
-import com.google.inject.Inject;
-import de.sjanusch.bot.Bot;
-import de.sjanusch.eventsystem.EventSystem;
-import de.sjanusch.eventsystem.events.model.UserJoinedRoomEvent;
-import de.sjanusch.eventsystem.events.model.UserLeftRoomEvent;
-import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.muc.RoomInfo;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.RoomInfo;
+
+import com.google.inject.Inject;
+
+import de.sjanusch.bot.Bot;
+import de.sjanusch.eventsystem.EventSystem;
+import de.sjanusch.eventsystem.events.model.UserJoinedRoomEvent;
+import de.sjanusch.eventsystem.events.model.UserLeftRoomEvent;
 
 public class Room {
 

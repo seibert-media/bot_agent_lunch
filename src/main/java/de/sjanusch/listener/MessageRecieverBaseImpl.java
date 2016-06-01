@@ -1,13 +1,15 @@
 package de.sjanusch.listener;
 
-import com.google.inject.Inject;
-import de.sjanusch.configuration.BotConfiguration;
-import de.sjanusch.hipchat.handler.HipchatRequestHandler;
-import de.sjanusch.model.hipchat.HipchatMessage;
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import com.google.inject.Inject;
+
+import de.sjanusch.configuration.BotConfiguration;
+import de.sjanusch.hipchat.handler.HipchatRequestHandler;
+import de.sjanusch.model.hipchat.HipchatMessage;
 
 /**
  * Created by Sandro Janusch

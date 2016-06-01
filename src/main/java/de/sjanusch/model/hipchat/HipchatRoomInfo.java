@@ -1,9 +1,10 @@
 package de.sjanusch.model.hipchat;
 
-import com.google.gson.Gson;
-import de.sjanusch.utils.WebUtils;
-
 import java.util.Date;
+
+import com.google.gson.Gson;
+
+import de.sjanusch.utils.WebUtils;
 
 public class HipchatRoomInfo {
     private int room_id;

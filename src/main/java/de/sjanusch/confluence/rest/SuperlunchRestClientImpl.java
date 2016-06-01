@@ -1,15 +1,11 @@
 package de.sjanusch.confluence.rest;
 
-import com.google.inject.Inject;
-import de.sjanusch.configuration.LunchConfiguration;
-import de.sjanusch.model.superlunch.Lunch;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.filter.HttpBasicAuthFilter;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -23,12 +19,19 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.filter.HttpBasicAuthFilter;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
+
+import de.sjanusch.configuration.LunchConfiguration;
+import de.sjanusch.model.superlunch.Lunch;
 
 public class SuperlunchRestClientImpl implements SuperlunchRestClient {
 

@@ -1,6 +1,16 @@
 package de.sjanusch.listener;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
+
+import org.jivesoftware.smack.packet.Message;
+import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.inject.Inject;
+
 import de.sjanusch.configuration.BotConfiguration;
 import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
 import de.sjanusch.eventsystem.EventHandler;
@@ -14,14 +24,6 @@ import de.sjanusch.model.superlunch.Lunch;
 import de.sjanusch.model.superlunch.Participant;
 import de.sjanusch.protocol.LunchMessageProtocol;
 import de.sjanusch.texte.TextHandler;
-import org.jivesoftware.smack.packet.Message;
-import org.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.List;
 
 /**
  * Created by Sandro Janusch

@@ -1,6 +1,7 @@
 package de.sjanusch.runner;
 
 import com.google.inject.Inject;
+
 import de.sjanusch.networking.Connection;
 
 public class BotRunnerImpl implements BotRunner {

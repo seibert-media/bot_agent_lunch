@@ -1,9 +1,10 @@
 package de.sjanusch.model.hipchat;
 
-import com.google.gson.Gson;
-import de.sjanusch.utils.WebUtils;
-
 import java.util.HashMap;
+
+import com.google.gson.Gson;
+
+import de.sjanusch.utils.WebUtils;
 
 public class HipchatUser {
 

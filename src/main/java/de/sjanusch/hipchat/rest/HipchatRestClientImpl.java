@@ -1,12 +1,8 @@
 package de.sjanusch.hipchat.rest;
 
-import com.google.inject.Inject;
-import de.sjanusch.configuration.HipchatConfiguration;
-import de.sjanusch.model.hipchat.HipchatMessage;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -20,9 +16,16 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
+
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
+
+import de.sjanusch.configuration.HipchatConfiguration;
+import de.sjanusch.model.hipchat.HipchatMessage;
 
 public class HipchatRestClientImpl implements HipchatRestClient {
 

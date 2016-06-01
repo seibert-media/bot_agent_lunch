@@ -1,13 +1,15 @@
 package de.sjanusch.texte;
 
-import com.google.inject.Inject;
-import de.sjanusch.configuration.TexteConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
+
+import de.sjanusch.configuration.TexteConfiguration;
 
 /**
  * Created by Sandro Janusch

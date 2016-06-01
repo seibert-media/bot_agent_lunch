@@ -1,6 +1,7 @@
 package de.sjanusch.hipchat.handler;
 
 import com.google.inject.Inject;
+
 import de.sjanusch.hipchat.rest.HipchatRestClient;
 import de.sjanusch.model.hipchat.HipchatMessage;
 import de.sjanusch.networking.Connection;

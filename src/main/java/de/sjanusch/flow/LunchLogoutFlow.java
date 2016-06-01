@@ -1,10 +1,11 @@
 package de.sjanusch.flow;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
 import de.sjanusch.listener.MessageRecieverBase;
 import de.sjanusch.texte.TextHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by Sandro Janusch

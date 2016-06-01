@@ -1,12 +1,14 @@
 package de.sjanusch;
 
-import com.google.inject.Inject;
-import de.sjanusch.bot.Bot;
-import de.sjanusch.runner.RunnableBot;
+import java.util.Calendar;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Calendar;
+import com.google.inject.Inject;
+
+import de.sjanusch.bot.Bot;
+import de.sjanusch.runner.RunnableBot;
 
 public class ChatBot implements RunnableBot {
 
