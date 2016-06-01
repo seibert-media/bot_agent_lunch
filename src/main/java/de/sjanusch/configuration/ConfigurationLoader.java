@@ -7,56 +7,56 @@ import java.util.Properties;
 
 public class ConfigurationLoader {
 
-    private Properties properties = new Properties();
+  private Properties properties = new Properties();
 
-    private boolean loadedFlag = false;
+  private boolean loadedFlag = false;
 
   private final String bundle;
 
-    public ConfigurationLoader(final String bundle) {
-        this.bundle = bundle;
-    }
+  public ConfigurationLoader(final String bundle) {
+    this.bundle = bundle;
+  }
 
-    private void loadProperties() throws IOException {
-        properties.load(ConfigurationLoader.class.getClassLoader().getResourceAsStream(this.bundle));
-        loadedFlag = true;
-    }
+  private void loadProperties() throws IOException {
+    properties.load(ConfigurationLoader.class.getClassLoader().getResourceAsStream(this.bundle));
+    loadedFlag = true;
+  }
 
-    public String getPropertyStringValue(final String key) throws IOException {
-        checkPropertiesLoaded();
-        return new String(properties.getProperty(key).getBytes("ISO-8859-1"), "UTF-8");
-    }
+  public String getPropertyStringValue(final String key) throws IOException {
+    checkPropertiesLoaded();
+    return new String(properties.getProperty(key).getBytes("ISO-8859-1"), "UTF-8");
+  }
 
-    public String[] getPropertyStringArrayValue(final String key) throws IOException {
-        checkPropertiesLoaded();
-        final String value = new String(properties.getProperty(key).getBytes("ISO-8859-1"), "UTF-8");
-        return value.split(";");
-    }
+  public String[] getPropertyStringArrayValue(final String key) throws IOException {
+    checkPropertiesLoaded();
+    final String value = new String(properties.getProperty(key).getBytes("ISO-8859-1"), "UTF-8");
+    return value.split(";");
+  }
 
-    public List<String> getPropertyStringListValue(final String key) throws IOException {
-        return Arrays.asList(getPropertyStringArrayValue(key));
-    }
+  public List<String> getPropertyStringListValue(final String key) throws IOException {
+    return Arrays.asList(getPropertyStringArrayValue(key));
+  }
 
-    private void checkPropertiesLoaded() throws IOException {
-        if (!loadedFlag) {
-            loadProperties();
-        }
+  private void checkPropertiesLoaded() throws IOException {
+    if (!loadedFlag) {
+      loadProperties();
     }
+  }
 
-    public Properties getProperties() {
-        return properties;
-    }
+  public Properties getProperties() {
+    return properties;
+  }
 
-    public void setProperties(final Properties properties) {
-        this.properties = properties;
-    }
+  public void setProperties(final Properties properties) {
+    this.properties = properties;
+  }
 
-    public boolean isLoadedFlag() {
-        return loadedFlag;
-    }
+  public boolean isLoadedFlag() {
+    return loadedFlag;
+  }
 
-    public void setLoadedFlag(final boolean loadedFlag) {
-        this.loadedFlag = loadedFlag;
-    }
+  public void setLoadedFlag(final boolean loadedFlag) {
+    this.loadedFlag = loadedFlag;
+  }
 
 }

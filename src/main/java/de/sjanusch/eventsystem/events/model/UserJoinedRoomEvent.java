@@ -7,19 +7,19 @@ import de.sjanusch.model.hipchat.Room;
 
 public class UserJoinedRoomEvent extends UserRoomEvent {
 
-    private static final EventList events = new EventList();
-    
-  public UserJoinedRoomEvent(final Room room, final HipchatUser user, final String nick) {
-        super(room, user, nick);
-    }
+  private static final EventList events = new EventList();
 
-    @Override
-    public EventList getEvents() {
-        return events;
-    }
-    
-    public static EventList getEventList() {
-        return events;
-    }
+  public UserJoinedRoomEvent(final Room room, final HipchatUser user, final String nick) {
+    super(room, user, nick);
+  }
+
+  @Override
+  public EventList getEvents() {
+    return events;
+  }
+
+  public static EventList getEventList() {
+    return events;
+  }
 
 }

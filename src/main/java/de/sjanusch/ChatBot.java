@@ -12,28 +12,27 @@ import de.sjanusch.runner.RunnableBot;
 
 public class ChatBot implements RunnableBot {
 
-    private static final Logger logger = LoggerFactory.getLogger(ChatBot.class);
+  private static final Logger logger = LoggerFactory.getLogger(ChatBot.class);
 
-    private final Bot bot;
+  private final Bot bot;
 
-    @Inject
-    public ChatBot(final Bot bot) {
-        this.bot = bot;
-    }
+  @Inject
+  public ChatBot(final Bot bot) {
+    this.bot = bot;
+  }
 
   @Override
   public void run() {
-        bot.run();
-        /*
-        ChatReminderTask chatReminderTask = new ChatReminderTask();
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(chatReminderTask, this.getHoursUntilTarget(8), 24, TimeUnit.HOURS);
-        */
-    }
+    bot.run();
+    /*
+     * ChatReminderTask chatReminderTask = new ChatReminderTask(); ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+     * scheduler.scheduleAtFixedRate(chatReminderTask, this.getHoursUntilTarget(8), 24, TimeUnit.HOURS);
+     */
+  }
 
   private int getHoursUntilTarget(final int targetHour) {
     final Calendar calendar = Calendar.getInstance();
     final int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        return hour < targetHour ? targetHour - hour : targetHour - hour + 24;
-    }
+    return hour < targetHour ? targetHour - hour : targetHour - hour + 24;
+  }
 }

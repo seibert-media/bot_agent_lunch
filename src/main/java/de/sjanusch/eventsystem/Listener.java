@@ -1,4 +1,4 @@
 package de.sjanusch.eventsystem;
 
-public interface Listener { }
-
+public interface Listener {
+}
