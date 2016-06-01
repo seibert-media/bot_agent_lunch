@@ -20,7 +20,7 @@ public class LunchLoginFlow implements LunchFlow {
 
     private LunchMessageZustand actualZustand = null;
 
-    private LunchFlowHelper lunchFlowHelper = new LunchFlowHelper();
+  private final LunchFlowHelper lunchFlowHelper = new LunchFlowHelper();
 
     private final TextHandler textHandler;
 
@@ -34,7 +34,8 @@ public class LunchLoginFlow implements LunchFlow {
         this.superlunchRequestHandler = superlunchRequestHandler;
     }
 
-    public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final String user) {
+  @Override
+  public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final String user) {
 
         if (actualZustand == null) {
             this.actualZustand = LunchMessageZustand.ANMELDEN;

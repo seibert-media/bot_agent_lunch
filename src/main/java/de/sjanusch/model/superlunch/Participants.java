@@ -13,7 +13,7 @@ public class Participants {
     private List<Participant> participantList;
 
     public Participants() {
-        participantList = new LinkedList<Participant>();
+    participantList = new LinkedList<>();
     }
 
     public void addWorklogAttribute(final Participant participant) {

@@ -1,17 +1,17 @@
 package de.sjanusch.eventsystem;
 
 public class RegisteredListener {
-    private Listener listen;
-    private Executor executor;
-    private Priority priority;
+  private final Listener listen;
+  private final Executor executor;
+  private final Priority priority;
     
-    public RegisteredListener( Listener listen, Executor executor, Priority priority ) {
+  public RegisteredListener(final Listener listen, final Executor executor, final Priority priority) {
         this.executor = executor;
         this.listen = listen;
         this.priority = priority;
     }
     
-    public RegisteredListener( Listener listen, Executor executor ) {
+  public RegisteredListener(final Listener listen, final Executor executor) {
         this(listen, executor, Priority.Normal);
     }
     
@@ -23,7 +23,7 @@ public class RegisteredListener {
         return executor;
     }
     
-    public void execute( Event event ) throws Exception {
+  public void execute(final Event event) throws Exception {
         if ( event instanceof Cancelable ) {
             if ( ( ( Cancelable )event ).isCancelled() )
                 return;

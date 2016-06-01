@@ -9,7 +9,7 @@ import java.io.IOException;
  */
 public class ChatConnectionConfigurationImpl implements ChatConnectionConfiguration {
 
-    private ConfigurationLoader configurationLoader;
+  private final ConfigurationLoader configurationLoader;
 
     public ChatConnectionConfigurationImpl() {
         this.configurationLoader = new ConfigurationLoader("connection.properties");

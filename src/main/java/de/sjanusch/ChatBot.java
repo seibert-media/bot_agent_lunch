@@ -21,7 +21,8 @@ public class ChatBot implements RunnableBot {
         this.bot = bot;
     }
 
-    public void run() {
+  @Override
+  public void run() {
         bot.run();
         /*
         ChatReminderTask chatReminderTask = new ChatReminderTask();
@@ -30,9 +31,9 @@ public class ChatBot implements RunnableBot {
         */
     }
 
-    private int getHoursUntilTarget(int targetHour) {
-        Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+  private int getHoursUntilTarget(final int targetHour) {
+    final Calendar calendar = Calendar.getInstance();
+    final int hour = calendar.get(Calendar.HOUR_OF_DAY);
         return hour < targetHour ? targetHour - hour : targetHour - hour + 24;
     }
 }

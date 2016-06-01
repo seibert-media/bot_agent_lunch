@@ -12,21 +12,24 @@ import de.sjanusch.flow.LunchFlow;
  */
 public class LunchMessageProtocolImpl implements LunchMessageProtocol {
 
-    private Map<String, LunchFlow> lunchProtocol = new HashMap<>();
+  private final Map<String, LunchFlow> lunchProtocol = new HashMap<>();
 
-    public void addFlowForUser(final String username, final LunchFlow flow) {
+  @Override
+  public void addFlowForUser(final String username, final LunchFlow flow) {
         if (!lunchProtocol.containsKey(username)) {
             lunchProtocol.put(username, flow);
         }
     }
 
-    public void removeFlowForUser(final String username) {
+  @Override
+  public void removeFlowForUser(final String username) {
         if (lunchProtocol.containsKey(username)) {
             lunchProtocol.remove(username);
         }
     }
 
-    public LunchFlow getCurrentFlowForUser(final String username) {
+  @Override
+  public LunchFlow getCurrentFlowForUser(final String username) {
         if (lunchProtocol.containsKey(username)) {
             final LunchFlow lunchFlow = lunchProtocol.get(username);
             return lunchFlow;

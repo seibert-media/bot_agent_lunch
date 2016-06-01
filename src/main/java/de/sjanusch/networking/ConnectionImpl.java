@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -35,15 +36,15 @@ public final class ConnectionImpl implements Connection, MessageListener, Connec
 
     private final ChatConnectionConfiguration chatConnectionConfiguration;
 
-    private XMPPConnection xmpp;
+  private final XMPPConnection xmpp;
 
     private boolean connected;
 
     private String password;
 
-    private HashMap<Room, MultiUserChat> rooms = new HashMap<Room, MultiUserChat>();
+  private final HashMap<Room, MultiUserChat> rooms = new HashMap<>();
 
-    private HashMap<String, Chat> cache = new HashMap<String, Chat>();
+  private final HashMap<String, Chat> cache = new HashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(ConnectionImpl.class);
 
@@ -61,7 +62,8 @@ public final class ConnectionImpl implements Connection, MessageListener, Connec
         this.xmpp = new XMPPConnection(new ConnectionConfiguration(chatConnectionConfiguration.getXmppUrl(), chatConnectionConfiguration.getXmppPort()));
     }
 
-    public void connect() throws XMPPException {
+  @Override
+  public void connect() throws XMPPException {
         if (connected)
             return;
         xmpp.connect();
@@ -69,35 +71,37 @@ public final class ConnectionImpl implements Connection, MessageListener, Connec
         connected = true;
     }
 
-    public void login(String username, String password) throws LoginException {
+  @Override
+  public void login(final String username, final String password) throws LoginException {
         if (!connected)
             return;
         if (!username.contains("hipchat.com"))
             logger.error("The username being used does not look like a Jabber ID. Are you sure this is the correct username?");
         try {
             xmpp.login(username, password);
-        } catch (XMPPException exception) {
+    } catch (final XMPPException exception) {
             throw new LoginException("There was an error logging in! Are you using the correct username/password?", exception);
         }
         this.password = password;
     }
 
-    public void joinRoom(String room, String nickname) throws XMPPException, IOException {
+  @Override
+  public void joinRoom(final String room, final String nickname) throws XMPPException, IOException {
         if (!connected || nickname.equals("") || password.equals("")) {
             return;
         }
-        chat = new MultiUserChat(xmpp, (room.indexOf("@") != -1 ? room : room + "@" + chatConnectionConfiguration.getConfUrl()));
+    chat = new MultiUserChat(xmpp, (room.contains("@") ? room : room + "@" + chatConnectionConfiguration.getConfUrl()));
         chat.join(nickname, password);
         final Room obj = joinChatRoom(room, chat, xmpp);
         if (obj != null) {
             chat.addMessageListener(new PacketListener() {
 
                 @Override
-                public void processPacket(Packet paramPacket) {
-                    Message m = new Message();
+        public void processPacket(final Packet paramPacket) {
+          final Message m = new Message();
                     m.setBody(toMessage(paramPacket));
                     m.setFrom(paramPacket.getFrom().split("\\/")[1]);
-                    MessageRecivedEvent event = new MessageRecivedEvent(obj, m);
+          final MessageRecivedEvent event = new MessageRecivedEvent(obj, m);
                     eventSystem.callEvent(event);
                 }
             });
@@ -107,35 +111,31 @@ public final class ConnectionImpl implements Connection, MessageListener, Connec
         }
     }
 
-    private Room joinChatRoom(String name, MultiUserChat chat, XMPPConnection con) {
+  private Room joinChatRoom(final String name, final MultiUserChat chat, final XMPPConnection con) {
         try {
             final Room r = new Room(this.bot, this.eventSystem);
             r.setName(name);
             r.setChat(chat);
-            r.info = MultiUserChat.getRoomInfo(con, (name.indexOf("@") != -1 ? name : name + "@" + chatConnectionConfiguration.getConfUrl()));
+      r.info = MultiUserChat.getRoomInfo(con, (name.contains("@") ? name : name + "@" + chatConnectionConfiguration.getConfUrl()));
             return r;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (XMPPException e) {
+    } catch (final IOException | XMPPException e) {
             e.printStackTrace();
         }
-        return null;
+    return null;
     }
 
-    public Room findRoom(final String name) {
+  @Override
+  public Room findRoom(final String name) {
         return this.findConnectedRoom(name);
     }
 
     private List<Room> getRooms() {
-        ArrayList<Room> roomlist = new ArrayList<Room>();
-        for (Room room : rooms.keySet()) {
-            roomlist.add(room);
-        }
-        return Collections.unmodifiableList(roomlist);
+    final ArrayList<Room> roomlist = rooms.keySet().stream().collect(Collectors.toCollection(ArrayList::new));
+    return Collections.unmodifiableList(roomlist);
     }
 
-    private Room findConnectedRoom(String name) {
-        for (Room r : getRooms()) {
+  private Room findConnectedRoom(final String name) {
+    for (final Room r : getRooms()) {
             if (r.getXMPPName().equals(name))
                 return r;
         }
@@ -154,8 +154,8 @@ public final class ConnectionImpl implements Connection, MessageListener, Connec
     }
 
     @Override
-    public void processMessage(Chat arg0, Message arg1) {
-        MessageRecivedEvent event = new MessageRecivedEvent(null, arg1);
+  public void processMessage(final Chat arg0, final Message arg1) {
+    final MessageRecivedEvent event = new MessageRecivedEvent(null, arg1);
         eventSystem.callEvent(event);
     }
 
@@ -165,17 +165,17 @@ public final class ConnectionImpl implements Connection, MessageListener, Connec
     }
 
     @Override
-    public void connectionClosedOnError(Exception e) {
+  public void connectionClosedOnError(final Exception e) {
         connected = false;
     }
 
     @Override
-    public void reconnectingIn(int seconds) {
+  public void reconnectingIn(final int seconds) {
 
     }
 
     @Override
-    public void reconnectionFailed(Exception e) {
+  public void reconnectionFailed(final Exception e) {
         if (connected)
             connected = false;
     }
@@ -186,7 +186,8 @@ public final class ConnectionImpl implements Connection, MessageListener, Connec
             connected = true;
     }
 
-    public synchronized void waitForEnd() throws InterruptedException {
+  @Override
+  public synchronized void waitForEnd() throws InterruptedException {
         while (true) {
             if (!connected)
                 break;
@@ -194,20 +195,20 @@ public final class ConnectionImpl implements Connection, MessageListener, Connec
         }
     }
     
-    private String toMessage(Packet packet) {
+  private String toMessage(final Packet packet) {
         try {
-            Field f = packet.getClass().getDeclaredField("bodies");
+      final Field f = packet.getClass().getDeclaredField("bodies");
             f.setAccessible(true);
-            @SuppressWarnings("rawtypes")
-            HashSet h = (HashSet) f.get(packet);
+      @SuppressWarnings("rawtypes")
+      final HashSet h = (HashSet) f.get(packet);
             if (h.size() == 0)
                 return "";
-            for (Object obj : h) {
+      for (final Object obj : h) {
                 if (obj instanceof Body)
                     return ((Body) obj).getMessage();
             }
             return "";
-        } catch (Exception e) {
+    } catch (final Exception e) {
             return "";
         }
         

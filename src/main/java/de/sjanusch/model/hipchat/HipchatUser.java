@@ -28,12 +28,12 @@ public class HipchatUser {
 
     private int is_deleted;
 
-    private static HashMap<String, HipchatUser> user_cache = new HashMap<String, HipchatUser>();
+  private static final HashMap<String, HipchatUser> user_cache = new HashMap<>();
 
-    public static HipchatUser createInstance(String nick, String APIKey) {
+  public static HipchatUser createInstance(final String nick, final String APIKey) {
         if (!user_cache.containsKey(nick)) {
-            HipchatUser[] users = getHipchatUsers(APIKey);
-            for (HipchatUser user : users) {
+      final HipchatUser[] users = getHipchatUsers(APIKey);
+      for (final HipchatUser user : users) {
                 if (!user_cache.containsKey(user.name))
                     user_cache.put(user.name, user);
             }
@@ -46,28 +46,28 @@ public class HipchatUser {
         return null;
     }
 
-    public static HipchatUser createInstance(int ID, String APIKey) {
-        HipchatUser[] users = getHipchatUsers(APIKey);
-        for (HipchatUser user : users) {
+  public static HipchatUser createInstance(final int ID, final String APIKey) {
+    final HipchatUser[] users = getHipchatUsers(APIKey);
+    for (final HipchatUser user : users) {
             if (user.user_id == ID)
                 return user;
         }
         return null;
     }
 
-    public static HipchatUser[] getHipchatUsers(String APIKey) {
+  public static HipchatUser[] getHipchatUsers(final String APIKey) {
         return getHipchatUserHolder(APIKey).users;
     }
     
-    private static HipchatUserHolder getHipchatUserHolder(String APIKey) {
+  private static HipchatUserHolder getHipchatUserHolder(final String APIKey) {
         try {
             final Gson gson = new Gson();
             final String JSON = WebUtils.getTextAsString("https://api.hipchat.com/v2/user?format=json&auth_token=" + APIKey);
             final HipchatUserHolder data = gson.fromJson(JSON, HipchatUserHolder.class);
             return data;
-        } catch (Exception e) {
+    } catch (final Exception e) {
             e.printStackTrace();
-            HipchatUserHolder u = new HipchatUserHolder();
+      final HipchatUserHolder u = new HipchatUserHolder();
             u.users = new HipchatUser[0];
             return u;
         }

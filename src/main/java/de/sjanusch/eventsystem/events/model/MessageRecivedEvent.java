@@ -10,9 +10,9 @@ public class MessageRecivedEvent extends RoomEvent {
 
     
     private static final EventList events = new EventList();
-    private Message message;
+  private final Message message;
     
-    public MessageRecivedEvent(Room room, Message message) {
+  public MessageRecivedEvent(final Room room, final Message message) {
         super(room);
         this.message = message;
     }

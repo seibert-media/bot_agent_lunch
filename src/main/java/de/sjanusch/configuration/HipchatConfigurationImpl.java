@@ -9,7 +9,7 @@ import java.io.IOException;
  */
 public class HipchatConfigurationImpl implements HipchatConfiguration {
 
-    private ConfigurationLoader configurationLoader;
+  private final ConfigurationLoader configurationLoader;
 
     public HipchatConfigurationImpl() {
         this.configurationLoader = new ConfigurationLoader("hipchat.properties");

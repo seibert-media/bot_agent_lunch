@@ -8,12 +8,12 @@ package de.sjanusch.flow;
 public class LunchFlowHelper {
 
     public String extractId(final String incomeMessage) {
-        String[] strings = incomeMessage.split(" ");
-        for (String s : strings) {
+    final String[] strings = incomeMessage.split(" ");
+    for (final String s : strings) {
             try {
-                int i = Integer.parseInt(s);
+        final int i = Integer.parseInt(s);
                 return String.valueOf(i);
-            } catch (Exception e) {
+      } catch (final Exception e) {
 
             }
         }

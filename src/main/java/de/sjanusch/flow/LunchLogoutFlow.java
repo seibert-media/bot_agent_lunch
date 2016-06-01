@@ -20,7 +20,7 @@ public class LunchLogoutFlow implements LunchFlow {
 
     private LunchMessageZustand actualZustand = null;
 
-    private LunchFlowHelper lunchFlowHelper = new LunchFlowHelper();
+  private final LunchFlowHelper lunchFlowHelper = new LunchFlowHelper();
 
     private final TextHandler textHandler;
 

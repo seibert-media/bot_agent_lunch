@@ -10,9 +10,9 @@ public enum Priority {
 
     System_Level(3);
 
-    private int important;
+  private final int important;
     
-    private Priority( int important ) {
+  Priority(final int important) {
         this.important = important;
     }
     

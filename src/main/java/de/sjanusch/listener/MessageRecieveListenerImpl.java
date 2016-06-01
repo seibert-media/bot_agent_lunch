@@ -40,7 +40,7 @@ public class MessageRecieveListenerImpl implements MessageRecieveListener {
             if (!messageRecieverBase.isMessageFromBot(from)) {
                 handleMessage(event.getMessage(), from);
             }
-        } catch (IOException e) {
+    } catch (final IOException e) {
             logger.error(e.getMessage());
         }
     }

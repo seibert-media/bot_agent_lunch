@@ -49,10 +49,10 @@ public class BotImpl implements Bot {
             connection.login(this.getUsername(), this.getPassword());
             this.joinRoom();
             logger.debug("Joined " + getSelectedRoom().getXMPPName() + " !");
-        } catch (XMPPException e) {
+        } catch (final XMPPException e) {
             logger.error("Error during join Room");
             logger.error(e.getMessage());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.error("Error Connection");
             logger.error(e.getMessage());
         }
@@ -68,19 +68,23 @@ public class BotImpl implements Bot {
         return selected;
     }
 
-    public String getBotroom() throws IOException {
+    @Override
+		public String getBotroom() throws IOException {
         return botConfiguration.getBotChatRoom();
     }
 
-    public String getNickname() throws IOException {
+    @Override
+		public String getNickname() throws IOException {
         return botConfiguration.getBotNickname();
     }
 
-    public String getPassword() throws IOException {
+    @Override
+		public String getPassword() throws IOException {
         return botConfiguration.getBotPassword();
     }
 
-    public String getUsername() throws IOException {
+    @Override
+		public String getUsername() throws IOException {
         return botConfiguration.getBotUsername();
     }
 }

@@ -8,14 +8,14 @@ import java.util.ArrayList;
 
 public class WebUtils {
 
-    public static String getTextAsString(String url) throws Exception {
-        URL website = new URL(url);
-        URLConnection connection = website.openConnection();
-        BufferedReader in = new BufferedReader(
+  public static String getTextAsString(final String url) throws Exception {
+    final URL website = new URL(url);
+    final URLConnection connection = website.openConnection();
+    final BufferedReader in = new BufferedReader(
                                 new InputStreamReader(
                                     connection.getInputStream()));
 
-        StringBuilder response = new StringBuilder();
+    final StringBuilder response = new StringBuilder();
         String inputLine;
 
         while ((inputLine = in.readLine()) != null) 
@@ -26,14 +26,14 @@ public class WebUtils {
         return response.toString();
     }
 
-    public static String[] getText(String url) throws Exception {
-        URL website = new URL(url);
-        URLConnection connection = website.openConnection();
-        BufferedReader in = new BufferedReader(
+  public static String[] getText(final String url) throws Exception {
+    final URL website = new URL(url);
+    final URLConnection connection = website.openConnection();
+    final BufferedReader in = new BufferedReader(
                                 new InputStreamReader(
                                     connection.getInputStream()));
 
-        ArrayList<String> lines = new ArrayList<String>();
+    final ArrayList<String> lines = new ArrayList<>();
         String inputLine;
         
         while ((inputLine = in.readLine()) != null) 

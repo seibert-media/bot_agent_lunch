@@ -13,17 +13,17 @@ public class BotRunnerImpl implements BotRunner {
         this.connection = connection;
     }
 
-    private void run(RunnableBot bot) {
+  private void run(final RunnableBot bot) {
         bot.run();
         try {
             connection.waitForEnd();
-        } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     private Thread runBotDysync(final RunnableBot bot) {
-        Thread t = new Thread() {
+    final Thread t = new Thread() {
 
             @Override
             public void run() {
@@ -33,11 +33,13 @@ public class BotRunnerImpl implements BotRunner {
         return t;
     }
 
-    public void runBot(final RunnableBot bot) {
+  @Override
+  public void runBot(final RunnableBot bot) {
         new BotRunnerImpl(connection).run(bot);
     }
 
-    public Thread runBotDesync(final RunnableBot bot) {
+  @Override
+  public Thread runBotDesync(final RunnableBot bot) {
         return new BotRunnerImpl(connection).runBotDysync(bot);
     }
 }

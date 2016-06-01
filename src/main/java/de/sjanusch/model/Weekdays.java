@@ -17,9 +17,9 @@ public enum Weekdays {
     TODAY("Heute"),
     TOMMOROW("Morgen");
 
-    private String text;
+  private final String text;
 
-    private Weekdays(final String text) {
+  Weekdays(final String text) {
         this.text = text;
     }
 
@@ -28,7 +28,7 @@ public enum Weekdays {
     }
 
     public static Weekdays getEnumForText(final String text) {
-        for (Weekdays weekdays : Weekdays.values()) {
+    for (final Weekdays weekdays : Weekdays.values()) {
             if (text.contains(weekdays.getText().toLowerCase())) {
                 return weekdays;
             }

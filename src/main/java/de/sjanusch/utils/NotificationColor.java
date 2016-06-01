@@ -14,8 +14,11 @@ public enum NotificationColor {
     
     RANDOM("random");
 
-    String type;
-    NotificationColor(String type) { this.type = type; }
+  final String type;
+
+  NotificationColor(final String type) {
+    this.type = type;
+  }
 
     public String getType() { return type; }
 }

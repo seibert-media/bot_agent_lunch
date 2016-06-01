@@ -30,7 +30,7 @@ public class Room {
 
     public HipchatRoomInfo hinfo;
 
-    public ArrayList<String> users = new ArrayList<String>();
+  public final ArrayList<String> users = new ArrayList<>();
 
     private int lastcount;
 
@@ -45,7 +45,7 @@ public class Room {
     private final EventSystem eventSystem;
 
     @Inject
-    public Room(Bot bot, final EventSystem eventSystem) {
+  public Room(final Bot bot, final EventSystem eventSystem) {
         this.bot = bot;
         this.eventSystem = eventSystem;
     }
@@ -68,7 +68,7 @@ public class Room {
         joinchecker.interrupt();
         try {
             joinchecker.join();
-        } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -89,14 +89,14 @@ public class Room {
     }
 
     public String getXMPPName() {
-        return (name.indexOf("@") != -1 ? name.split("\\@")[0] : name);
+    return (name.contains("@") ? name.split("\\@")[0] : name);
     }
 
     public String getXMPP_JID() {
-        return (name.indexOf("@") != -1 ? name : name + "@" + CONF_URL);
+    return (name.contains("@") ? name : name + "@" + CONF_URL);
     }
 
-    public String getTrueName(String APIKey) {
+  public String getTrueName(final String APIKey) {
         if (hinfo == null) {
             hinfo = HipchatRoomInfo.getInfo(APIKey, this);
             if (hinfo == null)
@@ -115,7 +115,7 @@ public class Room {
         return hinfo;
     }
 
-    public HipchatRoomInfo getHipchatRoomInfo(String APIKey) {
+  public HipchatRoomInfo getHipchatRoomInfo(final String APIKey) {
         if (hinfo == null) {
             hinfo = HipchatRoomInfo.getInfo(APIKey, this);
             if (hinfo == null)
@@ -134,12 +134,12 @@ public class Room {
         return subject;
     }
 
-    public boolean setSubject(String subject) {
+  public boolean setSubject(final String subject) {
         if (chat == null)
             return false;
         try {
             chat.changeSubject(subject);
-        } catch (XMPPException e) {
+    } catch (final XMPPException e) {
             e.printStackTrace();
             return false;
         }
@@ -147,20 +147,20 @@ public class Room {
     }
     
     public List<String> getConnectedUsers() {
-        Iterator<String> temp = chat.getOccupants();
-        List<String> copy = new ArrayList<String>();
+    final Iterator<String> temp = chat.getOccupants();
+    final List<String> copy = new ArrayList<>();
         while (temp.hasNext())
             copy.add(temp.next());
         return Collections.unmodifiableList(copy);
     }
 
-    public boolean sendMessage(String message, String from) {
+  public boolean sendMessage(final String message, final String from) {
         if (chat == null)
             return false;
         try {
             chat.sendMessage(message);
             return true;
-        } catch (XMPPException e) {
+    } catch (final XMPPException e) {
             e.printStackTrace();
         }
         return false;
@@ -170,45 +170,43 @@ public class Room {
         
         @Override
         public void run() {
-            ArrayList<String> toremove = new ArrayList<String>();
+      final ArrayList<String> toremove = new ArrayList<>();
             while (isConnected()) {
                 toremove.clear();
                 if (halt)
                     continue;
                 if (getUserCount() != lastcount) {
-                    List<String> connected = getConnectedUsers();
-                    for (String nick : connected) {
+          final List<String> connected = getConnectedUsers();
+          for (final String nick : connected) {
                         if (!users.contains(nick)) { //connected
                             HipchatUser user = null;
                             if (api_cache != null && !api_cache.equals(""))
                                 user = HipchatUser.createInstance(nick.split("\\/")[1], api_cache);
                             users.add(nick);
                             lastcount = getUserCount();
-                            UserJoinedRoomEvent event = new UserJoinedRoomEvent(Room.this, user, nick);
+              final UserJoinedRoomEvent event = new UserJoinedRoomEvent(Room.this, user, nick);
                             eventSystem.callEvent(event);
                         }
                     }
 
-                    for (String nick : users) {
+          for (final String nick : users) {
                         if (!connected.contains(nick)) { //disconnected
                             HipchatUser user = null;
                             if (api_cache != null && !api_cache.equals(""))
                                 user = HipchatUser.createInstance(nick.split("\\/")[1], api_cache);
                             toremove.add(nick);
                             lastcount = getUserCount();
-                            UserLeftRoomEvent event = new UserLeftRoomEvent(Room.this, user, nick);
+              final UserLeftRoomEvent event = new UserLeftRoomEvent(Room.this, user, nick);
                             eventSystem.callEvent(event);
                         }
                     }
 
-                    for (String nick : toremove) {
-                        users.remove(nick);
-                    }
+          toremove.forEach(users::remove);
                 }
 
                 try {
                     Thread.sleep(500);
-                } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
                     e.printStackTrace();
                 }
                 

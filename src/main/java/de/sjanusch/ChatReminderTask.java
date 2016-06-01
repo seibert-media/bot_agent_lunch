@@ -25,7 +25,7 @@ public class ChatReminderTask extends TimerTask {
 
     @Override
     public void run() {
-        StringBuilder stringBuilder = new StringBuilder();
+    final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("@here Mittagessen Anmeldung nicht vergessen!");
         hipchatRequestHandler.sendNotification(new HipchatMessage(stringBuilder.toString()));
     }
