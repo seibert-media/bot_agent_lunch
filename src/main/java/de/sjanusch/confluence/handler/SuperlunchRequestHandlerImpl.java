@@ -118,9 +118,8 @@ public class SuperlunchRequestHandlerImpl implements SuperlunchRequestHandler {
         Calendar cal = Calendar.getInstance(Locale.GERMAN);
         cal.setTimeInMillis(Long.valueOf(time));
         TimeZone t = cal.getTimeZone();
-
         if (!t.getID().equals("Europe/Berlin")) {
-            //cal.add(Calendar.DAY_OF_WEEK, 1);
+            cal.add(Calendar.DAY_OF_WEEK, 1);
         }
         return cal.getTime();
     }
