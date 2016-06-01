@@ -11,45 +11,46 @@ public class EventSystemImpl implements EventSystem {
     public EventSystemImpl() {
     }
 
-    public void callEvent(Event event) {
-        EventList events = event.getEvents();
-        RegisteredListener[] listeners = events.getRegisteredListeners();
-        for (RegisteredListener listen : listeners) {
+  @Override
+  public void callEvent(final Event event) {
+    final EventList events = event.getEvents();
+    final RegisteredListener[] listeners = events.getRegisteredListeners();
+    for (final RegisteredListener listen : listeners) {
             try {
                 listen.execute(event);
-            } catch (Exception e) {
+      } catch (final Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
     @Override
-    public void registerEvents(Listener l) {
-        for (Map.Entry<Class<? extends Event>, Set<RegisteredListener>> entry : addMuffins(l).entrySet()) {
+  public void registerEvents(final Listener l) {
+    for (final Map.Entry<Class<? extends Event>, Set<RegisteredListener>> entry : addMuffins(l).entrySet()) {
             try {
                 getEventListeners(getRegistrationClass(entry.getKey())).registerAll(entry.getValue());
-            } catch (IllegalAccessException e) {
+      } catch (final IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private EventList getEventListeners(Class<? extends Event> type) {
+  private EventList getEventListeners(final Class<? extends Event> type) {
         try {
-            Method method = getRegistrationClass(type).getDeclaredMethod("getEventList");
+      final Method method = getRegistrationClass(type).getDeclaredMethod("getEventList");
             method.setAccessible(true);
             return (EventList) method.invoke(null);
-        } catch (Exception e) {
+    } catch (final Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    private Class<? extends Event> getRegistrationClass(Class<? extends Event> clazz) throws IllegalAccessException {
+  private Class<? extends Event> getRegistrationClass(final Class<? extends Event> clazz) throws IllegalAccessException {
         try {
             clazz.getDeclaredMethod("getEventList");
             return clazz;
-        } catch (NoSuchMethodException e) {
+    } catch (final NoSuchMethodException e) {
             if (clazz.getSuperclass() != null && !clazz.getSuperclass().equals(Event.class) && Event.class.isAssignableFrom(clazz.getSuperclass())) {
                 return getRegistrationClass(clazz.getSuperclass().asSubclass(Event.class));
             } else {
@@ -58,12 +59,12 @@ public class EventSystemImpl implements EventSystem {
         }
     }
 
-    public Map<Class<? extends Event>, Set<RegisteredListener>> addMuffins(Listener listen) {
-        Map<Class<? extends Event>, Set<RegisteredListener>> ret = new HashMap<Class<? extends Event>, Set<RegisteredListener>>();
-        Method[] methods;
+  public Map<Class<? extends Event>, Set<RegisteredListener>> addMuffins(final Listener listen) {
+    final Map<Class<? extends Event>, Set<RegisteredListener>> ret = new HashMap<>();
+    final Method[] methods;
         try {
             methods = listen.getClass().getDeclaredMethods();
-        } catch (NoClassDefFoundError e) {
+    } catch (final NoClassDefFoundError e) {
             return null;
         }
         for (final Method m : methods) {
@@ -75,17 +76,18 @@ public class EventSystemImpl implements EventSystem {
             m.setAccessible(true);
             Set<RegisteredListener> events = ret.get(eventClass);
             if (events == null) {
-                events = new HashSet<RegisteredListener>();
+        events = new HashSet<>();
                 ret.put(eventClass, events);
             }
-            Executor exe = new Executor() {
+      final Executor exe = new Executor() {
 
-                public void execute(Listener listen, Event e) {
+        @Override
+        public void execute(final Listener listen, final Event e) {
                     try {
                         if (!eventClass.isAssignableFrom(e.getClass()))
                             return;
                         m.invoke(listen, e);
-                    } catch (Exception e1) {
+          } catch (final Exception e1) {
                         e1.printStackTrace();
                     }
                 }

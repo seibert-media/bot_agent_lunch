@@ -132,7 +132,7 @@ public class Lunch {
     }
 
     public void setParticipants(final List<Participant> participantList) {
-        Participant[] participants = new Participant[participantList.size()];
+    final Participant[] participants = new Participant[participantList.size()];
         for (int i = 0; i < participantList.size(); i++) {
             participants[i] = participantList.get(i);
         }

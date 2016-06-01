@@ -1,14 +1,16 @@
 package de.sjanusch.listener;
 
-import com.google.inject.Inject;
-import de.sjanusch.eventsystem.EventHandler;
-import de.sjanusch.eventsystem.events.model.MessageRecivedEvent;
-import de.sjanusch.texte.TextHandler;
+import java.io.IOException;
+
 import org.jivesoftware.smack.packet.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import com.google.inject.Inject;
+
+import de.sjanusch.eventsystem.EventHandler;
+import de.sjanusch.eventsystem.events.model.MessageRecivedEvent;
+import de.sjanusch.texte.TextHandler;
 
 /**
  * Created by Sandro Janusch
@@ -38,7 +40,7 @@ public class MessageRecieveListenerImpl implements MessageRecieveListener {
             if (!messageRecieverBase.isMessageFromBot(from)) {
                 handleMessage(event.getMessage(), from);
             }
-        } catch (IOException e) {
+    } catch (final IOException e) {
             logger.error(e.getMessage());
         }
     }

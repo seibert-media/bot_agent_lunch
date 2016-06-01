@@ -5,11 +5,11 @@ import de.sjanusch.model.hipchat.Room;
 
 public abstract class UserRoomEvent extends RoomEvent {
 
-    private HipchatUser user;
+  private final HipchatUser user;
 
-    private String nick;
+  private final String nick;
     
-    public UserRoomEvent(Room room, HipchatUser user, String nick) {
+  public UserRoomEvent(final Room room, final HipchatUser user, final String nick) {
         super(room);
         this.nick = nick;
         this.user = user;

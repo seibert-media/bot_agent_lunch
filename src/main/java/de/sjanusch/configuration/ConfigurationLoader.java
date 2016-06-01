@@ -11,7 +11,7 @@ public class ConfigurationLoader {
 
     private boolean loadedFlag = false;
 
-    private String bundle;
+  private final String bundle;
 
     public ConfigurationLoader(final String bundle) {
         this.bundle = bundle;

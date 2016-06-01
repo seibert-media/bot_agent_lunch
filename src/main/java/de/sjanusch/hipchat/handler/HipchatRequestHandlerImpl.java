@@ -1,6 +1,7 @@
 package de.sjanusch.hipchat.handler;
 
 import com.google.inject.Inject;
+
 import de.sjanusch.hipchat.rest.HipchatRestClient;
 import de.sjanusch.model.hipchat.HipchatMessage;
 import de.sjanusch.networking.Connection;
@@ -22,11 +23,13 @@ public class HipchatRequestHandlerImpl implements HipchatRequestHandler {
         this.hipchatRestClient = hipchatRestClient;
     }
 
-    public void sendMessage(final HipchatMessage chatMessage) {
+  @Override
+  public void sendMessage(final HipchatMessage chatMessage) {
         hipchatRestClient.hipchatRestApiSendMessage(chatMessage);
     }
 
-    public void sendNotification(final HipchatMessage chatMessage) {
+  @Override
+  public void sendNotification(final HipchatMessage chatMessage) {
         hipchatRestClient.hipchatRestApiSendNotification(chatMessage);
     }
 

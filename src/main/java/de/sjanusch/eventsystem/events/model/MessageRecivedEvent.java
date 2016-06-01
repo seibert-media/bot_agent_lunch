@@ -1,17 +1,18 @@
 package de.sjanusch.eventsystem.events.model;
 
+import org.jivesoftware.smack.packet.Message;
+
 import de.sjanusch.eventsystem.EventList;
 import de.sjanusch.eventsystem.events.RoomEvent;
 import de.sjanusch.model.hipchat.Room;
-import org.jivesoftware.smack.packet.Message;
 
 public class MessageRecivedEvent extends RoomEvent {
 
     
     private static final EventList events = new EventList();
-    private Message message;
+  private final Message message;
     
-    public MessageRecivedEvent(Room room, Message message) {
+  public MessageRecivedEvent(final Room room, final Message message) {
         super(room);
         this.message = message;
     }

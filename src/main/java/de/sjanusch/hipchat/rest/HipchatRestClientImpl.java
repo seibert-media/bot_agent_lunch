@@ -1,12 +1,8 @@
 package de.sjanusch.hipchat.rest;
 
-import com.google.inject.Inject;
-import de.sjanusch.configuration.HipchatConfiguration;
-import de.sjanusch.model.hipchat.HipchatMessage;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -20,9 +16,16 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
+
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
+
+import de.sjanusch.configuration.HipchatConfiguration;
+import de.sjanusch.model.hipchat.HipchatMessage;
 
 public class HipchatRestClientImpl implements HipchatRestClient {
 
@@ -54,36 +57,29 @@ public class HipchatRestClientImpl implements HipchatRestClient {
         try {
             final String path = "/room/" + this.getHipchatRoomId() + "/notification";
             this.hipchatRestApiNotification(buildClient().target(this.getHipchatRestApi()).path(path), chatMessage);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+    } catch (final NoSuchAlgorithmException | IOException | KeyManagementException e) {
             e.printStackTrace();
         }
-    }
+  }
 
     @Override
     public void hipchatRestApiSendMessage(final HipchatMessage chatMessage) {
         try {
             final String path = "/room/" + this.getHipchatRoomId() + "/message";
             this.hipchatRestApiMessage(buildClient().target(this.getHipchatRestApi()).path(path), chatMessage);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+    } catch (final NoSuchAlgorithmException | IOException | KeyManagementException e) {
             e.printStackTrace();
         }
-    }
+  }
 
     private void hipchatRestApiNotification(final WebTarget target, final HipchatMessage chatMessage) throws IOException {
         logger.debug("Requesting  '" + target.getUri() + "' by GET ");
         try {
-            Response response = target.request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyNotification())
+      final Response response = target.request(MediaType.APPLICATION_JSON_TYPE)
+          .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyNotification())
                 .post(Entity.entity(chatMessage, MediaType.APPLICATION_JSON_TYPE));
             this.handleResponse(response);
-        } catch (ProcessingException e) {
+    } catch (final ProcessingException e) {
             logger.error("Unexpected return code from calling '" + e.getMessage());
         }
     }
@@ -91,10 +87,11 @@ public class HipchatRestClientImpl implements HipchatRestClient {
     private void hipchatRestApiMessage(final WebTarget target, final HipchatMessage chatMessage) throws IOException {
         logger.debug("Requesting  '" + target.getUri() + "' by GET ");
         try {
-            Response response = target.request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyMessage())
+      final Response response = target.request(MediaType.APPLICATION_JSON_TYPE)
+          .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyMessage())
                 .post(Entity.entity(chatMessage, MediaType.APPLICATION_JSON_TYPE));
             this.handleResponse(response);
-        } catch (ProcessingException e) {
+    } catch (final ProcessingException e) {
             logger.error("Unexpected return code from calling '" + e.getMessage());
         }
     }

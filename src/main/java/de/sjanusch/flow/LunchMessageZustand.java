@@ -19,9 +19,9 @@ public enum LunchMessageZustand {
     ABMELDEN_ERFOLGREICH("Die Abmeldung war erfolgreich!"),
     ABMELDEN_FEHLGESCHLAGEN("Die Abmeldung war nicht erfolgreich! Bitte versuch es nocheinmal.");
 
-    private String text;
+  private final String text;
 
-    private LunchMessageZustand(final String text) {
+  LunchMessageZustand(final String text) {
         this.text = text;
     }
 

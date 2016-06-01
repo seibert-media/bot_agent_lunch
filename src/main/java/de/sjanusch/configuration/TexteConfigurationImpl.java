@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class TexteConfigurationImpl implements TexteConfiguration {
 
-    private ConfigurationLoader configurationLoader;
+  private final ConfigurationLoader configurationLoader;
 
     public TexteConfigurationImpl() {
         this.configurationLoader = new ConfigurationLoader("texte.properties");

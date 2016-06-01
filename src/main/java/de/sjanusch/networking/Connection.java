@@ -1,10 +1,11 @@
 package de.sjanusch.networking;
 
-import de.sjanusch.model.hipchat.Room;
-import de.sjanusch.networking.exceptions.LoginException;
+import java.io.IOException;
+
 import org.jivesoftware.smack.XMPPException;
 
-import java.io.IOException;
+import de.sjanusch.model.hipchat.Room;
+import de.sjanusch.networking.exceptions.LoginException;
 
 /**
  * Created by Sandro Janusch

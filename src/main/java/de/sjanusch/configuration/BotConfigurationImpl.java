@@ -9,7 +9,7 @@ import java.io.IOException;
  */
 public class BotConfigurationImpl implements BotConfiguration {
 
-    private ConfigurationLoader configurationLoader;
+  private final ConfigurationLoader configurationLoader;
 
     public BotConfigurationImpl() {
         this.configurationLoader = new ConfigurationLoader("bot.properties");

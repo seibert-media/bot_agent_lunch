@@ -1,12 +1,5 @@
 package de.sjanusch.confluence.handler;
 
-import com.google.inject.Inject;
-import de.sjanusch.confluence.rest.SuperlunchRestClient;
-import de.sjanusch.model.Weekdays;
-import de.sjanusch.model.superlunch.Lunch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,6 +9,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
+
+import de.sjanusch.confluence.rest.SuperlunchRestClient;
+import de.sjanusch.model.Weekdays;
+import de.sjanusch.model.superlunch.Lunch;
 
 /**
  * Created by Sandro Janusch
@@ -50,17 +52,17 @@ public class SuperlunchRequestHandlerImpl implements SuperlunchRequestHandler {
 
     @Override
     public List<Lunch> fetchFilteredLunchFromConfluence(final Weekdays day) {
-        List<Lunch> filteredLunches = new LinkedList<Lunch>();
+    final List<Lunch> filteredLunches = new LinkedList<>();
         try {
-            List<Lunch> lunches = superlunchRestClient.superlunchRestApiGet();
+      final List<Lunch> lunches = superlunchRestClient.superlunchRestApiGet();
             if (lunches != null) {
-                for (Lunch lunch : lunches) {
+        for (final Lunch lunch : lunches) {
                     if (this.calculateDay(day) != null && this.isLunchAtDate(lunch, this.calculateDay(day))) {
                         filteredLunches.add(lunch);
                     }
                 }
             }
-        } catch (ParseException e) {
+    } catch (final ParseException e) {
             logger.error("Fehler beim Confluence Rest-Call: fetchFilteredLunchFromConfluence");
             logger.error(e.getMessage());
         }
@@ -68,9 +70,9 @@ public class SuperlunchRequestHandlerImpl implements SuperlunchRequestHandler {
     }
 
     private boolean isLunchAtDate(final Lunch lunch, final Date today) throws ParseException {
-        DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        Date todayWithZeroTime = formatter.parse(formatter.format(today));
-        Date lunchDate = formatter.parse(formatter.format(this.getDateForString(lunch.getDate())));
+    final DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+    final Date todayWithZeroTime = formatter.parse(formatter.format(today));
+    final Date lunchDate = formatter.parse(formatter.format(this.getDateForString(lunch.getDate())));
         if (lunchDate.compareTo(todayWithZeroTime) == 0) {
             return true;
         }
@@ -79,7 +81,7 @@ public class SuperlunchRequestHandlerImpl implements SuperlunchRequestHandler {
 
     private Date calculateDay(final Weekdays day) {
         final Date now = new Date();
-        Calendar cal = Calendar.getInstance(Locale.GERMAN);
+    final Calendar cal = Calendar.getInstance(Locale.GERMAN);
         cal.setTime(now);
 
         if (day.equals(Weekdays.TODAY)) {
@@ -115,17 +117,17 @@ public class SuperlunchRequestHandlerImpl implements SuperlunchRequestHandler {
     }
 
     private Date getDateForString(final String time) {
-        Calendar cal = Calendar.getInstance(Locale.GERMAN);
+    final Calendar cal = Calendar.getInstance(Locale.GERMAN);
         cal.setTimeInMillis(Long.valueOf(time));
-        TimeZone t = cal.getTimeZone();
+    final TimeZone t = cal.getTimeZone();
         if (!t.getID().equals("Europe/Berlin")) {
             cal.add(Calendar.DAY_OF_WEEK, 1);
         }
         return cal.getTime();
     }
 
-    private Calendar nextDayOfWeek(int dow) {
-        Calendar date = Calendar.getInstance();
+  private Calendar nextDayOfWeek(final int dow) {
+    final Calendar date = Calendar.getInstance();
         int diff = dow - date.get(Calendar.DAY_OF_WEEK);
         if (!(diff > 0)) {
             diff += 7;

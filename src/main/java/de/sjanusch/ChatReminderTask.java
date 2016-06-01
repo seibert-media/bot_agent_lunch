@@ -1,12 +1,13 @@
 package de.sjanusch;
 
+import java.util.TimerTask;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import de.sjanusch.guice.GuiceModule;
 import de.sjanusch.hipchat.handler.HipchatRequestHandler;
 import de.sjanusch.model.hipchat.HipchatMessage;
-
-import java.util.TimerTask;
 
 /**
  * Created by Sandro Janusch
@@ -24,7 +25,7 @@ public class ChatReminderTask extends TimerTask {
 
     @Override
     public void run() {
-        StringBuilder stringBuilder = new StringBuilder();
+    final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("@here Mittagessen Anmeldung nicht vergessen!");
         hipchatRequestHandler.sendNotification(new HipchatMessage(stringBuilder.toString()));
     }

@@ -11,31 +11,29 @@ public class EventList {
 
     private volatile RegisteredListener[] events = null;
 
-    private EnumMap<Priority, ArrayList<RegisteredListener>> muffinbag;
+  private final EnumMap<Priority, ArrayList<RegisteredListener>> muffinbag;
 
-    private static ArrayList<EventList> mail = new ArrayList<EventList>();
+  private static final ArrayList<EventList> mail = new ArrayList<>();
 
     public EventList() {
-        muffinbag = new EnumMap<Priority, ArrayList<RegisteredListener>>(Priority.class);
-        for (Priority o : Priority.values()) {
-            muffinbag.put(o, new ArrayList<RegisteredListener>());
+    muffinbag = new EnumMap<>(Priority.class);
+    for (final Priority o : Priority.values()) {
+      muffinbag.put(o, new ArrayList<>());
         }
         synchronized (mail) {
             mail.add(this);
         }
     }
 
-    public synchronized void register(RegisteredListener listener) {
+  public synchronized void register(final RegisteredListener listener) {
         if (muffinbag.get(listener.getPriority()).contains(listener))
             throw new IllegalStateException("This listener is already registered!");
         events = null;
         muffinbag.get(listener.getPriority()).add(listener);
     }
 
-    public void registerAll(Collection<RegisteredListener> listeners) {
-        for (RegisteredListener listener : listeners) {
-            register(listener);
-        }
+  public void registerAll(final Collection<RegisteredListener> listeners) {
+    listeners.forEach(this::register);
     }
 
     public RegisteredListener[] getRegisteredListeners() {
@@ -46,17 +44,17 @@ public class EventList {
 
     public synchronized void bake() {
         if (events != null) return; // don't re-bake when still valid
-        List<RegisteredListener> entries = new ArrayList<RegisteredListener>();
-        for (Entry<Priority, ArrayList<RegisteredListener>> entry : muffinbag.entrySet()) {
+    final List<RegisteredListener> entries = new ArrayList<>();
+    for (final Entry<Priority, ArrayList<RegisteredListener>> entry : muffinbag.entrySet()) {
             entries.addAll(entry.getValue());
         }
         events = entries.toArray(new RegisteredListener[entries.size()]);
     }
 
-    public synchronized void unregister(Listener listener) {
+  public synchronized void unregister(final Listener listener) {
         boolean changed = false;
-        for (List<RegisteredListener> list : muffinbag.values()) {
-            for (ListIterator<RegisteredListener> i = list.listIterator(); i.hasNext(); ) {
+    for (final List<RegisteredListener> list : muffinbag.values()) {
+      for (final ListIterator<RegisteredListener> i = list.listIterator(); i.hasNext();) {
                 if (i.next().getListen().equals(listener)) {
                     i.remove();
                     changed = true;

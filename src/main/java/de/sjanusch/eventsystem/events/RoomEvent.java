@@ -5,9 +5,9 @@ import de.sjanusch.model.hipchat.Room;
 
 public abstract class RoomEvent extends Event {
     
-    private Room room;
+  private final Room room;
     
-    public RoomEvent(Room room) {
+  public RoomEvent(final Room room) {
         this.room = room;
     }
 

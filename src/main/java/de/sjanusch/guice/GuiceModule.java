@@ -1,6 +1,7 @@
 package de.sjanusch.guice;
 
 import com.google.inject.AbstractModule;
+
 import de.sjanusch.bot.Bot;
 import de.sjanusch.bot.BotImpl;
 import de.sjanusch.configuration.BotConfiguration;

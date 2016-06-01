@@ -9,7 +9,7 @@ public class UserLeftRoomEvent extends UserRoomEvent {
 
     private static final EventList events = new EventList();
     
-    public UserLeftRoomEvent(Room room, HipchatUser user, String nick) {
+  public UserLeftRoomEvent(final Room room, final HipchatUser user, final String nick) {
         super(room, user, nick);
     }
 

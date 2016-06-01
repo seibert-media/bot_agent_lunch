@@ -1,13 +1,15 @@
 package de.sjanusch.texte;
 
-import com.google.inject.Inject;
-import de.sjanusch.configuration.TexteConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
+
+import de.sjanusch.configuration.TexteConfiguration;
 
 /**
  * Created by Sandro Janusch
@@ -25,19 +27,21 @@ public class TextHandlerImpl implements TextHandler {
         this.texteConfiguration = texteConfiguration;
     }
 
-    public String getRandomGeneratedText() {
+  @Override
+  public String getRandomGeneratedText() {
         try {
             return this.getRandomText(texteConfiguration.getRandomTexteAsList());
-        } catch (IOException e) {
+    } catch (final IOException e) {
             logger.error("Error loading Configuration: " + e.getMessage());
         }
         return null;
     }
 
-    public String getRandomText(final String text) {
+  @Override
+  public String getRandomText(final String text) {
         try {
             return this.getText(text, texteConfiguration.getRandomTexteAsList());
-        } catch (IOException e) {
+    } catch (final IOException e) {
             logger.error("Error loading Configuration: " + e.getMessage());
         }
         return null;
@@ -47,7 +51,7 @@ public class TextHandlerImpl implements TextHandler {
     public String getThankYouText() {
         try {
             return this.getText(texteConfiguration.getThankYouTexteAsList());
-        } catch (IOException e) {
+    } catch (final IOException e) {
             logger.error("Error loading Configuration: " + e.getMessage());
         }
         return null;
@@ -57,7 +61,7 @@ public class TextHandlerImpl implements TextHandler {
     public String getHelloText() {
         try {
             return this.getText(texteConfiguration.getHelloTexteAsList());
-        } catch (IOException e) {
+    } catch (final IOException e) {
             logger.error("Error loading Configuration: " + e.getMessage());
         }
         return null;
@@ -66,12 +70,12 @@ public class TextHandlerImpl implements TextHandler {
     @Override
     public boolean containsHelloText(final String text) {
         try {
-            for (String hello : texteConfiguration.getHelloTexteAsList()) {
+      for (final String hello : texteConfiguration.getHelloTexteAsList()) {
                 if (this.containsWord(text.toLowerCase().trim(), hello.toLowerCase().trim())) {
                     return true;
                 }
             }
-        } catch (IOException e) {
+    } catch (final IOException e) {
             logger.error("Error loading Configuration: " + e.getMessage());
         }
         return false;
@@ -103,7 +107,7 @@ public class TextHandlerImpl implements TextHandler {
     public String getByeText() {
         try {
             return this.getText(texteConfiguration.getByeTexteAsList());
-        } catch (IOException e) {
+    } catch (final IOException e) {
             logger.error("Error loading Configuration: " + e.getMessage());
         }
         return null;
@@ -112,12 +116,12 @@ public class TextHandlerImpl implements TextHandler {
     @Override
     public boolean containsByeText(final String text) {
         try {
-            for (String bye : texteConfiguration.getByeTexteAsList()) {
+      for (final String bye : texteConfiguration.getByeTexteAsList()) {
                 if (this.containsWord(text.toLowerCase().trim(), bye.toLowerCase().trim())) {
                     return true;
                 }
             }
-        } catch (IOException e) {
+    } catch (final IOException e) {
             logger.error("Error loading Configuration: " + e.getMessage());
         }
         return false;
@@ -127,12 +131,12 @@ public class TextHandlerImpl implements TextHandler {
     public boolean conatainsLunchLoginCommands(final String text) {
         try {
             final String compare = text.toLowerCase().trim();
-            for (String command : texteConfiguration.getLunchLoginCommandsAsList()) {
+      for (final String command : texteConfiguration.getLunchLoginCommandsAsList()) {
                 if (compare.startsWith("/") && this.containsWord(compare, command.toLowerCase().trim())) {
                     return true;
                 }
             }
-        } catch (IOException e) {
+    } catch (final IOException e) {
             logger.error("Error loading Configuration: " + e.getMessage());
         }
         return false;
@@ -142,12 +146,12 @@ public class TextHandlerImpl implements TextHandler {
     public boolean conatainsLunchLogoutCommands(final String text) {
         try {
             final String compare = text.toLowerCase().trim();
-            for (String command : texteConfiguration.getLunchLogoutCommandsAsList()) {
+      for (final String command : texteConfiguration.getLunchLogoutCommandsAsList()) {
                 if (compare.startsWith("/") && this.containsWord(compare, command.toLowerCase().trim())) {
                     return true;
                 }
             }
-        } catch (IOException e) {
+    } catch (final IOException e) {
             logger.error("Error loading Configuration: " + e.getMessage());
         }
         return false;
@@ -165,19 +169,19 @@ public class TextHandlerImpl implements TextHandler {
     @Override
     public String getHelpText() {
         try {
-            StringBuilder stringBuilder = new StringBuilder();
+      final StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("<b>Befehle für Lunchbot:</b><br></br>");
             stringBuilder.append("<b>Anmelden</b><br>");
-            for (String s : texteConfiguration.getLunchLoginCommandsAsList()) {
+      for (final String s : texteConfiguration.getLunchLoginCommandsAsList()) {
                 stringBuilder.append("<li>" + s + "</li>");
             }
             stringBuilder.append("<br><b>Abmelden</b><br>");
-            for (String s : texteConfiguration.getLunchLogoutCommandsAsList()) {
+      for (final String s : texteConfiguration.getLunchLogoutCommandsAsList()) {
                 stringBuilder.append("<li>" + s + "</li>");
             }
             return stringBuilder.toString();
 
-        } catch (IOException e) {
+    } catch (final IOException e) {
             logger.error("Error loading Configuration: " + e.getMessage());
         }
         return null;
@@ -185,14 +189,14 @@ public class TextHandlerImpl implements TextHandler {
 
     @Override
     public String getOverviewErrorText() {
-        StringBuilder stringBuilder = new StringBuilder();
+    final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Mittagessen Übersicht noch nicht verfügbar!\n");
         stringBuilder.append("https://confluence.rp.seibert-media.net/dashboard.action");
         return stringBuilder.toString();
     }
 
     private String getText(final String text, final List<String> texts) {
-        int number = this.getRandomNumberInRange(0, texts.size());
+    final int number = this.getRandomNumberInRange(0, texts.size());
         if (number >= 0 && number < texts.size() && !texts.contains(text)) {
             return texts.get(number);
         }
@@ -200,7 +204,7 @@ public class TextHandlerImpl implements TextHandler {
     }
 
     private String getText(final List<String> texts) {
-        int number = this.getRandomNumberInRange(0, texts.size());
+    final int number = this.getRandomNumberInRange(0, texts.size());
         if (number >= 0 && number < texts.size()) {
             return texts.get(number);
         }
@@ -219,16 +223,16 @@ public class TextHandlerImpl implements TextHandler {
         return (i == 1) ? true : false;
     }
 
-    private int getRandomNumberInRange(int min, int max) {
+  private int getRandomNumberInRange(final int min, final int max) {
         if (min >= max) {
             throw new IllegalArgumentException("max must be greater than min");
         }
-        Random r = new Random();
+    final Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
     }
 
     private boolean containsWord(final String sentence, final String word) {
-        return sentence.indexOf(word) != -1;
+    return sentence.contains(word);
     }
 
 }

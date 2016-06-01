@@ -1,10 +1,11 @@
 package de.sjanusch.flow;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
 import de.sjanusch.listener.MessageRecieverBase;
 import de.sjanusch.texte.TextHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by Sandro Janusch
@@ -19,7 +20,7 @@ public class LunchLoginFlow implements LunchFlow {
 
     private LunchMessageZustand actualZustand = null;
 
-    private LunchFlowHelper lunchFlowHelper = new LunchFlowHelper();
+  private final LunchFlowHelper lunchFlowHelper = new LunchFlowHelper();
 
     private final TextHandler textHandler;
 
@@ -33,7 +34,8 @@ public class LunchLoginFlow implements LunchFlow {
         this.superlunchRequestHandler = superlunchRequestHandler;
     }
 
-    public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final String user) {
+  @Override
+  public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final String user) {
 
         if (actualZustand == null) {
             this.actualZustand = LunchMessageZustand.ANMELDEN;

@@ -1,8 +1,8 @@
 package de.sjanusch.confluence.rest;
 
-import de.sjanusch.model.superlunch.Lunch;
-
 import java.util.List;
+
+import de.sjanusch.model.superlunch.Lunch;
 
 /**
  * Created by Sandro Janusch

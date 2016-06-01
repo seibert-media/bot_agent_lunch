@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class LunchConfigurationImpl implements LunchConfiguration {
 
-    private ConfigurationLoader configurationLoader;
+  private final ConfigurationLoader configurationLoader;
 
     public LunchConfigurationImpl() {
         this.configurationLoader = new ConfigurationLoader("superlunch.properties");
