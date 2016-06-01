@@ -2,31 +2,31 @@ package de.sjanusch.texte;
 
 public interface TextHandler {
 
-    String getRandomText(final String text);
+  String getRandomText(final String text);
 
-    String getThankYouText();
+  String getThankYouText();
 
-    String getHelloText();
+  String getHelloText();
 
-    String getByeText();
+  String getByeText();
 
-    boolean containsHelloText(final String text);
+  boolean containsHelloText(final String text);
 
-    boolean containsByeText(final String text);
+  boolean containsByeText(final String text);
 
-    boolean containsLunchLoginText(final String text);
+  boolean containsLunchLoginText(final String text);
 
-    boolean conatainsLunchLoginCommands(final String text);
+  boolean conatainsLunchLoginCommands(final String text);
 
-    boolean containsHelpCommand(final String text);
+  boolean containsHelpCommand(final String text);
 
-    boolean containsLunchLogoutText(final String text);
+  boolean containsLunchLogoutText(final String text);
 
-    boolean conatainsLunchLogoutCommands(final String text);
+  boolean conatainsLunchLogoutCommands(final String text);
 
-    String getHelpText();
+  String getHelpText();
 
-    String getRandomGeneratedText();
+  String getRandomGeneratedText();
 
-    String getOverviewErrorText();
+  String getOverviewErrorText();
 }

@@ -2,17 +2,17 @@ package de.sjanusch.utils;
 
 public enum NotificationColor {
 
-    YELLOW("yellow"),
+  YELLOW("yellow"),
 
-    GREEN("green"),
-    
-    RED("red"),
-    
-    PURPLE("purple"),
-    
-    GRAY("gray"),
-    
-    RANDOM("random");
+  GREEN("green"),
+
+  RED("red"),
+
+  PURPLE("purple"),
+
+  GRAY("gray"),
+
+  RANDOM("random");
 
   final String type;
 
@@ -20,5 +20,7 @@ public enum NotificationColor {
     this.type = type;
   }
 
-    public String getType() { return type; }
+  public String getType() {
+    return type;
+  }
 }

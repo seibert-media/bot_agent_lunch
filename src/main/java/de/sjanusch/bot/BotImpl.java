@@ -17,74 +17,75 @@ import de.sjanusch.networking.Connection;
 
 public class BotImpl implements Bot {
 
-    private static final Logger logger = LoggerFactory.getLogger(BotImpl.class);
+  private static final Logger logger = LoggerFactory.getLogger(BotImpl.class);
 
-    private Room selected;
+  private Room selected;
 
-    private final EventSystem eventSystem;
+  private final EventSystem eventSystem;
 
-    private final Connection connection;
+  private final Connection connection;
 
-    private final MessageRecieveListener messageRecieveListener;
+  private final MessageRecieveListener messageRecieveListener;
 
-    private final LuncheMessageRecieveListener luncheMessageRecieveListener;
+  private final LuncheMessageRecieveListener luncheMessageRecieveListener;
 
-    private final BotConfiguration botConfiguration;
+  private final BotConfiguration botConfiguration;
 
-    @Inject
-    public BotImpl(final EventSystem eventSystem, final Connection connection, final MessageRecieveListener messageRecieveListener, final LuncheMessageRecieveListener luncheMessageRecieveListener, final BotConfiguration botConfiguration) {
-        this.eventSystem = eventSystem;
-        this.connection = connection;
-        this.messageRecieveListener = messageRecieveListener;
-        this.luncheMessageRecieveListener = luncheMessageRecieveListener;
-        this.botConfiguration = botConfiguration;
+  @Inject
+  public BotImpl(final EventSystem eventSystem, final Connection connection, final MessageRecieveListener messageRecieveListener,
+      final LuncheMessageRecieveListener luncheMessageRecieveListener, final BotConfiguration botConfiguration) {
+    this.eventSystem = eventSystem;
+    this.connection = connection;
+    this.messageRecieveListener = messageRecieveListener;
+    this.luncheMessageRecieveListener = luncheMessageRecieveListener;
+    this.botConfiguration = botConfiguration;
+  }
+
+  @Override
+  public void run() {
+    // this.eventSystem.registerEvents(messageRecieveListener);
+    this.eventSystem.registerEvents(luncheMessageRecieveListener);
+    try {
+      connection.connect();
+      connection.login(this.getUsername(), this.getPassword());
+      this.joinRoom();
+      logger.debug("Joined " + getSelectedRoom().getXMPPName() + " !");
+    } catch (final XMPPException e) {
+      logger.error("Error during join Room");
+      logger.error(e.getMessage());
+    } catch (final Exception e) {
+      logger.error("Error Connection");
+      logger.error(e.getMessage());
     }
+  }
 
-    @Override
-    public void run() {
-        //this.eventSystem.registerEvents(messageRecieveListener);
-        this.eventSystem.registerEvents(luncheMessageRecieveListener);
-        try {
-            connection.connect();
-            connection.login(this.getUsername(), this.getPassword());
-            this.joinRoom();
-            logger.debug("Joined " + getSelectedRoom().getXMPPName() + " !");
-        } catch (final XMPPException e) {
-            logger.error("Error during join Room");
-            logger.error(e.getMessage());
-        } catch (final Exception e) {
-            logger.error("Error Connection");
-            logger.error(e.getMessage());
-        }
-    }
+  public void joinRoom() throws XMPPException, IOException {
+    this.connection.joinRoom(this.getBotroom(), this.getNickname());
+    selected = connection.findRoom(this.getBotroom());
+  }
 
-    public void joinRoom() throws XMPPException, IOException {
-        this.connection.joinRoom(this.getBotroom(), this.getNickname());
-        selected = connection.findRoom(this.getBotroom());
-    }
+  @Override
+  public Room getSelectedRoom() {
+    return selected;
+  }
 
-    @Override
-    public Room getSelectedRoom() {
-        return selected;
-    }
+  @Override
+  public String getBotroom() throws IOException {
+    return botConfiguration.getBotChatRoom();
+  }
 
-    @Override
-		public String getBotroom() throws IOException {
-        return botConfiguration.getBotChatRoom();
-    }
+  @Override
+  public String getNickname() throws IOException {
+    return botConfiguration.getBotNickname();
+  }
 
-    @Override
-		public String getNickname() throws IOException {
-        return botConfiguration.getBotNickname();
-    }
+  @Override
+  public String getPassword() throws IOException {
+    return botConfiguration.getBotPassword();
+  }
 
-    @Override
-		public String getPassword() throws IOException {
-        return botConfiguration.getBotPassword();
-    }
-
-    @Override
-		public String getUsername() throws IOException {
-        return botConfiguration.getBotUsername();
-    }
+  @Override
+  public String getUsername() throws IOException {
+    return botConfiguration.getBotUsername();
+  }
 }

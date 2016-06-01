@@ -6,9 +6,7 @@ import java.util.Map;
 import de.sjanusch.flow.LunchFlow;
 
 /**
- * Created by Sandro Janusch
- * Date: 18.05.16
- * Time: 21:39
+ * Created by Sandro Janusch Date: 18.05.16 Time: 21:39
  */
 public class LunchMessageProtocolImpl implements LunchMessageProtocol {
 
@@ -16,25 +14,25 @@ public class LunchMessageProtocolImpl implements LunchMessageProtocol {
 
   @Override
   public void addFlowForUser(final String username, final LunchFlow flow) {
-        if (!lunchProtocol.containsKey(username)) {
-            lunchProtocol.put(username, flow);
-        }
+    if (!lunchProtocol.containsKey(username)) {
+      lunchProtocol.put(username, flow);
     }
+  }
 
   @Override
   public void removeFlowForUser(final String username) {
-        if (lunchProtocol.containsKey(username)) {
-            lunchProtocol.remove(username);
-        }
+    if (lunchProtocol.containsKey(username)) {
+      lunchProtocol.remove(username);
     }
+  }
 
   @Override
   public LunchFlow getCurrentFlowForUser(final String username) {
-        if (lunchProtocol.containsKey(username)) {
-            final LunchFlow lunchFlow = lunchProtocol.get(username);
-            return lunchFlow;
-        }
-        return null;
+    if (lunchProtocol.containsKey(username)) {
+      final LunchFlow lunchFlow = lunchProtocol.get(username);
+      return lunchFlow;
     }
+    return null;
+  }
 
 }

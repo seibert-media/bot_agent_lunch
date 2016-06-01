@@ -2,9 +2,8 @@ package de.sjanusch.eventsystem;
 
 public interface Cancelable {
 
-    boolean isCancelled();
+  boolean isCancelled();
 
-    void setCancel(boolean cancel);
+  void setCancel(boolean cancel);
 
 }
-

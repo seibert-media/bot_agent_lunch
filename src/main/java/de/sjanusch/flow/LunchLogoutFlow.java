@@ -8,64 +8,63 @@ import de.sjanusch.listener.MessageRecieverBase;
 import de.sjanusch.texte.TextHandler;
 
 /**
- * Created by Sandro Janusch
- * Date: 23.05.16
- * Time: 20:07
+ * Created by Sandro Janusch Date: 23.05.16 Time: 20:07
  */
 public class LunchLogoutFlow implements LunchFlow {
 
-    private static final Logger logger = LoggerFactory.getLogger(LunchLogoutFlow.class);
+  private static final Logger logger = LoggerFactory.getLogger(LunchLogoutFlow.class);
 
-    public static final String ANTWORT_FEHLER = "Bitte antworte mit Ja oder Nein!";
+  public static final String ANTWORT_FEHLER = "Bitte antworte mit Ja oder Nein!";
 
-    private LunchMessageZustand actualZustand = null;
+  private LunchMessageZustand actualZustand = null;
 
   private final LunchFlowHelper lunchFlowHelper = new LunchFlowHelper();
 
-    private final TextHandler textHandler;
+  private final TextHandler textHandler;
 
-    private final MessageRecieverBase messageRecieverBase;
+  private final MessageRecieverBase messageRecieverBase;
 
-    private final SuperlunchRequestHandler superlunchRequestHandler;
+  private final SuperlunchRequestHandler superlunchRequestHandler;
 
-    private final int signedInNumber;
+  private final int signedInNumber;
 
-    public LunchLogoutFlow(final MessageRecieverBase messageRecieverBase, final TextHandler textHandler, final SuperlunchRequestHandler superlunchRequestHandler, final int signedInNumber) {
-        this.textHandler = textHandler;
-        this.messageRecieverBase = messageRecieverBase;
-        this.superlunchRequestHandler = superlunchRequestHandler;
-        this.signedInNumber = signedInNumber;
+  public LunchLogoutFlow(final MessageRecieverBase messageRecieverBase, final TextHandler textHandler,
+      final SuperlunchRequestHandler superlunchRequestHandler, final int signedInNumber) {
+    this.textHandler = textHandler;
+    this.messageRecieverBase = messageRecieverBase;
+    this.superlunchRequestHandler = superlunchRequestHandler;
+    this.signedInNumber = signedInNumber;
+  }
+
+  @Override
+  public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final String user) {
+    if (actualZustand == null) {
+      this.actualZustand = LunchMessageZustand.ABMELDEN;
+      messageRecieverBase.sendMessageText(user, actualZustand.getText());
+      return actualZustand;
     }
 
-    @Override
-    public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final String user) {
-        if (actualZustand == null) {
-            this.actualZustand = LunchMessageZustand.ABMELDEN;
-            messageRecieverBase.sendMessageText(user, actualZustand.getText());
-            return actualZustand;
+    if (actualZustand.equals(LunchMessageZustand.ABMELDEN)) {
+      if (incomeMessage.contains("ja")) {
+        if (signedInNumber != 0 && this.signOut(user, String.valueOf(signedInNumber))) {
+          actualZustand = LunchMessageZustand.ABMELDEN_ERFOLGREICH;
+          messageRecieverBase.sendMessageHtmlSucess(user, actualZustand.getText() + " " + textHandler.getThankYouText());
+        } else {
+          actualZustand = LunchMessageZustand.ABMELDEN_FEHLGESCHLAGEN;
+          messageRecieverBase.sendMessageHtmlError(user, actualZustand.getText());
         }
-
-        if (actualZustand.equals(LunchMessageZustand.ABMELDEN)) {
-            if (incomeMessage.contains("ja")) {
-                if (signedInNumber != 0 && this.signOut(user, String.valueOf(signedInNumber))) {
-                    actualZustand = LunchMessageZustand.ABMELDEN_ERFOLGREICH;
-                    messageRecieverBase.sendMessageHtmlSucess(user, actualZustand.getText() + " " + textHandler.getThankYouText());
-                } else {
-                    actualZustand = LunchMessageZustand.ABMELDEN_FEHLGESCHLAGEN;
-                    messageRecieverBase.sendMessageHtmlError(user, actualZustand.getText());
-                }
-            } else if (incomeMessage.contains("nein")) {
-                actualZustand = LunchMessageZustand.ABMELDEN_NEIN;
-                this.messageRecieverBase.sendMessageText(user, actualZustand.getText());
-            } else {
-                this.messageRecieverBase.sendMessageText(user, ANTWORT_FEHLER);
-            }
-            return actualZustand;
-        }
-        return null;
+      } else if (incomeMessage.contains("nein")) {
+        actualZustand = LunchMessageZustand.ABMELDEN_NEIN;
+        this.messageRecieverBase.sendMessageText(user, actualZustand.getText());
+      } else {
+        this.messageRecieverBase.sendMessageText(user, ANTWORT_FEHLER);
+      }
+      return actualZustand;
     }
+    return null;
+  }
 
-    private boolean signOut(final String actualUser, final String id) {
-        return superlunchRequestHandler.signOutForLunch(id, actualUser);
-    }
+  private boolean signOut(final String actualUser, final String id) {
+    return superlunchRequestHandler.signOutForLunch(id, actualUser);
+  }
 }

@@ -20,119 +20,117 @@ import de.sjanusch.model.Weekdays;
 import de.sjanusch.model.superlunch.Lunch;
 
 /**
- * Created by Sandro Janusch
- * Date: 13.05.16
- * Time: 19:42
+ * Created by Sandro Janusch Date: 13.05.16 Time: 19:42
  */
 public class SuperlunchRequestHandlerImpl implements SuperlunchRequestHandler {
 
-    public static final Logger logger = LoggerFactory.getLogger(SuperlunchRequestHandlerImpl.class);
+  public static final Logger logger = LoggerFactory.getLogger(SuperlunchRequestHandlerImpl.class);
 
-    private final SuperlunchRestClient superlunchRestClient;
+  private final SuperlunchRestClient superlunchRestClient;
 
-    @Inject
-    public SuperlunchRequestHandlerImpl(final SuperlunchRestClient superlunchRestClient) {
-        this.superlunchRestClient = superlunchRestClient;
-    }
+  @Inject
+  public SuperlunchRequestHandlerImpl(final SuperlunchRestClient superlunchRestClient) {
+    this.superlunchRestClient = superlunchRestClient;
+  }
 
-    @Override
-    public boolean signInForLunch(final String id, final String username) {
-        return superlunchRestClient.superlunchRestApiSignIn(id, username);
-    }
+  @Override
+  public boolean signInForLunch(final String id, final String username) {
+    return superlunchRestClient.superlunchRestApiSignIn(id, username);
+  }
 
-    @Override
-    public boolean signOutForLunch(final String id, final String username) {
-        return superlunchRestClient.superlunchRestApiSignOut(id, username);
-    }
+  @Override
+  public boolean signOutForLunch(final String id, final String username) {
+    return superlunchRestClient.superlunchRestApiSignOut(id, username);
+  }
 
-    @Override
-    public List<Lunch> fetchLunchFromConfluence() {
-        return superlunchRestClient.superlunchRestApiGet();
-    }
+  @Override
+  public List<Lunch> fetchLunchFromConfluence() {
+    return superlunchRestClient.superlunchRestApiGet();
+  }
 
-    @Override
-    public List<Lunch> fetchFilteredLunchFromConfluence(final Weekdays day) {
+  @Override
+  public List<Lunch> fetchFilteredLunchFromConfluence(final Weekdays day) {
     final List<Lunch> filteredLunches = new LinkedList<>();
-        try {
+    try {
       final List<Lunch> lunches = superlunchRestClient.superlunchRestApiGet();
-            if (lunches != null) {
+      if (lunches != null) {
         for (final Lunch lunch : lunches) {
-                    if (this.calculateDay(day) != null && this.isLunchAtDate(lunch, this.calculateDay(day))) {
-                        filteredLunches.add(lunch);
-                    }
-                }
-            }
-    } catch (final ParseException e) {
-            logger.error("Fehler beim Confluence Rest-Call: fetchFilteredLunchFromConfluence");
-            logger.error(e.getMessage());
+          if (this.calculateDay(day) != null && this.isLunchAtDate(lunch, this.calculateDay(day))) {
+            filteredLunches.add(lunch);
+          }
         }
-        return filteredLunches;
+      }
+    } catch (final ParseException e) {
+      logger.error("Fehler beim Confluence Rest-Call: fetchFilteredLunchFromConfluence");
+      logger.error(e.getMessage());
     }
+    return filteredLunches;
+  }
 
-    private boolean isLunchAtDate(final Lunch lunch, final Date today) throws ParseException {
+  private boolean isLunchAtDate(final Lunch lunch, final Date today) throws ParseException {
     final DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
     final Date todayWithZeroTime = formatter.parse(formatter.format(today));
     final Date lunchDate = formatter.parse(formatter.format(this.getDateForString(lunch.getDate())));
-        if (lunchDate.compareTo(todayWithZeroTime) == 0) {
-            return true;
-        }
-        return false;
+    if (lunchDate.compareTo(todayWithZeroTime) == 0) {
+      return true;
+    }
+    return false;
+  }
+
+  private Date calculateDay(final Weekdays day) {
+    final Date now = new Date();
+    final Calendar cal = Calendar.getInstance(Locale.GERMAN);
+    cal.setTime(now);
+
+    if (day.equals(Weekdays.TODAY)) {
+      return cal.getTime();
     }
 
-    private Date calculateDay(final Weekdays day) {
-        final Date now = new Date();
-    final Calendar cal = Calendar.getInstance(Locale.GERMAN);
-        cal.setTime(now);
-
-        if (day.equals(Weekdays.TODAY)) {
-            return cal.getTime();
-        }
-
-        if (day.equals(Weekdays.TOMMOROW)) {
-            cal.add(Calendar.DAY_OF_WEEK, 1);
-            return cal.getTime();
-        }
-
-        if (day.equals(Weekdays.MONDAY)) {
-            return nextDayOfWeek(Calendar.MONDAY).getTime();
-        }
-
-        if (day.equals(Weekdays.TUESDAY)) {
-            return nextDayOfWeek(Calendar.TUESDAY).getTime();
-        }
-
-        if (day.equals(Weekdays.WEDNESDAY)) {
-            return nextDayOfWeek(Calendar.WEDNESDAY).getTime();
-        }
-
-        if (day.equals(Weekdays.THURSDAY)) {
-            return nextDayOfWeek(Calendar.THURSDAY).getTime();
-        }
-
-        if (day.equals(Weekdays.FRIDAY)) {
-            return nextDayOfWeek(Calendar.FRIDAY).getTime();
-        }
-
-        return null;
+    if (day.equals(Weekdays.TOMMOROW)) {
+      cal.add(Calendar.DAY_OF_WEEK, 1);
+      return cal.getTime();
     }
 
-    private Date getDateForString(final String time) {
+    if (day.equals(Weekdays.MONDAY)) {
+      return nextDayOfWeek(Calendar.MONDAY).getTime();
+    }
+
+    if (day.equals(Weekdays.TUESDAY)) {
+      return nextDayOfWeek(Calendar.TUESDAY).getTime();
+    }
+
+    if (day.equals(Weekdays.WEDNESDAY)) {
+      return nextDayOfWeek(Calendar.WEDNESDAY).getTime();
+    }
+
+    if (day.equals(Weekdays.THURSDAY)) {
+      return nextDayOfWeek(Calendar.THURSDAY).getTime();
+    }
+
+    if (day.equals(Weekdays.FRIDAY)) {
+      return nextDayOfWeek(Calendar.FRIDAY).getTime();
+    }
+
+    return null;
+  }
+
+  private Date getDateForString(final String time) {
     final Calendar cal = Calendar.getInstance(Locale.GERMAN);
-        cal.setTimeInMillis(Long.valueOf(time));
+    cal.setTimeInMillis(Long.valueOf(time));
     final TimeZone t = cal.getTimeZone();
-        if (!t.getID().equals("Europe/Berlin")) {
-            cal.add(Calendar.DAY_OF_WEEK, 1);
-        }
-        return cal.getTime();
+    if (!t.getID().equals("Europe/Berlin")) {
+      cal.add(Calendar.DAY_OF_WEEK, 1);
     }
+    return cal.getTime();
+  }
 
   private Calendar nextDayOfWeek(final int dow) {
     final Calendar date = Calendar.getInstance();
-        int diff = dow - date.get(Calendar.DAY_OF_WEEK);
-        if (!(diff > 0)) {
-            diff += 7;
-        }
-        date.add(Calendar.DAY_OF_MONTH, diff);
-        return date;
+    int diff = dow - date.get(Calendar.DAY_OF_WEEK);
+    if (!(diff > 0)) {
+      diff += 7;
     }
+    date.add(Calendar.DAY_OF_MONTH, diff);
+    return date;
+  }
 }

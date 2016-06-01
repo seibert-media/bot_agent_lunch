@@ -6,15 +6,15 @@ import de.sjanusch.model.hipchat.Room;
 
 public interface Bot {
 
-    void run();
+  void run();
 
-    Room getSelectedRoom();
+  Room getSelectedRoom();
 
-    String getBotroom() throws IOException;
+  String getBotroom() throws IOException;
 
-    String getNickname() throws IOException;
+  String getNickname() throws IOException;
 
-    String getPassword() throws IOException;
+  String getPassword() throws IOException;
 
-    String getUsername() throws IOException;
+  String getUsername() throws IOException;
 }
