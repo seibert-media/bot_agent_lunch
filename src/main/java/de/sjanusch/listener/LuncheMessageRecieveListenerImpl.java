@@ -168,10 +168,10 @@ public class LuncheMessageRecieveListenerImpl implements LuncheMessageRecieveLis
         stringBuilder.append("<li>");
         if (!lunch.isClosed()) {
             if (this.checkIsUserSignIn(lunch, actualUser)) {
-                stringBuilder.append("[<b>angemeldet(" + lunch.getId() + ")</b>] - " + lunch.getTitle() + " ");
+                stringBuilder.append("[<b>angemeldet</b>] - " + lunch.getTitle() + " ");
                 this.setSignedInNumber(lunch.getId());
             } else {
-                stringBuilder.append("[Essennummer: <b>" + lunch.getId() + "</b>] - " + lunch.getTitle() + " ");
+                stringBuilder.append("[Essen-ID: <b>" + lunch.getId() + "</b>] - " + lunch.getTitle() + " ");
             }
         } else {
             stringBuilder.append("[<b>geschlossen</b>] - " + lunch.getTitle() + " ");
