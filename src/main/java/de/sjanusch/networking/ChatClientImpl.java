@@ -5,20 +5,25 @@ import de.sjanusch.bot.Bot;
 import de.sjanusch.configuration.ChatConnectionConfiguration;
 import de.sjanusch.eventsystem.EventSystem;
 import de.sjanusch.eventsystem.events.model.MessageRecivedEvent;
+import de.sjanusch.eventsystem.events.model.PrivateMessageRecivedEvent;
 import de.sjanusch.model.hipchat.Room;
 import de.sjanusch.networking.exceptions.LoginException;
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.Occupant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * Created by Sandro Janusch
@@ -90,8 +95,36 @@ public class ChatClientImpl implements ChatClient {
     return false;
   }
 
+  public void startPrivateChat(String username) {
+    final Iterator<String> occupantIterator = chat.getOccupants();
+    while (occupantIterator.hasNext()) {
+      final String occupantString = occupantIterator.next();
+      if (occupantString.toLowerCase().contains(username.toLowerCase())) {
+        final String userId = this.extractUserId(chat.getOccupant(occupantString));
+        if (userId != null) {
+          chat.createPrivateChat(userId, new MessageListener() {
 
+            @Override
+            public void processMessage(final Chat chat, final Message message) {
+              Message m = new Message();
+              m.setBody(message.getBody());
+              m.setFrom(username);
+              PrivateMessageRecivedEvent event = new PrivateMessageRecivedEvent(m);
+              eventSystem.callEvent(event);
+            }
+          });
+        }
+      }
+    }
+  }
 
+  private String extractUserId(final Occupant occupant) {
+    final String[] values = occupant.getJid().split("/");
+    if(values.length > 0){
+      return values[0];
+    }
+    return null;
+  }
 
   private Room joinChatRoom(final Room roomObject, final String roomName, XMPPConnection con) {
     try {

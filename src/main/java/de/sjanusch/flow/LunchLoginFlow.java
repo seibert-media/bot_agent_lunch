@@ -1,11 +1,11 @@
 package de.sjanusch.flow;
 
+import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
+import de.sjanusch.listener.PrivateMessageRecieverBase;
+import de.sjanusch.model.Weekdays;
+import de.sjanusch.texte.TextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
-import de.sjanusch.listener.MessageRecieverBase;
-import de.sjanusch.texte.TextHandler;
 
 /**
  * Created by Sandro Janusch Date: 19.05.16 Time: 10:25
@@ -18,18 +18,19 @@ public class LunchLoginFlow implements LunchFlow {
 
   private LunchMessageZustand actualZustand = null;
 
-  private final LunchFlowHelper lunchFlowHelper = new LunchFlowHelper();
-
   private final TextHandler textHandler;
 
-  private final MessageRecieverBase messageRecieverBase;
+  private final PrivateMessageRecieverBase privateMessageRecieverBase;
+
+  private final Weekdays weekday;
 
   private final SuperlunchRequestHandler superlunchRequestHandler;
 
-  public LunchLoginFlow(final MessageRecieverBase messageRecieverBase, final TextHandler textHandler,
-      final SuperlunchRequestHandler superlunchRequestHandler) {
+  public LunchLoginFlow(final PrivateMessageRecieverBase privateMessageRecieverBase, final TextHandler textHandler,
+                        final SuperlunchRequestHandler superlunchRequestHandler, final Weekdays weekday) {
     this.textHandler = textHandler;
-    this.messageRecieverBase = messageRecieverBase;
+    this.privateMessageRecieverBase = privateMessageRecieverBase;
+    this.weekday = weekday;
     this.superlunchRequestHandler = superlunchRequestHandler;
   }
 
@@ -38,32 +39,33 @@ public class LunchLoginFlow implements LunchFlow {
 
     if (actualZustand == null) {
       this.actualZustand = LunchMessageZustand.ANMELDEN;
-      messageRecieverBase.sendMessageText(user, actualZustand.getText());
+      privateMessageRecieverBase.sendMessageText(actualZustand.getText(), user);
       return actualZustand;
     }
 
     if (actualZustand.equals(LunchMessageZustand.ANMELDEN)) {
       if (incomeMessage.contains("ja")) {
         actualZustand = LunchMessageZustand.ANMELDEN_JA;
-        this.messageRecieverBase.sendMessageText(user, actualZustand.getText());
+        privateMessageRecieverBase.sendMessageText(actualZustand.getText(), user);
       } else if (incomeMessage.contains("nein")) {
         actualZustand = LunchMessageZustand.ANMELDEN_NEIN;
-        this.messageRecieverBase.sendMessageText(user, actualZustand.getText());
+        privateMessageRecieverBase.sendMessageText(actualZustand.getText(), user);
       } else {
-        this.messageRecieverBase.sendMessageText(user, ANTWORT_FEHLER);
+        privateMessageRecieverBase.sendMessageText(ANTWORT_FEHLER, user);
       }
       return actualZustand;
     }
 
     if (actualZustand.equals(LunchMessageZustand.ANMELDEN_JA)) {
-      final String id = lunchFlowHelper.extractId(incomeMessage);
+      final String id = this.extractId(incomeMessage);
       if (id != null && this.signIn(user, id)) {
         actualZustand = LunchMessageZustand.ANMELDUNG_ERFOLGREICH;
-        messageRecieverBase.sendMessageHtmlSucess(user, actualZustand.getText() + " " + textHandler.getThankYouText());
-        // this.messageRecieverBase.sendMessageText(user, textHandler.getRandomGeneratedText());
+        privateMessageRecieverBase.sendNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), user);
+        privateMessageRecieverBase.sendMessageText(textHandler.getRandomText(""), user);
+        privateMessageRecieverBase.sendMessageTextToRoom(user + " hat sich " + weekday.getText() + " zum Essen angemeldet");
       } else {
         actualZustand = LunchMessageZustand.ANMELDUNG_FEHLGESCHLAGEN;
-        messageRecieverBase.sendMessageHtmlError(user, actualZustand.getText());
+        privateMessageRecieverBase.sendNotificationError(actualZustand.getText(), user);
       }
       return actualZustand;
     }
@@ -72,6 +74,19 @@ public class LunchLoginFlow implements LunchFlow {
 
   private boolean signIn(final String actualUser, final String id) {
     return superlunchRequestHandler.signInForLunch(id, actualUser);
+  }
+
+  private String extractId(final String incomeMessage) {
+    final String[] strings = incomeMessage.split(" ");
+    for (final String s : strings) {
+      try {
+        final int i = Integer.parseInt(s);
+        return String.valueOf(i);
+      } catch (final Exception e) {
+
+      }
+    }
+    return null;
   }
 
 }

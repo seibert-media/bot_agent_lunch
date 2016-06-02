@@ -12,29 +12,26 @@ import de.sjanusch.networking.Connection;
  */
 public class HipchatRequestHandlerImpl implements HipchatRequestHandler {
 
-    final private Connection connection;
+  final private Connection connection;
 
-    final private HipchatRestClient hipchatRestClient;
+  final private HipchatRestClient hipchatRestClient;
 
-    @Inject
-    public HipchatRequestHandlerImpl(final Connection connection, final HipchatRestClient hipchatRestClient) {
-        this.connection = connection;
-        this.hipchatRestClient = hipchatRestClient;
-    }
+  @Inject
+  public HipchatRequestHandlerImpl(final Connection connection, final HipchatRestClient hipchatRestClient) {
+    this.connection = connection;
+    this.hipchatRestClient = hipchatRestClient;
+  }
 
-    public void sendMessage(final HipchatMessage chatMessage) {
-        hipchatRestClient.hipchatRestApiSendMessage(chatMessage);
-    }
+  public void sendMessage(final HipchatMessage chatMessage) {
+    hipchatRestClient.hipchatRestApiSendMessage(chatMessage);
+  }
 
-    public void sendNotification(final HipchatMessage chatMessage) {
-        hipchatRestClient.hipchatRestApiSendNotification(chatMessage);
-    }
+  public void sendNotification(final HipchatMessage chatMessage) {
+    hipchatRestClient.hipchatRestApiSendNotification(chatMessage);
+  }
 
-    public void sendPrivateMessage(final HipchatMessage chatMessage) {
-        hipchatRestClient.hipchatRestApiSendPrivateMessage(chatMessage);
-    }
+  public void sendPrivateMessage(final HipchatMessage chatMessage, final String userNickName) {
+    hipchatRestClient.hipchatRestApiSendPrivateMessage(chatMessage, userNickName);
+  }
 
-    public void sendPrivateNotification(final HipchatMessage chatMessage) {
-        hipchatRestClient.hipchatRestApiSendPrivateNotification(chatMessage);
-    }
 }
