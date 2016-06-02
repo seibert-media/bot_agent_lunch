@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import de.sjanusch.configuration.BotConfiguration;
 import de.sjanusch.eventsystem.EventSystem;
 import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
-import de.sjanusch.listener.LuncheMessageRecieveListener;
+import de.sjanusch.listener.LunchMessageRecieveListener;
 import de.sjanusch.model.hipchat.Room;
 import de.sjanusch.networking.ChatClient;
 import de.sjanusch.networking.Connection;
@@ -27,7 +27,7 @@ public class BotImpl implements Bot {
 
   private final LunchPrivateMessageRecieveListener lunchPrivateMessageRecieveListener;
 
-  private final LuncheMessageRecieveListener luncheMessageRecieveListener;
+  private final LunchMessageRecieveListener luncheMessageRecieveListener;
 
   private final BotConfiguration botConfiguration;
 
@@ -35,7 +35,7 @@ public class BotImpl implements Bot {
 
   @Inject
   public BotImpl(final EventSystem eventSystem, final Connection connection,
-                 final LunchPrivateMessageRecieveListener lunchPrivateMessageRecieveListener, final LuncheMessageRecieveListener luncheMessageRecieveListener, final BotConfiguration botConfiguration, final ChatClient chatClient) {
+                 final LunchPrivateMessageRecieveListener lunchPrivateMessageRecieveListener, final LunchMessageRecieveListener luncheMessageRecieveListener, final BotConfiguration botConfiguration, final ChatClient chatClient) {
     this.eventSystem = eventSystem;
     this.connection = connection;
     this.lunchPrivateMessageRecieveListener = lunchPrivateMessageRecieveListener;

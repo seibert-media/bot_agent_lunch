@@ -5,13 +5,11 @@ import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
 import de.sjanusch.eventsystem.EventHandler;
 import de.sjanusch.eventsystem.events.model.PrivateMessageRecivedEvent;
 import de.sjanusch.flow.LunchFlow;
-import de.sjanusch.flow.LunchFlowHelper;
 import de.sjanusch.flow.LunchLoginFlow;
 import de.sjanusch.flow.LunchLogoutFlow;
 import de.sjanusch.flow.LunchMessageZustand;
 import de.sjanusch.model.Weekdays;
 import de.sjanusch.model.superlunch.Lunch;
-import de.sjanusch.model.superlunch.Participant;
 import de.sjanusch.protocol.LunchMessageProtocol;
 import de.sjanusch.texte.TextHandler;
 import org.json.JSONException;
@@ -31,7 +29,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
 
   private static final Logger logger = LoggerFactory.getLogger(LunchPrivateMessageRecieveListenerImpl.class);
 
-  private final SuperlunchRequestHandler superlunchRequestHandler;
+  private final LunchListenerHelper lunchListenerHelper;
 
   private final TextHandler textHandler;
 
@@ -39,17 +37,9 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
 
   private final LunchMessageProtocol lunchMessageProtocol;
 
-  private final LunchFlowHelper lunchFlowHelper = new LunchFlowHelper();
-
-  private int lunchesClosed = 0;
-
-  private boolean isLunchesClosed = false;
-
-  private int signedInNumber = 0;
-
   @Inject
-  public LunchPrivateMessageRecieveListenerImpl(final SuperlunchRequestHandler superlunchRequestHandler, final TextHandler textHandler, final PrivateMessageRecieverBase privateMessageRecieverBase, final LunchMessageProtocol lunchMessageProtocol) {
-    this.superlunchRequestHandler = superlunchRequestHandler;
+  public LunchPrivateMessageRecieveListenerImpl(final LunchListenerHelper lunchListenerHelper, final TextHandler textHandler, final PrivateMessageRecieverBase privateMessageRecieverBase, final LunchMessageProtocol lunchMessageProtocol) {
+    this.lunchListenerHelper = lunchListenerHelper;
     this.textHandler = textHandler;
     this.privateMessageRecieverBase = privateMessageRecieverBase;
     this.lunchMessageProtocol = lunchMessageProtocol;
@@ -73,7 +63,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
   private void handleMessage(final String message, final String from) throws ParseException, IOException, JSONException {
     if (message != null) {
       final String incomeMessage = message.toLowerCase().trim();
-      final String actualUser = lunchFlowHelper.convertNames(from);
+      final String actualUser = lunchListenerHelper.convertNames(from);
       final LunchFlow lunchFlow = lunchMessageProtocol.getCurrentFlowForUser(actualUser);
 
       logger.debug("Handle Message from " + actualUser + ": " + incomeMessage);
@@ -108,7 +98,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
             || actualZustand.equals(LunchMessageZustand.ABMELDEN_NEIN)
             || actualZustand.equals(LunchMessageZustand.ABMELDEN_FEHLGESCHLAGEN)) {
             lunchMessageProtocol.removeFlowForUser(actualUser);
-            this.setSignedInNumber(0);
+            lunchListenerHelper.setSignedInNumber(0);
             return;
           }
         }
@@ -128,19 +118,20 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
       final String text = "<b>Am " + weekday.getText() + " gibt es kein Mittagessen!</b>";
       privateMessageRecieverBase.sendNotificationError(text, actualUser);
     } else {
-      List<Lunch> lunchList = this.getLunchlist(weekday);
+      List<Lunch> lunchList = lunchListenerHelper.getLunchlist(weekday);
       if (lunchList.size() > 0) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("<b>Mittagessen " + weekday.getText() + "</b><br>");
-        stringBuilder.append(this.createLunchOverview(lunchList, actualUser));
+        stringBuilder.append(lunchListenerHelper.createLunchOverview(lunchList, actualUser));
         privateMessageRecieverBase.sendNotification(stringBuilder.toString(), actualUser);
-        if (!this.isLunchesClosed && this.signedInNumber == 0 && login) {
+        SuperlunchRequestHandler superlunchRequestHandler = lunchListenerHelper.getSuperlunchRequestHandler();
+        if (!lunchListenerHelper.isLunchesClosed() && lunchListenerHelper.getSignedInNumber() == 0 && login) {
           LunchFlow lunchLoginFlow = new LunchLoginFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, weekday);
           lunchLoginFlow.modifyFlowForUser(incomeMessage, actualUser);
           lunchMessageProtocol.addFlowForUser(actualUser, lunchLoginFlow);
         }
-        if (!this.isLunchesClosed && (this.signedInNumber != 0 || !login)) {
-          LunchFlow lunchLogoutFlow = new LunchLogoutFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, signedInNumber, weekday);
+        if (!lunchListenerHelper.isLunchesClosed() && (lunchListenerHelper.getSignedInNumber() != 0 || !login)) {
+          LunchFlow lunchLogoutFlow = new LunchLogoutFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, lunchListenerHelper.getSignedInNumber(), weekday);
           lunchLogoutFlow.modifyFlowForUser(incomeMessage, actualUser);
           lunchMessageProtocol.addFlowForUser(actualUser, lunchLogoutFlow);
         }
@@ -149,68 +140,4 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
       }
     }
   }
-
-  private List<Lunch> getLunchlist(final Weekdays day) {
-    return superlunchRequestHandler.fetchFilteredLunchFromConfluence(day);
-  }
-
-  private String createLunchOverview(final List<Lunch> lunchList, final String actualUser) {
-    this.lunchesClosed = 0;
-    StringBuilder stringBuilder = new StringBuilder();
-    for (final Lunch lunch : lunchList) {
-      stringBuilder.append(this.createMittagessenMessage(lunch, actualUser));
-    }
-    this.setIsLunchesClosed(lunchList);
-    return stringBuilder.toString();
-  }
-
-  private String createMittagessenMessage(final Lunch lunch, final String actualUser) {
-    StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append("<li>");
-    if (!lunch.isClosed()) {
-      if (this.checkIsUserSignIn(lunch, actualUser)) {
-        stringBuilder.append("[<b>angemeldet</b>] - " + lunch.getTitle() + " ");
-        this.setSignedInNumber(lunch.getId());
-      } else {
-        stringBuilder.append("[Essen-ID: <b>" + lunch.getId() + "</b>] - " + lunch.getTitle() + " ");
-      }
-    } else {
-      stringBuilder.append("[<b>geschlossen</b>] - " + lunch.getTitle() + " ");
-      this.setLunchesCounterClosed();
-    }
-    stringBuilder.append("(" + lunch.getCreatorName() + ", " + this.convertVeggyValue(lunch.isVeggy()) + ", " + "<a href=\"" + lunch.getDetailLink() + "\">Details</a>)");
-    stringBuilder.append("</li>");
-    return stringBuilder.toString();
-  }
-
-  private boolean checkIsUserSignIn(final Lunch lunch, final String actualUser) {
-    Participant[] participants = lunch.getParticipants();
-    for (Participant participant : participants) {
-      if (participant.getName().equals(actualUser)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private String convertVeggyValue(final boolean value) {
-    return (value) ? "vegetarisch" : "nicht vegetarisch";
-  }
-
-  private void setLunchesCounterClosed() {
-    this.lunchesClosed++;
-  }
-
-  private void setIsLunchesClosed(final List<Lunch> lunchList) {
-    if (lunchList.size() == this.lunchesClosed) {
-      this.isLunchesClosed = true;
-    } else {
-      this.isLunchesClosed = false;
-    }
-  }
-
-  private void setSignedInNumber(final int value) {
-    this.signedInNumber = value;
-  }
-
 }

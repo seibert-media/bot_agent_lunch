@@ -23,10 +23,12 @@ import de.sjanusch.hipchat.handler.HipchatRequestHandler;
 import de.sjanusch.hipchat.handler.HipchatRequestHandlerImpl;
 import de.sjanusch.hipchat.rest.HipchatRestClient;
 import de.sjanusch.hipchat.rest.HipchatRestClientImpl;
+import de.sjanusch.listener.LunchListenerHelper;
+import de.sjanusch.listener.LunchListenerHelperImpl;
+import de.sjanusch.listener.LunchMessageRecieveListener;
+import de.sjanusch.listener.LunchMessageRecieveListenerImpl;
 import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
 import de.sjanusch.listener.LunchPrivateMessageRecieveListenerImpl;
-import de.sjanusch.listener.LuncheMessageRecieveListener;
-import de.sjanusch.listener.LuncheMessageRecieveListenerImpl;
 import de.sjanusch.listener.PrivateMessageRecieverBase;
 import de.sjanusch.listener.PrivateMessageRecieverBaseImpl;
 import de.sjanusch.networking.ChatClient;
@@ -57,9 +59,10 @@ public class GuiceModule extends AbstractModule {
     bind(HipchatRestClient.class).to(HipchatRestClientImpl.class);
     bind(TextHandler.class).to(TextHandlerImpl.class);
     bind(TexteConfiguration.class).to(TexteConfigurationImpl.class);
-    bind(LuncheMessageRecieveListener.class).to(LuncheMessageRecieveListenerImpl.class);
+    bind(LunchMessageRecieveListener.class).to(LunchMessageRecieveListenerImpl.class);
     bind(ChatClient.class).to(ChatClientImpl.class);
     bind(LunchPrivateMessageRecieveListener.class).to(LunchPrivateMessageRecieveListenerImpl.class);
+    bind(LunchListenerHelper.class).to(LunchListenerHelperImpl.class);
 
     bind(EventSystem.class).to(EventSystemImpl.class).asEagerSingleton();
     bind(Connection.class).to(ConnectionImpl.class).asEagerSingleton();
