@@ -75,12 +75,12 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
     logger.debug("Handle Message from " + actualUser + ": " + incomeMessage);
 
     if (lunchFlow == null && textHandler.containsLunchLoginText(incomeMessage) || textHandler.conatainsLunchLoginCommands(incomeMessage)) {
-      this.handleMittagessenInfoMessage(incomeMessage, actualUser, true);
+      this.handleMittagessenInfoMessage(incomeMessage, actualUser, from, true);
       return;
     }
 
     if (lunchFlow == null && textHandler.containsLunchLogoutText(incomeMessage) || textHandler.conatainsLunchLogoutCommands(incomeMessage)) {
-      this.handleMittagessenInfoMessage(incomeMessage, actualUser, false);
+      this.handleMittagessenInfoMessage(incomeMessage, actualUser, from, false);
       return;
     }
 
@@ -101,7 +101,7 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
     }
   }
 
-  private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final boolean login) throws JSONException, ParseException {
+  private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final String fullName, final boolean login) throws JSONException, ParseException {
     Weekdays weekday = Weekdays.getEnumForText(incomeMessage);
     if (weekday.isWeekend()) {
       final String text = "<b>Am " + weekday.getText() + " gibt es kein Mittagessen!</b>";
@@ -114,7 +114,7 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
         stringBuilder.append(lunchListenerHelper.createLunchOverview(lunchList, actualUser));
         privateMessageRecieverBase.sendNotification(stringBuilder.toString(), actualUser);
         SuperlunchRequestHandler superlunchRequestHandler = lunchListenerHelper.getSuperlunchRequestHandler();
-        bot.startPrivateChat(actualUser);
+        bot.startPrivateChat(fullName);
         if (!lunchListenerHelper.isLunchesClosed() && lunchListenerHelper.getSignedInNumber() == 0 && login) {
           LunchFlow lunchLoginFlow = new LunchLoginFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, weekday);
           lunchLoginFlow.modifyFlowForUser(incomeMessage, actualUser);
