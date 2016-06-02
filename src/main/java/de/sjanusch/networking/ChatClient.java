@@ -10,7 +10,9 @@ import org.jivesoftware.smack.XMPPConnection;
  */
 public interface ChatClient {
 
-    boolean joinChat(final XMPPConnection xmpp, final String room, final String user, final String password);
+  boolean joinChat(final XMPPConnection xmpp, final String room, final String user, final String password);
 
-    boolean login(final XMPPConnection xmpp, String username, String password) throws LoginException;
+  boolean login(final XMPPConnection xmpp, String username, String password) throws LoginException;
+
+  void startPrivateChat(String username);
 }

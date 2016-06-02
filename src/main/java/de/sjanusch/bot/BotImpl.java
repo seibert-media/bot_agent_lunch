@@ -3,8 +3,8 @@ package de.sjanusch.bot;
 import com.google.inject.Inject;
 import de.sjanusch.configuration.BotConfiguration;
 import de.sjanusch.eventsystem.EventSystem;
+import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
 import de.sjanusch.listener.LuncheMessageRecieveListener;
-import de.sjanusch.listener.MessageRecieveListener;
 import de.sjanusch.model.hipchat.Room;
 import de.sjanusch.networking.ChatClient;
 import de.sjanusch.networking.Connection;
@@ -25,7 +25,7 @@ public class BotImpl implements Bot {
 
   private final Connection connection;
 
-  private final MessageRecieveListener messageRecieveListener;
+  private final LunchPrivateMessageRecieveListener lunchPrivateMessageRecieveListener;
 
   private final LuncheMessageRecieveListener luncheMessageRecieveListener;
 
@@ -34,11 +34,11 @@ public class BotImpl implements Bot {
   private final ChatClient chatClient;
 
   @Inject
-  public BotImpl(final EventSystem eventSystem, final Connection connection, final MessageRecieveListener messageRecieveListener,
-                 final LuncheMessageRecieveListener luncheMessageRecieveListener, final BotConfiguration botConfiguration, final ChatClient chatClient) {
+  public BotImpl(final EventSystem eventSystem, final Connection connection,
+                 final LunchPrivateMessageRecieveListener lunchPrivateMessageRecieveListener, final LuncheMessageRecieveListener luncheMessageRecieveListener, final BotConfiguration botConfiguration, final ChatClient chatClient) {
     this.eventSystem = eventSystem;
     this.connection = connection;
-    this.messageRecieveListener = messageRecieveListener;
+    this.lunchPrivateMessageRecieveListener = lunchPrivateMessageRecieveListener;
     this.luncheMessageRecieveListener = luncheMessageRecieveListener;
     this.botConfiguration = botConfiguration;
     this.chatClient = chatClient;
@@ -46,7 +46,7 @@ public class BotImpl implements Bot {
 
   @Override
   public void run() {
-    // this.eventSystem.registerEvents(messageRecieveListener);
+    this.eventSystem.registerEvents(lunchPrivateMessageRecieveListener);
     this.eventSystem.registerEvents(luncheMessageRecieveListener);
     try {
       connection.connect();
@@ -67,6 +67,10 @@ public class BotImpl implements Bot {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public void startPrivateChat(String username){
+    chatClient.startPrivateChat(username);
   }
 
   @Override

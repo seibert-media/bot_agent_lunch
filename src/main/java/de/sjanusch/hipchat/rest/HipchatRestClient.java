@@ -9,11 +9,10 @@ import de.sjanusch.model.hipchat.HipchatMessage;
  */
 public interface HipchatRestClient {
 
-    void hipchatRestApiSendNotification(final HipchatMessage chatMessage);
+  void hipchatRestApiSendNotification(final HipchatMessage chatMessage);
 
-    void hipchatRestApiSendMessage(final HipchatMessage chatMessage);
+  void hipchatRestApiSendMessage(final HipchatMessage chatMessage);
 
-    void hipchatRestApiSendPrivateMessage(final HipchatMessage chatMessage);
+  void hipchatRestApiSendPrivateMessage(final HipchatMessage chatMessage, final String userNickName);
 
-    void hipchatRestApiSendPrivateNotification(final HipchatMessage chatMessage);
 }

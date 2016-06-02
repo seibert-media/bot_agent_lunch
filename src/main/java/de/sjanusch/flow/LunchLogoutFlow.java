@@ -1,11 +1,11 @@
 package de.sjanusch.flow;
 
+import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
+import de.sjanusch.listener.PrivateMessageRecieverBase;
+import de.sjanusch.model.Weekdays;
+import de.sjanusch.texte.TextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
-import de.sjanusch.listener.MessageRecieverBase;
-import de.sjanusch.texte.TextHandler;
 
 /**
  * Created by Sandro Janusch Date: 23.05.16 Time: 20:07
@@ -22,25 +22,28 @@ public class LunchLogoutFlow implements LunchFlow {
 
   private final TextHandler textHandler;
 
-  private final MessageRecieverBase messageRecieverBase;
+  private final PrivateMessageRecieverBase privateMessageRecieverBase;
 
   private final SuperlunchRequestHandler superlunchRequestHandler;
 
   private final int signedInNumber;
 
-  public LunchLogoutFlow(final MessageRecieverBase messageRecieverBase, final TextHandler textHandler,
-      final SuperlunchRequestHandler superlunchRequestHandler, final int signedInNumber) {
+  private final Weekdays weekday;
+
+  public LunchLogoutFlow(final PrivateMessageRecieverBase privateMessageRecieverBase, final TextHandler textHandler,
+                         final SuperlunchRequestHandler superlunchRequestHandler, final int signedInNumber, final Weekdays weekday) {
     this.textHandler = textHandler;
-    this.messageRecieverBase = messageRecieverBase;
+    this.privateMessageRecieverBase = privateMessageRecieverBase;
     this.superlunchRequestHandler = superlunchRequestHandler;
     this.signedInNumber = signedInNumber;
+    this.weekday = weekday;
   }
 
   @Override
   public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final String user) {
     if (actualZustand == null) {
       this.actualZustand = LunchMessageZustand.ABMELDEN;
-      messageRecieverBase.sendMessageText(user, actualZustand.getText());
+      privateMessageRecieverBase.sendMessageText(actualZustand.getText(), user);
       return actualZustand;
     }
 
@@ -48,16 +51,18 @@ public class LunchLogoutFlow implements LunchFlow {
       if (incomeMessage.contains("ja")) {
         if (signedInNumber != 0 && this.signOut(user, String.valueOf(signedInNumber))) {
           actualZustand = LunchMessageZustand.ABMELDEN_ERFOLGREICH;
-          messageRecieverBase.sendMessageHtmlSucess(user, actualZustand.getText() + " " + textHandler.getThankYouText());
+          privateMessageRecieverBase.sendNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), user);
+          privateMessageRecieverBase.sendMessageText(textHandler.getRandomText(""), user);
+          privateMessageRecieverBase.sendMessageTextToRoom(user + " hat sich " + weekday.getText() + " vom essen abgemeldet");
         } else {
           actualZustand = LunchMessageZustand.ABMELDEN_FEHLGESCHLAGEN;
-          messageRecieverBase.sendMessageHtmlError(user, actualZustand.getText());
+          privateMessageRecieverBase.sendNotificationError(actualZustand.getText(), user);
         }
       } else if (incomeMessage.contains("nein")) {
         actualZustand = LunchMessageZustand.ABMELDEN_NEIN;
-        this.messageRecieverBase.sendMessageText(user, actualZustand.getText());
+        privateMessageRecieverBase.sendMessageText(actualZustand.getText(), user);
       } else {
-        this.messageRecieverBase.sendMessageText(user, ANTWORT_FEHLER);
+        privateMessageRecieverBase.sendMessageText(ANTWORT_FEHLER, user);
       }
       return actualZustand;
     }
