@@ -113,8 +113,8 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
         stringBuilder.append("<b>Mittagessen " + weekday.getText() + "</b><br>");
         stringBuilder.append(lunchListenerHelper.createLunchOverview(lunchList, actualUser));
         privateMessageRecieverBase.sendNotification(stringBuilder.toString(), actualUser);
-        bot.startPrivateChat(actualUser);
         SuperlunchRequestHandler superlunchRequestHandler = lunchListenerHelper.getSuperlunchRequestHandler();
+        bot.startPrivateChat(actualUser);
         if (!lunchListenerHelper.isLunchesClosed() && lunchListenerHelper.getSignedInNumber() == 0 && login) {
           LunchFlow lunchLoginFlow = new LunchLoginFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, weekday);
           lunchLoginFlow.modifyFlowForUser(incomeMessage, actualUser);
