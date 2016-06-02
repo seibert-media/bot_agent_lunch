@@ -1,10 +1,11 @@
 package de.sjanusch.bot;
 
+import de.sjanusch.model.hipchat.Room;
+import de.sjanusch.runner.RunnableBot;
+
 import java.io.IOException;
 
-import de.sjanusch.model.hipchat.Room;
-
-public interface Bot {
+public interface Bot extends RunnableBot {
 
   void run();
 

@@ -1,19 +1,19 @@
 package de.sjanusch.bot;
 
-import java.io.IOException;
-
-import org.jivesoftware.smack.XMPPException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.inject.Inject;
-
 import de.sjanusch.configuration.BotConfiguration;
 import de.sjanusch.eventsystem.EventSystem;
 import de.sjanusch.listener.LuncheMessageRecieveListener;
 import de.sjanusch.listener.MessageRecieveListener;
 import de.sjanusch.model.hipchat.Room;
+import de.sjanusch.networking.ChatClient;
 import de.sjanusch.networking.Connection;
+import de.sjanusch.networking.exceptions.LoginException;
+import org.jivesoftware.smack.XMPPException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class BotImpl implements Bot {
 
@@ -31,14 +31,17 @@ public class BotImpl implements Bot {
 
   private final BotConfiguration botConfiguration;
 
+  private final ChatClient chatClient;
+
   @Inject
   public BotImpl(final EventSystem eventSystem, final Connection connection, final MessageRecieveListener messageRecieveListener,
-      final LuncheMessageRecieveListener luncheMessageRecieveListener, final BotConfiguration botConfiguration) {
+                 final LuncheMessageRecieveListener luncheMessageRecieveListener, final BotConfiguration botConfiguration, final ChatClient chatClient) {
     this.eventSystem = eventSystem;
     this.connection = connection;
     this.messageRecieveListener = messageRecieveListener;
     this.luncheMessageRecieveListener = luncheMessageRecieveListener;
     this.botConfiguration = botConfiguration;
+    this.chatClient = chatClient;
   }
 
   @Override
@@ -47,21 +50,23 @@ public class BotImpl implements Bot {
     this.eventSystem.registerEvents(luncheMessageRecieveListener);
     try {
       connection.connect();
-      connection.login(this.getUsername(), this.getPassword());
-      this.joinRoom();
-      logger.debug("Joined " + getSelectedRoom().getXMPPName() + " !");
+      boolean loggedIn = false;
+      boolean joined = false;
+      if (connection.isConnected()) {
+        loggedIn = chatClient.login(connection.getXmpp(), this.getUsername(), this.getPassword());
+        if (loggedIn) {
+          joined = chatClient.joinChat(connection.getXmpp(), this.getBotroom(), this.getNickname(), this.getPassword());
+        }
+      }
+      logger.debug(this.getNickname() + " loggedin: " + loggedIn +  " and joined: " + joined + " in Room " + this.getBotroom());
     } catch (final XMPPException e) {
       logger.error("Error during join Room");
       logger.error(e.getMessage());
-    } catch (final Exception e) {
-      logger.error("Error Connection");
-      logger.error(e.getMessage());
+    } catch (LoginException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-  }
-
-  public void joinRoom() throws XMPPException, IOException {
-    this.connection.joinRoom(this.getBotroom(), this.getNickname());
-    selected = connection.findRoom(this.getBotroom());
   }
 
   @Override
