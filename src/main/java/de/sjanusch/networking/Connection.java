@@ -1,25 +1,25 @@
 package de.sjanusch.networking;
 
-import java.io.IOException;
-
-import org.jivesoftware.smack.XMPPException;
-
 import de.sjanusch.model.hipchat.Room;
 import de.sjanusch.networking.exceptions.LoginException;
+import org.jivesoftware.smack.XMPPException;
+
+import java.io.IOException;
 
 /**
- * Created by Sandro Janusch Date: 13.05.16 Time: 06:27
+ * Created by Sandro Janusch
+ * Date: 13.05.16
+ * Time: 06:27
  */
 public interface Connection {
 
-  void waitForEnd() throws InterruptedException;
+    void waitForEnd() throws InterruptedException;
 
-  void connect() throws XMPPException;
+    void connect() throws XMPPException;
 
-  void login(String username, String password) throws LoginException;
+    void login(String username, String password) throws LoginException;
 
-  void joinRoom(String room, String nickname) throws XMPPException, IOException;
+    Room findRoom(final String name);
 
-  Room findRoom(final String name);
-
+    void joinRoom(String room, String nickname) throws XMPPException, IOException;
 }
