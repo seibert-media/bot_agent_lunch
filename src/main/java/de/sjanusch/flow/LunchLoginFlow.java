@@ -18,8 +18,6 @@ public class LunchLoginFlow implements LunchFlow {
 
   private LunchMessageZustand actualZustand = null;
 
-  private final LunchFlowHelper lunchFlowHelper = new LunchFlowHelper();
-
   private final TextHandler textHandler;
 
   private final PrivateMessageRecieverBase privateMessageRecieverBase;
@@ -59,7 +57,7 @@ public class LunchLoginFlow implements LunchFlow {
     }
 
     if (actualZustand.equals(LunchMessageZustand.ANMELDEN_JA)) {
-      final String id = lunchFlowHelper.extractId(incomeMessage);
+      final String id = this.extractId(incomeMessage);
       if (id != null && this.signIn(user, id)) {
         actualZustand = LunchMessageZustand.ANMELDUNG_ERFOLGREICH;
         privateMessageRecieverBase.sendNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), user);
@@ -76,6 +74,19 @@ public class LunchLoginFlow implements LunchFlow {
 
   private boolean signIn(final String actualUser, final String id) {
     return superlunchRequestHandler.signInForLunch(id, actualUser);
+  }
+
+  private String extractId(final String incomeMessage) {
+    final String[] strings = incomeMessage.split(" ");
+    for (final String s : strings) {
+      try {
+        final int i = Integer.parseInt(s);
+        return String.valueOf(i);
+      } catch (final Exception e) {
+
+      }
+    }
+    return null;
   }
 
 }

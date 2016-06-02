@@ -18,8 +18,6 @@ public class LunchLogoutFlow implements LunchFlow {
 
   private LunchMessageZustand actualZustand = null;
 
-  private final LunchFlowHelper lunchFlowHelper = new LunchFlowHelper();
-
   private final TextHandler textHandler;
 
   private final PrivateMessageRecieverBase privateMessageRecieverBase;
