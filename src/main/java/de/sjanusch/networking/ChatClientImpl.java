@@ -100,7 +100,6 @@ public class ChatClientImpl implements ChatClient {
     while (occupantIterator.hasNext()) {
       final String occupantString = occupantIterator.next();
       if (occupantString.toLowerCase().contains(username.toLowerCase())) {
-        logger.debug(occupantString + ":" + username);
         final String userId = this.extractUserId(chat.getOccupant(occupantString));
         if (userId != null) {
           chat.createPrivateChat(userId, new MessageListener() {
