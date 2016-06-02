@@ -2,7 +2,7 @@
 
 ## Copyright and license
 
-Copyright (c) 2016, Sandro Janusch <sjanusch@gmx.de>
+Copyright (c) 2016, Benjamin Borbe, Sandro Janusch
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
