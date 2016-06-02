@@ -11,7 +11,6 @@ import de.sjanusch.flow.LunchLogoutFlow;
 import de.sjanusch.flow.LunchMessageZustand;
 import de.sjanusch.hipchat.handler.HipchatRequestHandler;
 import de.sjanusch.model.Weekdays;
-import de.sjanusch.model.hipchat.HipchatMessage;
 import de.sjanusch.model.superlunch.Lunch;
 import de.sjanusch.model.superlunch.Participant;
 import de.sjanusch.protocol.LunchMessageProtocol;
@@ -64,15 +63,10 @@ public class LuncheMessageRecieveListenerImpl implements LuncheMessageRecieveLis
     @Override
     public void messageEvent(final MessageRecivedEvent event) {
         try {
-
-            handleMessage(event.getMessage(), "");
-            /*
             final String from = event.from();
             if (!messageRecieverBase.isMessageFromBot(from)) {
                 handleMessage(event.getMessage(), from);
             }
-
-            */
         } catch (JSONException e) {
             logger.error(e.getMessage());
         } catch (ParseException e) {
@@ -144,9 +138,7 @@ public class LuncheMessageRecieveListenerImpl implements LuncheMessageRecieveLis
                 stringBuilder.append(this.createLunchOverview(lunchList, actualUser));
                 messageRecieverBase.sendMessageHtml(stringBuilder.toString());
 
-
-
-                hipchatRequestHandler.sendPrivateNotification(new HipchatMessage(stringBuilder.toString(),"html"));
+                //hipchatRequestHandler.sendPrivateNotification(new HipchatMessage(stringBuilder.toString(), "html"));
 
                 if (!this.isLunchesClosed && this.signedInNumber == 0 && login) {
                     LunchFlow lunchLoginFlow = new LunchLoginFlow(messageRecieverBase, textHandler, superlunchRequestHandler);

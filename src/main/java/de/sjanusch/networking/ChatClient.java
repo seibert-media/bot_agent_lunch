@@ -2,6 +2,7 @@ package de.sjanusch.networking;
 
 import de.sjanusch.configuration.ChatConnectionConfiguration;
 import de.sjanusch.model.hipchat.Room;
+import de.sjanusch.networking.exceptions.LoginException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
@@ -18,5 +19,5 @@ public interface ChatClient {
 
     HashMap<Room, MultiUserChat> joinChat(final XMPPConnection xmpp, final String room, final String user, final String password);
 
-    MultiUserChat getGroupChat();
+    void login(final XMPPConnection xmpp, String username, String password) throws LoginException;
 }

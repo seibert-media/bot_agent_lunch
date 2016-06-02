@@ -6,6 +6,7 @@ import de.sjanusch.configuration.ChatConnectionConfiguration;
 import de.sjanusch.eventsystem.EventSystem;
 import de.sjanusch.eventsystem.events.model.MessageRecivedEvent;
 import de.sjanusch.model.hipchat.Room;
+import de.sjanusch.networking.exceptions.LoginException;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -49,7 +50,20 @@ public class ChatClientImpl implements ChatClient {
         return chatConnectionConfiguration;
     }
 
+    public void login(final XMPPConnection xmpp, String username, String password) throws LoginException {
+        if (!username.contains("hipchat.com"))
+            logger.error("The username being used does not look like a Jabber ID. Are you sure this is the correct username?");
+        try {
+            xmpp.login(username, password);
+        } catch (XMPPException exception) {
+            throw new LoginException("There was an error logging in! Are you using the correct username/password?", exception);
+        }
+    }
+
     public HashMap<Room, MultiUserChat> joinChat(final XMPPConnection xmpp, final String room, final String user, final String password) {
+        if (user.equals("") || password.equals("")) {
+            return null;
+        }
         try {
             chat = new MultiUserChat(xmpp, this.getChatRoomName(room));
             chat.join(user, password);
@@ -66,9 +80,6 @@ public class ChatClientImpl implements ChatClient {
                         eventSystem.callEvent(event);
                     }
                 });
-                HashMap<Room, MultiUserChat> rooms = new HashMap<Room, MultiUserChat>();
-                rooms.put(obj, chat);
-                return rooms;
             } else {
                 logger.error("Cannot join in room " + room);
             }
@@ -118,7 +129,6 @@ public class ChatClientImpl implements ChatClient {
         } catch (Exception e) {
             return "";
         }
-
     }
 
 }
