@@ -46,10 +46,6 @@ public class ChatClientImpl implements ChatClient {
         this.bot = bot;
     }
 
-    public ChatConnectionConfiguration getChatConnectionConfiguration() {
-        return chatConnectionConfiguration;
-    }
-
     public void login(final XMPPConnection xmpp, String username, String password) throws LoginException {
         if (!username.contains("hipchat.com"))
             logger.error("The username being used does not look like a Jabber ID. Are you sure this is the correct username?");
@@ -89,10 +85,6 @@ public class ChatClientImpl implements ChatClient {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public MultiUserChat getGroupChat() {
-        return chat;
     }
 
     private Room joinChatRoom(final Room roomObject, final String roomName, XMPPConnection con) {
