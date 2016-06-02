@@ -1,11 +1,7 @@
 package de.sjanusch.networking;
 
-import de.sjanusch.model.hipchat.Room;
 import de.sjanusch.networking.exceptions.LoginException;
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smackx.muc.MultiUserChat;
-
-import java.util.HashMap;
 
 /**
  * Created by Sandro Janusch
@@ -14,7 +10,7 @@ import java.util.HashMap;
  */
 public interface ChatClient {
 
-    HashMap<Room, MultiUserChat> joinChat(final XMPPConnection xmpp, final String room, final String user, final String password);
+    boolean joinChat(final XMPPConnection xmpp, final String room, final String user, final String password);
 
-    void login(final XMPPConnection xmpp, String username, String password) throws LoginException;
+    boolean login(final XMPPConnection xmpp, String username, String password) throws LoginException;
 }

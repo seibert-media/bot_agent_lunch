@@ -50,11 +50,15 @@ public class BotImpl implements Bot {
     this.eventSystem.registerEvents(luncheMessageRecieveListener);
     try {
       connection.connect();
-      if(connection.isConnected()) {
-        chatClient.login(connection.getXmpp(), this.getUsername(), this.getPassword());
-        chatClient.joinChat(connection.getXmpp(), this.getBotroom(), this.getNickname(), this.getPassword());
-        logger.debug("Joined " + this.getBotroom() + " !");
+      boolean loggedIn = false;
+      boolean joined = false;
+      if (connection.isConnected()) {
+        loggedIn = chatClient.login(connection.getXmpp(), this.getUsername(), this.getPassword());
+        if (loggedIn) {
+          joined = chatClient.joinChat(connection.getXmpp(), this.getBotroom(), this.getNickname(), this.getPassword());
+        }
       }
+      logger.debug(this.getNickname() + " loggedin: " + loggedIn +  " and joined: " + joined + " in Room " + this.getBotroom());
     } catch (final XMPPException e) {
       logger.error("Error during join Room");
       logger.error(e.getMessage());
