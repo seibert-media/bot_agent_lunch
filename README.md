@@ -1,5 +1,6 @@
-#Lunch Bot
-##Copyright and license
+# Lunch Bot
+
+## Copyright and license
 
 Copyright (c) 2016, Sandro Janusch <sjanusch@gmx.de>
 All rights reserved.
