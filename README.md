@@ -1,5 +1,35 @@
 # Lunch Bot
 
+## Build
+
+`mvn install`
+
+## Run local
+
+`nsqlookupd`
+
+`nsqd --lookupd-tcp-address=127.0.0.1:4160`
+
+```
+NSQ_LOOKUPD_ADDRESS=localhost:4161 \
+NSQD_ADDRESS=localhost:4151 \
+java -jar target/lunch-bot-jar-with-dependencies.jar
+```
+
+or 
+
+```
+export NSQ_LOOKUPD_ADDRESS=localhost:4161
+export NSQD_ADDRESS=localhost:4151
+java -jar target/lunch-bot-jar-with-dependencies.jar
+```
+
+## Send Testmessage
+
+```
+curl -d '{"message":"/lunch"}' 'http://127.0.0.1:4151/put?topic=bot-request'
+```
+
 ## Copyright and license
 
 Copyright (c) 2016, Benjamin Borbe, Sandro Janusch
