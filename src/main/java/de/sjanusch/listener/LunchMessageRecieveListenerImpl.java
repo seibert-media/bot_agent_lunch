@@ -118,14 +118,13 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
           LunchFlow lunchLoginFlow = new LunchLoginFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, weekday);
           lunchLoginFlow.modifyFlowForUser(incomeMessage, actualUser);
           lunchMessageProtocol.addFlowForUser(actualUser, lunchLoginFlow);
-          bot.startPrivateChat(fullName);
         }
         if (!lunchListenerHelper.isLunchesClosed() && (lunchListenerHelper.getSignedInNumber() != 0 || !login)) {
           LunchFlow lunchLogoutFlow = new LunchLogoutFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, lunchListenerHelper.getSignedInNumber(), weekday);
           lunchLogoutFlow.modifyFlowForUser(incomeMessage, actualUser);
           lunchMessageProtocol.addFlowForUser(actualUser, lunchLogoutFlow);
-          bot.startPrivateChat(fullName);
         }
+        bot.startPrivateChat(fullName);
       } else {
         privateMessageRecieverBase.sendNotificationError(textHandler.getOverviewErrorText(), actualUser);
       }
