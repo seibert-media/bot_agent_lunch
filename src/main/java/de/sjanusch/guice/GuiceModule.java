@@ -32,6 +32,7 @@ import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
 import de.sjanusch.listener.LunchPrivateMessageRecieveListenerImpl;
 import de.sjanusch.listener.PrivateMessageRecieverBase;
 import de.sjanusch.listener.PrivateMessageRecieverBaseImpl;
+import de.sjanusch.message_handler.LunchMessageHandler;
 import de.sjanusch.networking.ChatClient;
 import de.sjanusch.networking.ChatClientImpl;
 import de.sjanusch.networking.Connection;

@@ -93,7 +93,8 @@ public class LunchListenerHelperImpl implements LunchListenerHelper {
       stringBuilder.append("[<b>geschlossen</b>] - " + lunch.getTitle() + " ");
       this.setLunchesCounterClosed();
     }
-    stringBuilder.append("(" + lunch.getCreatorName() + ", " + this.convertVeggyValue(lunch.isVeggy()) + ", " + "<a href=\"" + lunch.getDetailLink() + "\">Details</a>)");
+    final String description = (lunch.getDescription() == "" || lunch.getDescription() == null) ? "" : lunch.getDescription() + ", ";
+      stringBuilder.append("(" + lunch.getCreatorName() + ", " + this.convertVeggyValue(lunch.isVeggy()) + ", "  + description + lunch.getFormattedPrice() + "&euro;)");
     stringBuilder.append("</li>");
     return stringBuilder.toString();
   }
