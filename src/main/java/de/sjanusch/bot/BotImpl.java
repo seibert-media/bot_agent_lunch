@@ -62,10 +62,8 @@ public class BotImpl implements Bot {
     } catch (final XMPPException e) {
       logger.error("Error during join Room");
       logger.error(e.getMessage());
-    } catch (LoginException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (final LoginException | IOException e) {
+      logger.warn(e.getClass().getName(), e);
     }
   }
 

@@ -1,6 +1,7 @@
 package de.sjanusch.guice;
 
 import com.google.inject.AbstractModule;
+import de.benjaminborbe.bot.agent.MessageHandler;
 import de.sjanusch.bot.Bot;
 import de.sjanusch.bot.BotImpl;
 import de.sjanusch.configuration.BotConfiguration;
@@ -67,5 +68,6 @@ public class GuiceModule extends AbstractModule {
     bind(EventSystem.class).to(EventSystemImpl.class).asEagerSingleton();
     bind(Connection.class).to(ConnectionImpl.class).asEagerSingleton();
     bind(LunchMessageProtocol.class).to(LunchMessageProtocolImpl.class).asEagerSingleton();
+		bind(MessageHandler.class).to(LunchMessageHandler.class);
   }
 }
