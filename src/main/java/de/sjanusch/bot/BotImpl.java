@@ -3,9 +3,8 @@ package de.sjanusch.bot;
 import com.google.inject.Inject;
 import de.sjanusch.configuration.BotConfiguration;
 import de.sjanusch.eventsystem.EventSystem;
-import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
 import de.sjanusch.listener.LunchMessageRecieveListener;
-import de.sjanusch.model.hipchat.Room;
+import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
 import de.sjanusch.networking.ChatClient;
 import de.sjanusch.networking.Connection;
 import de.sjanusch.networking.exceptions.LoginException;
@@ -18,8 +17,6 @@ import java.io.IOException;
 public class BotImpl implements Bot {
 
   private static final Logger logger = LoggerFactory.getLogger(BotImpl.class);
-
-  private Room selected;
 
   private final EventSystem eventSystem;
 
@@ -69,11 +66,6 @@ public class BotImpl implements Bot {
 
   public void startPrivateChat(String username){
     chatClient.startPrivateChat(username);
-  }
-
-  @Override
-  public Room getSelectedRoom() {
-    return selected;
   }
 
   @Override

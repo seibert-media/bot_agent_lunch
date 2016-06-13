@@ -1,11 +1,9 @@
 package de.sjanusch.runner;
 
+import com.google.inject.Inject;
+import de.sjanusch.networking.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.inject.Inject;
-
-import de.sjanusch.networking.Connection;
 
 public class BotRunnerImpl implements BotRunner {
 
@@ -19,13 +17,29 @@ public class BotRunnerImpl implements BotRunner {
   }
 
   @Override
-  public void runBot(final RunnableBot bot) {
+  public Thread runBotDesync(final RunnableBot bot) {
+    return this.runBotDysync(bot);
+  }
+
+  private void run(final RunnableBot bot) {
+    bot.run();
     try {
-      bot.run();
       connection.waitForEnd();
     } catch (final InterruptedException e) {
+      logger.warn(e.getClass().getName(), e);
+    }  catch (final Exception e) {
       logger.warn(e.getClass().getName(), e);
     }
   }
 
+  private Thread runBotDysync(final RunnableBot bot) {
+    final Thread t = new Thread() {
+
+      @Override
+      public void run() {
+        BotRunnerImpl.this.run(bot);
+      }
+    };
+    return t;
+  }
 }
