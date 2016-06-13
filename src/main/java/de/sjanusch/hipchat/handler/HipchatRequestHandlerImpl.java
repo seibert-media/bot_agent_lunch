@@ -22,14 +22,17 @@ public class HipchatRequestHandlerImpl implements HipchatRequestHandler {
     this.hipchatRestClient = hipchatRestClient;
   }
 
+  @Override
   public void sendMessage(final HipchatMessage chatMessage) {
     hipchatRestClient.hipchatRestApiSendMessage(chatMessage);
   }
 
+  @Override
   public void sendNotification(final HipchatMessage chatMessage) {
     hipchatRestClient.hipchatRestApiSendNotification(chatMessage);
   }
 
+  @Override
   public void sendPrivateMessage(final HipchatMessage chatMessage, final String userNickName) {
     hipchatRestClient.hipchatRestApiSendPrivateMessage(chatMessage, userNickName);
   }

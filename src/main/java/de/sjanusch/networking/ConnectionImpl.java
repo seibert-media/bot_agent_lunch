@@ -17,7 +17,7 @@ public class ConnectionImpl implements Connection, ConnectionListener {
 
     private final ChatConnectionConfiguration chatConnectionConfiguration;
 
-    private XMPPConnection xmpp;
+  private final XMPPConnection xmpp;
 
     public boolean connected;
 
@@ -27,7 +27,8 @@ public class ConnectionImpl implements Connection, ConnectionListener {
         this.xmpp = new XMPPConnection(new ConnectionConfiguration(this.chatConnectionConfiguration.getXmppUrl(), this.chatConnectionConfiguration.getXmppPort()));
     }
 
-    public void connect() throws XMPPException {
+  @Override
+  public void connect() throws XMPPException {
         if (connected)
             return;
         xmpp.connect();
@@ -35,7 +36,8 @@ public class ConnectionImpl implements Connection, ConnectionListener {
         connected = true;
     }
 
-    public boolean isConnected() {
+  @Override
+  public boolean isConnected() {
         return connected;
     }
 
@@ -52,17 +54,17 @@ public class ConnectionImpl implements Connection, ConnectionListener {
     }
 
     @Override
-    public void connectionClosedOnError(Exception e) {
+  public void connectionClosedOnError(final Exception e) {
         connected = false;
     }
 
     @Override
-    public void reconnectingIn(int seconds) {
+  public void reconnectingIn(final int seconds) {
 
     }
 
     @Override
-    public void reconnectionFailed(Exception e) {
+  public void reconnectionFailed(final Exception e) {
         if (connected)
             connected = false;
     }
@@ -73,7 +75,8 @@ public class ConnectionImpl implements Connection, ConnectionListener {
             connected = true;
     }
 
-    public synchronized void waitForEnd() throws InterruptedException {
+  @Override
+  public synchronized void waitForEnd() throws InterruptedException {
         while (true) {
             if (!connected)
                 break;
@@ -81,7 +84,8 @@ public class ConnectionImpl implements Connection, ConnectionListener {
         }
     }
 
-    public XMPPConnection getXmpp() {
+  @Override
+  public XMPPConnection getXmpp() {
         return xmpp;
     }
 }
