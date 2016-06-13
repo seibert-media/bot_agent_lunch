@@ -48,6 +48,7 @@ public class ConnectionImpl implements Connection, ConnectionListener {
     return connected;
   }
 
+  @Override
   public void disconnect() {
     logger.debug("disconnect");
     if (!connected) {
