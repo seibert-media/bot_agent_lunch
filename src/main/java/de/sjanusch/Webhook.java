@@ -24,13 +24,13 @@ public class Webhook implements Runnable {
   @Override
   public void run() {
     try {
-      logger.debug("bot started");
+      logger.debug("starting webhook");
       final Address nsqdAddress = Address.fromEnv("NSQD_ADDRESS");
       final Address nsqLookupdAddress = Address.fromEnv("NSQ_LOOKUPD_ADDRESS");
       instance.run(nsqdAddress, nsqLookupdAddress, botname);
-      logger.debug("bot finished");
+      logger.debug("webhook started");
     } catch (final Exception e) {
-      logger.warn("bot failed", e);
+      logger.warn("start webhook failed", e);
     }
   }
 }
