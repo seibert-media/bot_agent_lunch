@@ -11,7 +11,7 @@ public class Main {
     final Injector injector = Guice.createInjector(new GuiceModule());
     final Webhook webhook = injector.getInstance(Webhook.class);
     final Xmpp xmpp = injector.getInstance(Xmpp.class);
-    //webhook.run();
+    webhook.run();
     xmpp.run();
   }
 }
