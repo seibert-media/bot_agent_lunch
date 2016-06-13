@@ -67,7 +67,8 @@ public class BotImpl implements Bot {
     }
   }
 
-  public void startPrivateChat(String username){
+  @Override
+  public void startPrivateChat(final String username) {
     chatClient.startPrivateChat(username);
   }
 
