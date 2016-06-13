@@ -1,23 +1,26 @@
 package de.sjanusch.date;
 
-import javax.inject.Inject;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-public class DateFormatter {
+import javax.inject.Inject;
 
-  private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+public class DateFormatter {
 
   @Inject
   public DateFormatter() {
   }
 
-  public String formatDate(final String date) {
-    return format.format(getCalendar(date).getTime());
+  public String formatDate(final String input) {
+    final Calendar calendar = getCalendar(input);
+    LocalDate date = calendar.getTime().toInstant().atZone(ZoneId.of("Europe/Paris")).toLocalDate();
+    return date.toString();
   }
 
   private Calendar getCalendar(final String time) {
+
     final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     cal.setTimeInMillis(Long.parseLong(time));
     return cal;
