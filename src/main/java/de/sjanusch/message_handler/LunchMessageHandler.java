@@ -13,6 +13,7 @@ import de.benjaminborbe.bot.agent.MessageHandler;
 import de.benjaminborbe.bot.agent.Request;
 import de.benjaminborbe.bot.agent.Response;
 import de.sjanusch.confluence.rest.SuperlunchRestClient;
+import de.sjanusch.date.DateFormatter;
 import de.sjanusch.model.superlunch.Lunch;
 
 public class LunchMessageHandler implements MessageHandler {
@@ -23,9 +24,12 @@ public class LunchMessageHandler implements MessageHandler {
 
   private final SuperlunchRestClient superlunchRestClient;
 
+  private final DateFormatter dateFormatter;
+
   @Inject
-  public LunchMessageHandler(final SuperlunchRestClient superlunchRestClient) {
+  public LunchMessageHandler(final SuperlunchRestClient superlunchRestClient, final DateFormatter dateFormatter) {
     this.superlunchRestClient = superlunchRestClient;
+    this.dateFormatter = dateFormatter;
   }
 
   @Override
@@ -49,7 +53,7 @@ public class LunchMessageHandler implements MessageHandler {
       } else {
         sb.append("\n");
       }
-      sb.append(lunch.getDate()).append(" ").append(lunch.getTitle());
+      sb.append(dateFormatter.formatDate(lunch.getDate())).append(" ").append(lunch.getTitle());
     }
     return getResponses(sb.toString());
   }
@@ -59,4 +63,5 @@ public class LunchMessageHandler implements MessageHandler {
     response.setMessage(message);
     return Collections.singletonList(response);
   }
+
 }
