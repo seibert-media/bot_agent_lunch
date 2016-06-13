@@ -16,6 +16,7 @@ import de.sjanusch.eventsystem.EventSystem;
 import de.sjanusch.listener.LunchMessageRecieveListener;
 import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
 import de.sjanusch.model.hipchat.Room;
+import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
 import de.sjanusch.networking.ChatClient;
 import de.sjanusch.networking.Connection;
 import de.sjanusch.networking.exceptions.LoginException;
@@ -23,8 +24,6 @@ import de.sjanusch.networking.exceptions.LoginException;
 public class BotImpl implements Bot {
 
   private static final Logger logger = LoggerFactory.getLogger(BotImpl.class);
-
-  private Room selected;
 
   private final EventSystem eventSystem;
 
@@ -79,11 +78,6 @@ public class BotImpl implements Bot {
   @Override
   public void startPrivateChat(final String username) {
     chatClient.startPrivateChat(username);
-  }
-
-  @Override
-  public Room getSelectedRoom() {
-    return selected;
   }
 
   @Override

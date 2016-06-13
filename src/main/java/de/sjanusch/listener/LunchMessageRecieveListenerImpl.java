@@ -1,16 +1,6 @@
 package de.sjanusch.listener;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.List;
-
-import org.jivesoftware.smack.packet.Message;
-import org.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.inject.Inject;
-
 import de.sjanusch.bot.Bot;
 import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
 import de.sjanusch.eventsystem.EventHandler;
@@ -22,7 +12,20 @@ import de.sjanusch.model.Weekdays;
 import de.sjanusch.model.superlunch.Lunch;
 import de.sjanusch.protocol.LunchMessageProtocol;
 import de.sjanusch.texte.TextHandler;
+import org.jivesoftware.smack.packet.Message;
+import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
+
+/**
+ * Created by Sandro Janusch
+ * Date: 18.05.16
+ * Time: 20:33
+ */
 public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListener {
 
   private static final Logger logger = LoggerFactory.getLogger(LunchMessageRecieveListenerImpl.class);
@@ -38,8 +41,7 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
   private final PrivateMessageRecieverBase privateMessageRecieverBase;
 
   @Inject
-  public LunchMessageRecieveListenerImpl(final LunchListenerHelper lunchListenerHelper, final TextHandler textHandler,
-      final LunchMessageProtocol lunchMessageProtocol, final Bot bot, final PrivateMessageRecieverBase privateMessageRecieverBase) {
+  public LunchMessageRecieveListenerImpl(final LunchListenerHelper lunchListenerHelper, final TextHandler textHandler, final LunchMessageProtocol lunchMessageProtocol, final Bot bot, final PrivateMessageRecieverBase privateMessageRecieverBase) {
     this.lunchListenerHelper = lunchListenerHelper;
     this.textHandler = textHandler;
     this.lunchMessageProtocol = lunchMessageProtocol;
@@ -51,14 +53,17 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
   @EventHandler
   @Override
   public void messageEvent(final MessageRecivedEvent event) {
-    logger.debug("messagen Event");
     try {
       final String from = event.from();
       if (!privateMessageRecieverBase.isMessageFromBot(from)) {
         handleMessage(event.getMessage(), from);
       }
-    } catch (JSONException | IOException | ParseException e) {
-      logger.error(e.getClass().getName(), e);
+    } catch (JSONException e) {
+      logger.error(e.getMessage());
+    } catch (ParseException e) {
+      logger.error(e.getMessage());
+    } catch (IOException e) {
+      logger.error(e.getMessage());
     }
   }
 
@@ -70,13 +75,12 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
     logger.debug("Handle Message from " + actualUser + ": " + incomeMessage);
 
     if (lunchFlow == null && textHandler.containsLunchLoginText(incomeMessage) || textHandler.conatainsLunchLoginCommands(incomeMessage)) {
-      this.handleMittagessenInfoMessage(incomeMessage, actualUser, true);
+      this.handleMittagessenInfoMessage(incomeMessage, actualUser, from, true);
       return;
     }
 
-    if (lunchFlow == null && textHandler.containsLunchLogoutText(incomeMessage)
-        || textHandler.conatainsLunchLogoutCommands(incomeMessage)) {
-      this.handleMittagessenInfoMessage(incomeMessage, actualUser, false);
+    if (lunchFlow == null && textHandler.containsLunchLogoutText(incomeMessage) || textHandler.conatainsLunchLogoutCommands(incomeMessage)) {
+      this.handleMittagessenInfoMessage(incomeMessage, actualUser, from, false);
       return;
     }
 
@@ -97,32 +101,30 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
     }
   }
 
-  private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final boolean login)
-      throws JSONException, ParseException {
-    final Weekdays weekday = Weekdays.getEnumForText(incomeMessage);
+  private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final String fullName, final boolean login) throws JSONException, ParseException {
+    Weekdays weekday = Weekdays.getEnumForText(incomeMessage);
     if (weekday.isWeekend()) {
       final String text = "<b>Am " + weekday.getText() + " gibt es kein Mittagessen!</b>";
       privateMessageRecieverBase.sendNotificationError(text, actualUser);
     } else {
-      final List<Lunch> lunchList = lunchListenerHelper.getLunchlist(weekday);
+      List<Lunch> lunchList = lunchListenerHelper.getLunchlist(weekday);
       if (lunchList.size() > 0) {
-        final StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("<b>Mittagessen " + weekday.getText() + "</b><br>");
         stringBuilder.append(lunchListenerHelper.createLunchOverview(lunchList, actualUser));
         privateMessageRecieverBase.sendNotification(stringBuilder.toString(), actualUser);
-        bot.startPrivateChat(actualUser);
-        final SuperlunchRequestHandler superlunchRequestHandler = lunchListenerHelper.getSuperlunchRequestHandler();
+        SuperlunchRequestHandler superlunchRequestHandler = lunchListenerHelper.getSuperlunchRequestHandler();
         if (!lunchListenerHelper.isLunchesClosed() && lunchListenerHelper.getSignedInNumber() == 0 && login) {
-          final LunchFlow lunchLoginFlow = new LunchLoginFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, weekday);
+          LunchFlow lunchLoginFlow = new LunchLoginFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, weekday);
           lunchLoginFlow.modifyFlowForUser(incomeMessage, actualUser);
           lunchMessageProtocol.addFlowForUser(actualUser, lunchLoginFlow);
         }
         if (!lunchListenerHelper.isLunchesClosed() && (lunchListenerHelper.getSignedInNumber() != 0 || !login)) {
-          final LunchFlow lunchLogoutFlow = new LunchLogoutFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler,
-              lunchListenerHelper.getSignedInNumber(), weekday);
+          LunchFlow lunchLogoutFlow = new LunchLogoutFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, lunchListenerHelper.getSignedInNumber(), weekday);
           lunchLogoutFlow.modifyFlowForUser(incomeMessage, actualUser);
           lunchMessageProtocol.addFlowForUser(actualUser, lunchLogoutFlow);
         }
+        bot.startPrivateChat(fullName);
       } else {
         privateMessageRecieverBase.sendNotificationError(textHandler.getOverviewErrorText(), actualUser);
       }

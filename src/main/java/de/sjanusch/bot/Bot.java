@@ -1,6 +1,5 @@
 package de.sjanusch.bot;
 
-import de.sjanusch.model.hipchat.Room;
 import de.sjanusch.runner.RunnableBot;
 
 import java.io.IOException;
@@ -9,8 +8,6 @@ public interface Bot extends RunnableBot {
 
   @Override
 	void run();
-
-  Room getSelectedRoom();
 
   String getBotroom() throws IOException;
 
@@ -21,4 +18,5 @@ public interface Bot extends RunnableBot {
   String getUsername() throws IOException;
 
   void startPrivateChat(String username);
+
 }
