@@ -54,16 +54,19 @@ public class SuperlunchRequestHandlerImpl implements SuperlunchRequestHandler {
     try {
       final List<Lunch> lunches = superlunchRestClient.superlunchRestApiGet();
       if (lunches != null) {
+        logger.debug("got {} lunches", lunches.size());
         for (final Lunch lunch : lunches) {
           if (this.calculateDay(day) != null && this.isLunchAtDate(lunch, this.calculateDay(day))) {
             filteredLunches.add(lunch);
           }
         }
+      } else {
+        logger.debug("got no lunches");
       }
     } catch (final ParseException e) {
-      logger.error("Fehler beim Confluence Rest-Call: fetchFilteredLunchFromConfluence");
-      logger.error(e.getMessage());
+      logger.error("Fehler beim Confluence Rest-Call: fetchFilteredLunchFromConfluence", e);
     }
+    logger.debug("return {} filtered lunches", filteredLunches.size());
     return filteredLunches;
   }
 
