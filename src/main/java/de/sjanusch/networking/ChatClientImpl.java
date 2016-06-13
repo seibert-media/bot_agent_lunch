@@ -116,6 +116,7 @@ public class ChatClientImpl implements ChatClient {
               eventSystem.callEvent(event);
             }
           });
+          logger.debug("Private Chat with " + userId + " created");
         }
       }
     }

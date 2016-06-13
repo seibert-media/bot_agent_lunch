@@ -51,60 +51,62 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
   public void messageEvent(final PrivateMessageRecivedEvent event) {
     try {
       handleMessage(event.getMessage().getBody(), event.getMessage().getFrom());
-    } catch (JSONException | IOException | ParseException e) {
+    } catch (final JSONException | IOException | ParseException e) {
       logger.error(e.getMessage());
     }
   }
 
   private void handleMessage(final String message, final String from) throws ParseException, IOException, JSONException {
-    if (message != null) {
-      final String incomeMessage = message.toLowerCase().trim();
-      final String actualUser = lunchListenerHelper.convertNames(from);
-      final LunchFlow lunchFlow = lunchMessageProtocol.getCurrentFlowForUser(actualUser);
+    if (message == null) {
+      logger.debug("No Message to Handle: " + message);
+      return;
+    }
+    final String incomeMessage = message.toLowerCase().trim();
+    final String actualUser = lunchListenerHelper.convertNames(from);
+    final LunchFlow lunchFlow = lunchMessageProtocol.getCurrentFlowForUser(actualUser);
 
-      logger.debug("Handle Message from " + actualUser + ": " + incomeMessage);
+    logger.debug("Handle Message from " + actualUser + ": " + incomeMessage);
 
-      if (lunchFlow == null && textHandler.containsLunchLoginText(incomeMessage) || textHandler.conatainsLunchLoginCommands(incomeMessage)) {
-        this.handleMittagessenInfoMessage(incomeMessage, actualUser, true);
-        return;
-      }
+    if (lunchFlow == null && textHandler.containsLunchLoginText(incomeMessage) || textHandler.conatainsLunchLoginCommands(incomeMessage)) {
+      this.handleMittagessenInfoMessage(incomeMessage, actualUser, true);
+      return;
+    }
 
-      if (lunchFlow == null && textHandler.containsLunchLogoutText(incomeMessage) || textHandler.conatainsLunchLogoutCommands(incomeMessage)) {
-        this.handleMittagessenInfoMessage(incomeMessage, actualUser, false);
-        return;
-      }
+    if (lunchFlow == null && textHandler.containsLunchLogoutText(incomeMessage) || textHandler.conatainsLunchLogoutCommands(incomeMessage)) {
+      this.handleMittagessenInfoMessage(incomeMessage, actualUser, false);
+      return;
+    }
 
-      if (lunchFlow != null && lunchFlow.getClass().equals(LunchLoginFlow.class)) {
-        final LunchMessageZustand actualZustand = lunchFlow.modifyFlowForUser(incomeMessage, actualUser);
-        if (actualZustand != null) {
-          if (actualZustand.equals(LunchMessageZustand.ANMELDUNG_ERFOLGREICH)
-            || actualZustand.equals(LunchMessageZustand.ANMELDEN_NEIN)
-            || actualZustand.equals(LunchMessageZustand.ANMELDUNG_FEHLGESCHLAGEN)) {
-            lunchMessageProtocol.removeFlowForUser(actualUser);
-            return;
-          }
+    if (lunchFlow != null && lunchFlow.getClass().equals(LunchLoginFlow.class)) {
+      final LunchMessageZustand actualZustand = lunchFlow.modifyFlowForUser(incomeMessage, actualUser);
+      if (actualZustand != null) {
+        if (actualZustand.equals(LunchMessageZustand.ANMELDUNG_ERFOLGREICH)
+          || actualZustand.equals(LunchMessageZustand.ANMELDEN_NEIN)
+          || actualZustand.equals(LunchMessageZustand.ANMELDUNG_FEHLGESCHLAGEN)) {
+          lunchMessageProtocol.removeFlowForUser(actualUser);
+          return;
         }
-        return;
       }
+      return;
+    }
 
-      if (lunchFlow != null && lunchFlow.getClass().equals(LunchLogoutFlow.class)) {
-        final LunchMessageZustand actualZustand = lunchFlow.modifyFlowForUser(incomeMessage, actualUser);
-        if (actualZustand != null) {
-          if (actualZustand.equals(LunchMessageZustand.ABMELDEN_ERFOLGREICH)
-            || actualZustand.equals(LunchMessageZustand.ABMELDEN_NEIN)
-            || actualZustand.equals(LunchMessageZustand.ABMELDEN_FEHLGESCHLAGEN)) {
-            lunchMessageProtocol.removeFlowForUser(actualUser);
-            lunchListenerHelper.setSignedInNumber(0);
-            return;
-          }
+    if (lunchFlow != null && lunchFlow.getClass().equals(LunchLogoutFlow.class)) {
+      final LunchMessageZustand actualZustand = lunchFlow.modifyFlowForUser(incomeMessage, actualUser);
+      if (actualZustand != null) {
+        if (actualZustand.equals(LunchMessageZustand.ABMELDEN_ERFOLGREICH)
+          || actualZustand.equals(LunchMessageZustand.ABMELDEN_NEIN)
+          || actualZustand.equals(LunchMessageZustand.ABMELDEN_FEHLGESCHLAGEN)) {
+          lunchMessageProtocol.removeFlowForUser(actualUser);
+          lunchListenerHelper.setSignedInNumber(0);
+          return;
         }
-        return;
       }
+      return;
+    }
 
-      if (textHandler.containsHelpCommand(incomeMessage)) {
-        privateMessageRecieverBase.sendNotification(textHandler.getHelpText(), actualUser);
-        return;
-      }
+    if (textHandler.containsHelpCommand(incomeMessage)) {
+      privateMessageRecieverBase.sendNotification(textHandler.getHelpText(), actualUser);
+      return;
     }
   }
 

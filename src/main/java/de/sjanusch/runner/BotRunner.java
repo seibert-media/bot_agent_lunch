@@ -5,6 +5,5 @@ package de.sjanusch.runner;
  */
 public interface BotRunner {
 
-  void runBot(final RunnableBot bot);
-
+  Thread runBotDesync(final RunnableBot bot);
 }

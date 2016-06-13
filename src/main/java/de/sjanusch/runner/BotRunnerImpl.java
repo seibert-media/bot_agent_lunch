@@ -19,13 +19,27 @@ public class BotRunnerImpl implements BotRunner {
   }
 
   @Override
-  public void runBot(final RunnableBot bot) {
+  public Thread runBotDesync(final RunnableBot bot) {
+    return this.runBotDysync(bot);
+  }
+
+  private void run(final RunnableBot bot) {
     try {
-      bot.run();
-      connection.waitForEnd();
-    } catch (final InterruptedException e) {
+			bot.run();
+			connection.waitForEnd();
+    } catch (final Exception e) {
       logger.warn(e.getClass().getName(), e);
     }
   }
 
+  private Thread runBotDysync(final RunnableBot bot) {
+    final Thread t = new Thread() {
+
+      @Override
+      public void run() {
+        BotRunnerImpl.this.run(bot);
+      }
+    };
+    return t;
+  }
 }

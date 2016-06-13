@@ -58,10 +58,10 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
       if (!privateMessageRecieverBase.isMessageFromBot(from)) {
         handleMessage(event.getMessage(), from);
       }
-    } catch (JSONException | IOException | ParseException e) {
+    } catch (final JSONException | IOException | ParseException e) {
       logger.error(e.getMessage());
     }
-  }
+	}
 
   private void handleMessage(final Message message, final String from) throws ParseException, IOException, JSONException {
     final String incomeMessage = message.getBody().toLowerCase().trim();
@@ -71,12 +71,12 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
     logger.debug("Handle Message from " + actualUser + ": " + incomeMessage);
 
     if (lunchFlow == null && textHandler.containsLunchLoginText(incomeMessage) || textHandler.conatainsLunchLoginCommands(incomeMessage)) {
-      this.handleMittagessenInfoMessage(incomeMessage, actualUser, true);
+      this.handleMittagessenInfoMessage(incomeMessage, actualUser, from, true);
       return;
     }
 
     if (lunchFlow == null && textHandler.containsLunchLogoutText(incomeMessage) || textHandler.conatainsLunchLogoutCommands(incomeMessage)) {
-      this.handleMittagessenInfoMessage(incomeMessage, actualUser, false);
+      this.handleMittagessenInfoMessage(incomeMessage, actualUser, from, false);
       return;
     }
 
@@ -97,7 +97,7 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
     }
   }
 
-  private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final boolean login) throws JSONException, ParseException {
+  private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final String fullName, final boolean login) throws JSONException, ParseException {
     final Weekdays weekday = Weekdays.getEnumForText(incomeMessage);
     if (weekday.isWeekend()) {
       final String text = "<b>Am " + weekday.getText() + " gibt es kein Mittagessen!</b>";
@@ -109,7 +109,6 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
         stringBuilder.append("<b>Mittagessen " + weekday.getText() + "</b><br>");
         stringBuilder.append(lunchListenerHelper.createLunchOverview(lunchList, actualUser));
         privateMessageRecieverBase.sendNotification(stringBuilder.toString(), actualUser);
-        bot.startPrivateChat(actualUser);
         final SuperlunchRequestHandler superlunchRequestHandler = lunchListenerHelper.getSuperlunchRequestHandler();
         if (!lunchListenerHelper.isLunchesClosed() && lunchListenerHelper.getSignedInNumber() == 0 && login) {
           final LunchFlow lunchLoginFlow = new LunchLoginFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, weekday);
@@ -117,11 +116,11 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
           lunchMessageProtocol.addFlowForUser(actualUser, lunchLoginFlow);
         }
         if (!lunchListenerHelper.isLunchesClosed() && (lunchListenerHelper.getSignedInNumber() != 0 || !login)) {
-          final LunchFlow lunchLogoutFlow = new LunchLogoutFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler,
-              lunchListenerHelper.getSignedInNumber(), weekday);
+          final LunchFlow lunchLogoutFlow = new LunchLogoutFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, lunchListenerHelper.getSignedInNumber(), weekday);
           lunchLogoutFlow.modifyFlowForUser(incomeMessage, actualUser);
           lunchMessageProtocol.addFlowForUser(actualUser, lunchLogoutFlow);
         }
+        bot.startPrivateChat(fullName);
       } else {
         privateMessageRecieverBase.sendNotificationError(textHandler.getOverviewErrorText(), actualUser);
       }

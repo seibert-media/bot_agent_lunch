@@ -23,8 +23,7 @@ public class Xmpp implements Runnable {
 
   @Override
   public void run() {
-    logger.debug("xmpp started");
-    botRunner.runBot(bot);
-    logger.debug("xmpp finished");
+    final Thread t = botRunner.runBotDesync(bot);
+    t.start();
   }
 }
