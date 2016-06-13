@@ -35,6 +35,10 @@ public class BotConfigurationImpl implements BotConfiguration {
 
   @Override
   public String getBotChatRoom() throws IOException {
+    final String room = System.getenv("BOT_CHAT_ROOM");
+    if (room != null && !room.isEmpty()) {
+      return room;
+    }
     return this.configurationLoader.getPropertyStringValue("bot_chat_room");
   }
 
