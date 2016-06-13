@@ -12,6 +12,6 @@ public class Main {
     final Webhook webhook = injector.getInstance(Webhook.class);
     final Xmpp xmpp = injector.getInstance(Xmpp.class);
     webhook.run();
-    // xmpp.run();
+    xmpp.run();
   }
 }
