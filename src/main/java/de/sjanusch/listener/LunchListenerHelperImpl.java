@@ -58,7 +58,7 @@ public class LunchListenerHelperImpl implements LunchListenerHelper {
   @Override
   public String createLunchOverview(final List<Lunch> lunchList, final String actualUser) {
     this.lunchesClosed = 0;
-    StringBuilder stringBuilder = new StringBuilder();
+    final StringBuilder stringBuilder = new StringBuilder();
     for (final Lunch lunch : lunchList) {
       stringBuilder.append(this.createMittagessenMessage(lunch, actualUser));
     }
@@ -66,24 +66,28 @@ public class LunchListenerHelperImpl implements LunchListenerHelper {
     return stringBuilder.toString();
   }
 
+  @Override
   public boolean isLunchesClosed() {
     return isLunchesClosed;
   }
 
+  @Override
   public int getSignedInNumber() {
     return signedInNumber;
   }
 
+  @Override
   public void setSignedInNumber(final int value) {
     this.signedInNumber = value;
   }
 
+  @Override
   public SuperlunchRequestHandler getSuperlunchRequestHandler() {
     return superlunchRequestHandler;
   }
 
   private String createMittagessenMessage(final Lunch lunch, final String actualUser) {
-    StringBuilder stringBuilder = new StringBuilder();
+    final StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append("<li>");
     if (!lunch.isClosed()) {
       if (this.checkIsUserSignIn(lunch, actualUser)) {
@@ -103,8 +107,8 @@ public class LunchListenerHelperImpl implements LunchListenerHelper {
   }
 
   private boolean checkIsUserSignIn(final Lunch lunch, final String actualUser) {
-    Participant[] participants = lunch.getParticipants();
-    for (Participant participant : participants) {
+    final Participant[] participants = lunch.getParticipants();
+    for (final Participant participant : participants) {
       if (participant.getName().equals(actualUser)) {
         return true;
       }

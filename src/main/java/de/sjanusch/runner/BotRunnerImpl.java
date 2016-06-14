@@ -1,9 +1,11 @@
 package de.sjanusch.runner;
 
-import com.google.inject.Inject;
-import de.sjanusch.networking.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
+
+import de.sjanusch.networking.Connection;
 
 public class BotRunnerImpl implements BotRunner {
 
@@ -22,12 +24,10 @@ public class BotRunnerImpl implements BotRunner {
   }
 
   private void run(final RunnableBot bot) {
-    bot.run();
     try {
-      connection.waitForEnd();
-    } catch (final InterruptedException e) {
-      logger.warn(e.getClass().getName(), e);
-    }  catch (final Exception e) {
+			bot.run();
+			connection.waitForEnd();
+    } catch (final Exception e) {
       logger.warn(e.getClass().getName(), e);
     }
   }

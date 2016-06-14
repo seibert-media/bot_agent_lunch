@@ -50,7 +50,8 @@ public class ChatClientImpl implements ChatClient {
     this.bot = bot;
   }
 
-  public boolean login(final XMPPConnection xmpp, String username, String password) throws LoginException {
+  @Override
+  public boolean login(final XMPPConnection xmpp, final String username, final String password) throws LoginException {
     if (!username.contains("hipchat.com")) {
       logger.error("The username being used does not look like a Jabber ID. Are you sure this is the correct username?");
       return false;
@@ -58,11 +59,12 @@ public class ChatClientImpl implements ChatClient {
     try {
       xmpp.login(username, password);
       return true;
-    } catch (XMPPException exception) {
+    } catch (final XMPPException exception) {
       throw new LoginException("There was an error logging in! Are you using the correct username/password?", exception);
     }
   }
 
+  @Override
   public boolean joinChat(final XMPPConnection xmpp, final String room, final String user, final String password) {
     if (user.equals("") || password.equals("")) {
       return false;
@@ -75,11 +77,11 @@ public class ChatClientImpl implements ChatClient {
         chat.addMessageListener(new PacketListener() {
 
           @Override
-          public void processPacket(Packet paramPacket) {
-            Message m = new Message();
+          public void processPacket(final Packet paramPacket) {
+            final Message m = new Message();
             m.setBody(toMessage(paramPacket));
             m.setFrom(paramPacket.getFrom().split("\\/")[1]);
-            MessageRecivedEvent event = new MessageRecivedEvent(obj, m);
+            final MessageRecivedEvent event = new MessageRecivedEvent(obj, m);
             eventSystem.callEvent(event);
           }
         });
@@ -87,15 +89,16 @@ public class ChatClientImpl implements ChatClient {
       } else {
         logger.error("Cannot join in room " + room);
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       logger.error("Error while creating Chat!");
-    } catch (XMPPException e) {
-      e.printStackTrace();
+    } catch (final XMPPException e) {
+      logger.warn(e.getClass().getName(), e);
     }
     return false;
   }
 
-  public void startPrivateChat(String username) {
+  @Override
+  public void startPrivateChat(final String username) {
     final Iterator<String> occupantIterator = chat.getOccupants();
     while (occupantIterator.hasNext()) {
       final String occupantString = occupantIterator.next();
@@ -106,10 +109,10 @@ public class ChatClientImpl implements ChatClient {
 
             @Override
             public void processMessage(final Chat chat, final Message message) {
-              Message m = new Message();
+              final Message m = new Message();
               m.setBody(message.getBody());
               m.setFrom(username);
-              PrivateMessageRecivedEvent event = new PrivateMessageRecivedEvent(m);
+              final PrivateMessageRecivedEvent event = new PrivateMessageRecivedEvent(m);
               eventSystem.callEvent(event);
             }
           });
@@ -127,38 +130,36 @@ public class ChatClientImpl implements ChatClient {
     return null;
   }
 
-  private Room joinChatRoom(final Room roomObject, final String roomName, XMPPConnection con) {
+  private Room joinChatRoom(final Room roomObject, final String roomName, final XMPPConnection con) {
     try {
       roomObject.setName(roomName);
       roomObject.setChat(chat);
       roomObject.info = MultiUserChat.getRoomInfo(con, this.getChatRoomName(roomName));
       return roomObject;
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (XMPPException e) {
-      e.printStackTrace();
+    } catch (IOException | XMPPException e) {
+      logger.warn(e.getClass().getName(), e);
     }
     return null;
   }
 
   private String getChatRoomName(final String room) throws IOException {
-    return room.indexOf("@") != -1 ? room : room + "@" + chatConnectionConfiguration.getConfUrl();
+    return room.contains("@") ? room : room + "@" + chatConnectionConfiguration.getConfUrl();
   }
 
-  private String toMessage(Packet packet) {
+  private String toMessage(final Packet packet) {
     try {
-      Field f = packet.getClass().getDeclaredField("bodies");
+      final Field f = packet.getClass().getDeclaredField("bodies");
       f.setAccessible(true);
       @SuppressWarnings("rawtypes")
-      HashSet h = (HashSet) f.get(packet);
+      final HashSet h = (HashSet) f.get(packet);
       if (h.size() == 0)
         return "";
-      for (Object obj : h) {
+      for (final Object obj : h) {
         if (obj instanceof Message.Body)
           return ((Message.Body) obj).getMessage();
       }
       return "";
-    } catch (Exception e) {
+    } catch (final Exception e) {
       return "";
     }
   }

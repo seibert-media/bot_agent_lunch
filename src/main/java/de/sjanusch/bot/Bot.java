@@ -6,7 +6,8 @@ import java.io.IOException;
 
 public interface Bot extends RunnableBot {
 
-  void run();
+  @Override
+	void run();
 
   String getBotroom() throws IOException;
 

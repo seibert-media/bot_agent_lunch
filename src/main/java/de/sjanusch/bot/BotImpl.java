@@ -1,18 +1,25 @@
 package de.sjanusch.bot;
 
+import java.io.IOException;
+import java.util.Collection;
+
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smackx.muc.HostedRoom;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.inject.Inject;
+
 import de.sjanusch.configuration.BotConfiguration;
 import de.sjanusch.eventsystem.EventSystem;
 import de.sjanusch.listener.LunchMessageRecieveListener;
 import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
+import de.sjanusch.model.hipchat.Room;
+import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
 import de.sjanusch.networking.ChatClient;
 import de.sjanusch.networking.Connection;
 import de.sjanusch.networking.exceptions.LoginException;
-import org.jivesoftware.smack.XMPPException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 public class BotImpl implements Bot {
 
@@ -32,7 +39,9 @@ public class BotImpl implements Bot {
 
   @Inject
   public BotImpl(final EventSystem eventSystem, final Connection connection,
-                 final LunchPrivateMessageRecieveListener lunchPrivateMessageRecieveListener, final LunchMessageRecieveListener luncheMessageRecieveListener, final BotConfiguration botConfiguration, final ChatClient chatClient) {
+      final LunchPrivateMessageRecieveListener lunchPrivateMessageRecieveListener,
+      final LunchMessageRecieveListener luncheMessageRecieveListener, final BotConfiguration botConfiguration,
+      final ChatClient chatClient) {
     this.eventSystem = eventSystem;
     this.connection = connection;
     this.lunchPrivateMessageRecieveListener = lunchPrivateMessageRecieveListener;
@@ -55,16 +64,19 @@ public class BotImpl implements Bot {
           joined = chatClient.joinChat(connection.getXmpp(), this.getBotroom(), this.getNickname(), this.getPassword());
         }
       }
-      logger.debug(this.getNickname() + " loggedin: " + loggedIn +  " and joined: " + joined + " in Room " + this.getBotroom());
-    } catch (final XMPPException e) {
-      logger.error("Error during join Room");
-      logger.error(e.getMessage());
-    } catch (final LoginException | IOException e) {
+      logger.debug(this.getNickname() + " loggedin: " + loggedIn + " and joined: " + joined + " in Room " + this.getBotroom());
+    } catch (final XMPPException | LoginException | IOException e) {
       logger.warn(e.getClass().getName(), e);
+      try {
+        connection.disconnect();
+      } catch (final XMPPException e2) {
+        logger.debug("disconnect failed", e2);
+      }
     }
   }
 
-  public void startPrivateChat(String username){
+  @Override
+  public void startPrivateChat(final String username) {
     chatClient.startPrivateChat(username);
   }
 
