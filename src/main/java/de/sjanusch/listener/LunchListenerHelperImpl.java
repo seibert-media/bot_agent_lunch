@@ -19,6 +19,8 @@ public class LunchListenerHelperImpl implements LunchListenerHelper {
 
   private static final Logger logger = LoggerFactory.getLogger(LunchListenerHelperImpl.class);
 
+  private final String[][] UMLAUT_REPLACEMENTS = {{new String("Ä"), "Ae"}, {new String("Ü"), "Ue"}, {new String("Ö"), "Oe"}, {new String("ä"), "ae"}, {new String("ü"), "ue"}, {new String("ö"), "oe"}, {new String("ß"), "ss"}};
+
   private final SuperlunchRequestHandler superlunchRequestHandler;
 
   private int lunchesClosed = 0;
@@ -45,7 +47,8 @@ public class LunchListenerHelperImpl implements LunchListenerHelper {
     if (from.toLowerCase().trim().contains("lennart vn")) {
       return "lvniebelschuetz";
     }
-    final String[] names = from.split(" ");
+    final String cleanedString = this.replaceUmlaute(from);
+    final String[] names = cleanedString.split(" ");
     if (names.length > 1) {
       return names[0].toLowerCase().charAt(0) + names[names.length - 1].toLowerCase();
     }
@@ -94,7 +97,7 @@ public class LunchListenerHelperImpl implements LunchListenerHelper {
       this.setLunchesCounterClosed();
     }
     final String description = (lunch.getDescription() == "" || lunch.getDescription() == null) ? "" : lunch.getDescription() + ", ";
-      stringBuilder.append("(" + lunch.getCreatorName() + ", " + this.convertVeggyValue(lunch.isVeggy()) + ", "  + description + lunch.getFormattedPrice() + "&euro;)");
+    stringBuilder.append("(" + lunch.getCreatorName() + ", " + this.convertVeggyValue(lunch.isVeggy()) + ", " + description + lunch.getFormattedPrice() + "&euro;)");
     stringBuilder.append("</li>");
     return stringBuilder.toString();
   }
@@ -123,5 +126,13 @@ public class LunchListenerHelperImpl implements LunchListenerHelper {
     } else {
       this.isLunchesClosed = false;
     }
+  }
+
+  private String replaceUmlaute(String orig) {
+    String result = orig;
+    for (int i = 0; i < UMLAUT_REPLACEMENTS.length; i++) {
+      result = result.replace(UMLAUT_REPLACEMENTS[i][0], UMLAUT_REPLACEMENTS[i][1]);
+    }
+    return result;
   }
 }
