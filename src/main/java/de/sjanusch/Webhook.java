@@ -10,27 +10,37 @@ import de.benjaminborbe.bot.agent.Runner;
 
 public class Webhook implements Runnable {
 
-  private static final Logger logger = LoggerFactory.getLogger(Webhook.class);
+	private static final Logger logger = LoggerFactory.getLogger(Webhook.class);
 
-  private final Runner instance;
+	private static final String BOT_NAME = "BOT_NAME";
 
-  private final String botname = "lunch";
+	private static final String NSQD_ADDRESS = "NSQD_ADDRESS";
 
-  @Inject
-  public Webhook(final Runner instance) {
-    this.instance = instance;
-  }
+	private static final String NSQ_LOOKUPD_ADDRESS = "NSQ_LOOKUPD_ADDRESS";
 
-  @Override
-  public void run() {
-    try {
-      logger.debug("starting webhook");
-      final Address nsqdAddress = Address.fromEnv("NSQD_ADDRESS");
-      final Address nsqLookupdAddress = Address.fromEnv("NSQ_LOOKUPD_ADDRESS");
-      instance.run(nsqdAddress, nsqLookupdAddress, botname);
-      logger.debug("webhook started");
-    } catch (final Exception e) {
-      logger.warn("start webhook failed", e);
-    }
-  }
+	private final Runner instance;
+
+	@Inject
+	public Webhook(final Runner instance) {
+		this.instance = instance;
+	}
+
+	@Override
+	public void run() {
+		try {
+			logger.debug("starting webhook");
+			final Address nsqdAddress = Address.fromEnv(NSQD_ADDRESS);
+			final Address nsqLookupdAddress = Address.fromEnv(NSQ_LOOKUPD_ADDRESS);
+			final String bot_name = System.getenv(BOT_NAME);
+			if (bot_name == null || bot_name.isEmpty()) {
+				logger.warn("env {} missing", BOT_NAME);
+				return;
+			}
+			logger.debug("bot_name: {}", bot_name);
+			instance.run(nsqdAddress, nsqLookupdAddress, bot_name);
+			logger.debug("webhook started");
+		} catch (final Exception e) {
+			logger.warn("start webhook failed", e);
+		}
+	}
 }
