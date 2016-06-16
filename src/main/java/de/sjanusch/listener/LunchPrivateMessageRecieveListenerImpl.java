@@ -12,7 +12,6 @@ import de.sjanusch.model.Weekdays;
 import de.sjanusch.model.superlunch.Lunch;
 import de.sjanusch.protocol.LunchMessageProtocol;
 import de.sjanusch.texte.TextHandler;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,12 +50,12 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
   public void messageEvent(final PrivateMessageRecivedEvent event) {
     try {
       handleMessage(event.getMessage().getBody(), event.getMessage().getFrom());
-    } catch (final JSONException | IOException | ParseException e) {
+    } catch (final IOException | ParseException e) {
       logger.error(e.getMessage());
     }
   }
 
-  private void handleMessage(final String message, final String from) throws ParseException, IOException, JSONException {
+  private void handleMessage(final String message, final String from) throws ParseException, IOException {
     if (message == null) {
       logger.debug("No Message to Handle: " + message);
       return;
@@ -110,7 +109,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
     }
   }
 
-  private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final boolean login) throws JSONException, ParseException {
+  private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final boolean login) throws ParseException {
     final Weekdays weekday = Weekdays.getEnumForText(incomeMessage);
     if (weekday.isWeekend()) {
       final String text = "<b>Am " + weekday.getText() + " gibt es kein Mittagessen!</b>";
@@ -130,7 +129,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
         }
         if (!lunchListenerHelper.isLunchesClosed() && (lunchListenerHelper.getSignedInNumber() != 0 || !login)) {
           final LunchFlow lunchLogoutFlow = new LunchLogoutFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler,
-              lunchListenerHelper.getSignedInNumber(), weekday);
+            lunchListenerHelper.getSignedInNumber(), weekday);
           lunchLogoutFlow.modifyFlowForUser(incomeMessage, actualUser);
           lunchMessageProtocol.addFlowForUser(actualUser, lunchLogoutFlow);
         }
