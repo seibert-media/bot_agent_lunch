@@ -128,15 +128,6 @@ public class HipchatRestClientImpl implements HipchatRestClient {
       default:
         this.sendResponseError(response);
         break;
-      case 400:
-        this.sendResponseError(response);
-        break;
-      case 403:
-        this.sendResponseError(response);
-        break;
-      case 404:
-        this.sendResponseError(response);
-        break;
       case 204:
         logger.debug("Message success");
         break;
@@ -172,10 +163,14 @@ public class HipchatRestClientImpl implements HipchatRestClient {
   }
 
   private String getHipChatUserMail(final String userNickName) {
+    return "/user/" + "jseibert" + EMAIL_POSTFIX + "/message";
+
+    /*
     if (userNickName.equals("jseibert")) {
       return "/user/" + EMAIL_POSTFIX_FALLBACK + "/message";
     }
     return "/user/" + userNickName + EMAIL_POSTFIX + "/message";
+    */
   }
 
   private final class HostnameVerifierAllowAll implements HostnameVerifier {
