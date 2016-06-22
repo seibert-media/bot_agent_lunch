@@ -83,6 +83,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
           || actualZustand.equals(LunchMessageZustand.ANMELDEN_NEIN)
           || actualZustand.equals(LunchMessageZustand.ANMELDUNG_FEHLGESCHLAGEN)) {
           lunchMessageProtocol.removeFlowForUser(actualUser);
+          lunchListenerHelper.setSignedInNumber(0);
           return;
         }
       }
@@ -119,6 +120,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
       if (lunchList.size() > 0) {
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("<b>Mittagessen " + weekday.getText() + "</b><br>");
+        lunchListenerHelper.setSignedInNumber(0);
         stringBuilder.append(lunchListenerHelper.createLunchOverview(lunchList, actualUser));
         privateMessageRecieverBase.sendNotification(stringBuilder.toString(), actualUser);
         final SuperlunchRequestHandler superlunchRequestHandler = lunchListenerHelper.getSuperlunchRequestHandler();
