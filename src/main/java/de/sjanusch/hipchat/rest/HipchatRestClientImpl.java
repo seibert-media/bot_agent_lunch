@@ -1,8 +1,15 @@
 package de.sjanusch.hipchat.rest;
 
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
+import com.google.inject.Inject;
+import de.sjanusch.configuration.HipchatConfiguration;
+import de.sjanusch.model.hipchat.Error;
+import de.sjanusch.model.hipchat.HipchatMessage;
+import de.sjanusch.model.hipchat.HipchatRestError;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -16,22 +23,17 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.inject.Inject;
-
-import de.sjanusch.configuration.HipchatConfiguration;
-import de.sjanusch.model.hipchat.HipchatMessage;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 public class HipchatRestClientImpl implements HipchatRestClient {
 
   public static final Logger logger = LoggerFactory.getLogger(HipchatRestClientImpl.class);
 
   public static final String EMAIL_POSTFIX = "@seibert-media.net";
+
+  public static final String EMAIL_POSTFIX_FALLBACK = "@seibert-media.de";
 
   private final HipchatConfiguration hipchatConfiguration;
 
@@ -41,14 +43,14 @@ public class HipchatRestClientImpl implements HipchatRestClient {
   }
 
   private Client buildClient() throws NoSuchAlgorithmException, KeyManagementException, IOException {
-    final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManagerAllowAll() };
+    final TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManagerAllowAll()};
     final SSLContext sc = SSLContext.getInstance("SSL");
     sc.init(null, trustAllCerts, new java.security.SecureRandom());
     final Client client = ClientBuilder.newBuilder()
-        .register(JacksonFeature.class)
-        .hostnameVerifier(new HostnameVerifierAllowAll())
-        .sslContext(sc)
-        .build();
+      .register(JacksonFeature.class)
+      .hostnameVerifier(new HostnameVerifierAllowAll())
+      .sslContext(sc)
+      .build();
     client.property(ClientProperties.CONNECT_TIMEOUT, 3000);
     client.property(ClientProperties.READ_TIMEOUT, 3000);
     return client;
@@ -89,8 +91,8 @@ public class HipchatRestClientImpl implements HipchatRestClient {
     logger.debug("Requesting  '" + target.getUri() + "' by POST ");
     try {
       final Response response = target.request(MediaType.APPLICATION_JSON_TYPE)
-          .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyNotification())
-          .post(Entity.entity(chatMessage, MediaType.APPLICATION_JSON_TYPE));
+        .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyNotification())
+        .post(Entity.entity(chatMessage, MediaType.APPLICATION_JSON_TYPE));
       this.handleResponse(response);
     } catch (final ProcessingException e) {
       logger.error("Unexpected return code from calling", e);
@@ -101,8 +103,8 @@ public class HipchatRestClientImpl implements HipchatRestClient {
     logger.debug("Requesting  '" + target.getUri() + "' by POST ");
     try {
       final Response response = target.request(MediaType.APPLICATION_JSON_TYPE)
-          .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyMessage())
-          .post(Entity.entity(chatMessage, MediaType.APPLICATION_JSON_TYPE));
+        .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyMessage())
+        .post(Entity.entity(chatMessage, MediaType.APPLICATION_JSON_TYPE));
       this.handleResponse(response);
     } catch (final ProcessingException e) {
       logger.error("Unexpected return code from calling", e);
@@ -113,8 +115,8 @@ public class HipchatRestClientImpl implements HipchatRestClient {
     logger.debug("Requesting  '{}' by POST - message: {}", target.getUri(), chatMessage.getMessage());
     try {
       final Response response = target.request(MediaType.APPLICATION_JSON_TYPE)
-          .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyMessage())
-          .post(Entity.entity(chatMessage, MediaType.APPLICATION_JSON_TYPE));
+        .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyMessage())
+        .post(Entity.entity(chatMessage, MediaType.APPLICATION_JSON_TYPE));
       this.handleResponse(response);
     } catch (final ProcessingException e) {
       logger.error("Unexpected return code from calling", e);
@@ -124,13 +126,7 @@ public class HipchatRestClientImpl implements HipchatRestClient {
   private void handleResponse(final Response response) {
     switch (response.getStatus()) {
       default:
-        logger.error("Unexpected return: " + response.getStatus() + ", " + response.readEntity(String.class));
-        break;
-      case 400:
-        logger.error("Unexpected return: " + response.getStatus() + ", " + response.readEntity(String.class));
-        break;
-      case 403:
-        logger.error("Unexpected return: " + response.getStatus() + ", " + response.readEntity(String.class));
+        this.sendResponseError(response);
         break;
       case 204:
         logger.debug("Message success");
@@ -144,6 +140,20 @@ public class HipchatRestClientImpl implements HipchatRestClient {
     }
   }
 
+  private void sendResponseError(final Response response) {
+    final String errorString = response.readEntity(String.class);
+    try {
+      final HipchatRestError hipchatRestError = new ObjectMapper().readValue(errorString, HipchatRestError.class);
+      final Error error = hipchatRestError.getError();
+      logger.error("Unexpected return: " + error.getCode() + ", " + error.getMessage() + ", " + error.getType());
+      final HipchatMessage hipchatMessage = new HipchatMessage(error.getType() + ": " + error.getMessage(), "html");
+      hipchatMessage.setColor("red");
+      this.hipchatRestApiSendMessage(hipchatMessage);
+    } catch (IOException e) {
+      logger.error("parsing hipchat JSON response: " + errorString);
+    }
+  }
+
   private String getHipchatRoomId() throws IOException {
     return hipchatConfiguration.getHipchatRestApiRoomId();
   }
@@ -153,6 +163,9 @@ public class HipchatRestClientImpl implements HipchatRestClient {
   }
 
   private String getHipChatUserMail(final String userNickName) {
+    if (userNickName.equals("jseibert")) {
+      return "/user/" + userNickName + EMAIL_POSTFIX_FALLBACK + "/message";
+    }
     return "/user/" + userNickName + EMAIL_POSTFIX + "/message";
   }
 

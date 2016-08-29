@@ -44,8 +44,6 @@ import de.sjanusch.runner.BotRunnerImpl;
 import de.sjanusch.texte.TextHandler;
 import de.sjanusch.texte.TextHandlerImpl;
 
-import javax.inject.Singleton;
-
 public class GuiceModule extends AbstractModule {
 
   @Override
@@ -67,11 +65,9 @@ public class GuiceModule extends AbstractModule {
     bind(ChatClient.class).to(ChatClientImpl.class);
     bind(LunchPrivateMessageRecieveListener.class).to(LunchPrivateMessageRecieveListenerImpl.class);
     bind(LunchListenerHelper.class).to(LunchListenerHelperImpl.class);
-		bind(MessageHandler.class).to(LunchMessageHandler.class);
-
-    // singleton
-    bind(EventSystem.class).to(EventSystemImpl.class).in(Singleton.class);
-    bind(Connection.class).to(ConnectionImpl.class).in(Singleton.class);
-    bind(LunchMessageProtocol.class).to(LunchMessageProtocolImpl.class).in(Singleton.class);
+    bind(EventSystem.class).to(EventSystemImpl.class).asEagerSingleton();
+    bind(Connection.class).to(ConnectionImpl.class).asEagerSingleton();
+    bind(LunchMessageProtocol.class).to(LunchMessageProtocolImpl.class).asEagerSingleton();
+    bind(MessageHandler.class).to(LunchMessageHandler.class);
   }
 }

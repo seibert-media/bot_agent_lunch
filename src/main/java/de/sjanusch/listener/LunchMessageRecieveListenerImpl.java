@@ -13,7 +13,6 @@ import de.sjanusch.model.superlunch.Lunch;
 import de.sjanusch.protocol.LunchMessageProtocol;
 import de.sjanusch.texte.TextHandler;
 import org.jivesoftware.smack.packet.Message;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,12 +57,12 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
       if (!privateMessageRecieverBase.isMessageFromBot(from)) {
         handleMessage(event.getMessage(), from);
       }
-    } catch (final JSONException | IOException | ParseException e) {
+    } catch (final IOException | ParseException e) {
       logger.error(e.getMessage());
     }
 	}
 
-  private void handleMessage(final Message message, final String from) throws ParseException, IOException, JSONException {
+  private void handleMessage(final Message message, final String from) throws ParseException, IOException {
     final String incomeMessage = message.getBody().toLowerCase().trim();
     final String actualUser = lunchListenerHelper.convertNames(from);
     final LunchFlow lunchFlow = lunchMessageProtocol.getCurrentFlowForUser(actualUser);
@@ -97,7 +96,7 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
     }
   }
 
-  private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final String fullName, final boolean login) throws JSONException, ParseException {
+  private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final String fullName, final boolean login) throws ParseException {
     final Weekdays weekday = Weekdays.getEnumForText(incomeMessage);
     if (weekday.isWeekend()) {
       final String text = "<b>Am " + weekday.getText() + " gibt es kein Mittagessen!</b>";

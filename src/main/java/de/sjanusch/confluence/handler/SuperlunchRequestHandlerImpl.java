@@ -1,5 +1,13 @@
 package de.sjanusch.confluence.handler;
 
+import com.google.inject.Inject;
+import de.sjanusch.confluence.rest.SuperlunchRestClient;
+import de.sjanusch.date.DateFormatter;
+import de.sjanusch.model.Weekdays;
+import de.sjanusch.model.superlunch.Lunch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,16 +16,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.inject.Inject;
-
-import de.sjanusch.confluence.rest.SuperlunchRestClient;
-import de.sjanusch.model.Weekdays;
-import de.sjanusch.model.superlunch.Lunch;
 
 /**
  * Created by Sandro Janusch Date: 13.05.16 Time: 19:42
@@ -28,9 +26,12 @@ public class SuperlunchRequestHandlerImpl implements SuperlunchRequestHandler {
 
   private final SuperlunchRestClient superlunchRestClient;
 
+  private final DateFormatter dateFormatter;
+
   @Inject
-  public SuperlunchRequestHandlerImpl(final SuperlunchRestClient superlunchRestClient) {
+  public SuperlunchRequestHandlerImpl(final SuperlunchRestClient superlunchRestClient, final DateFormatter dateFormatter) {
     this.superlunchRestClient = superlunchRestClient;
+    this.dateFormatter = dateFormatter;
   }
 
   @Override
@@ -71,9 +72,9 @@ public class SuperlunchRequestHandlerImpl implements SuperlunchRequestHandler {
   }
 
   private boolean isLunchAtDate(final Lunch lunch, final Date today) throws ParseException {
-    final DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+    final DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     final Date todayWithZeroTime = formatter.parse(formatter.format(today));
-    final Date lunchDate = formatter.parse(formatter.format(this.getDateForString(lunch.getDate())));
+    final Date lunchDate = formatter.parse(this.getDateForString(lunch.getDate()));
     if (lunchDate.compareTo(todayWithZeroTime) == 0) {
       return true;
     }
@@ -117,14 +118,8 @@ public class SuperlunchRequestHandlerImpl implements SuperlunchRequestHandler {
     return null;
   }
 
-  private Date getDateForString(final String time) {
-    final Calendar cal = Calendar.getInstance(Locale.GERMAN);
-    cal.setTimeInMillis(Long.valueOf(time));
-    final TimeZone t = cal.getTimeZone();
-    if (!t.getID().equals("Europe/Berlin")) {
-      cal.add(Calendar.DAY_OF_WEEK, 1);
-    }
-    return cal.getTime();
+  private String getDateForString(final String time) {
+    return dateFormatter.formatDate(time) ;
   }
 
   private Calendar nextDayOfWeek(final int dow) {
