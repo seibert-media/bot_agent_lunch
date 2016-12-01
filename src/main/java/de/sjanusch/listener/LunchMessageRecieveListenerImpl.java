@@ -140,7 +140,7 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
           if (messageRecivedEvents.size() > 0) {
             final MessageRecivedEvent messageRecivedEvent = messageRecivedEvents.getLast();
             if (messageRecivedEvent != null) {
-              logger.debug("Handle Message: " + messageRecivedEvent.getMessage().getBody());
+              logger.debug("Handle Standardmessage: " + messageRecivedEvent.getMessage().getBody());
               handleMessage(messageRecivedEvent.getMessage(), messageRecivedEvent.from());
               messageRecivedEvents.remove(messageRecivedEvent);
             }
@@ -153,6 +153,6 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
       }
     };
     timer.scheduleAtFixedRate(timerTask, 0, 1000);
-    logger.debug("Lunchtimer started");
+    logger.debug("MessageTimer started");
   }
 }

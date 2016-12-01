@@ -167,7 +167,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
       }
     };
     timer.scheduleAtFixedRate(timerTask, 0, 1000);
-    logger.debug("Lunchtimer started");
+    logger.debug("PrivateMessageTimer started");
   }
 
 }
