@@ -6,7 +6,6 @@ import de.sjanusch.model.superlunch.Lunch;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.HttpBasicAuthFilter;
-import org.glassfish.jersey.jackson.JacksonFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +45,6 @@ public class SuperlunchRestClientImpl implements SuperlunchRestClient {
     sc.init(null, trustAllCerts, new java.security.SecureRandom());
     final Client client = ClientBuilder.newBuilder()
         .register(new HttpBasicAuthFilter(lunchConfiguration.getLunchUsername(), lunchConfiguration.getLunchUserPassword()))
-        .register(JacksonFeature.class)
         .hostnameVerifier(new HostnameVerifierAllowAll())
         .sslContext(sc)
         .build();
