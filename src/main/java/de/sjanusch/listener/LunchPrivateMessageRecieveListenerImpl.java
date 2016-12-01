@@ -17,7 +17,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by Sandro Janusch
@@ -36,23 +39,22 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
 
   private final LunchMessageProtocol lunchMessageProtocol;
 
+  private final LinkedList<PrivateMessageRecivedEvent> privateMessageRecivedEvents = new LinkedList<>();
+
   @Inject
   public LunchPrivateMessageRecieveListenerImpl(final LunchListenerHelper lunchListenerHelper, final TextHandler textHandler, final PrivateMessageRecieverBase privateMessageRecieverBase, final LunchMessageProtocol lunchMessageProtocol) {
     this.lunchListenerHelper = lunchListenerHelper;
     this.textHandler = textHandler;
     this.privateMessageRecieverBase = privateMessageRecieverBase;
     this.lunchMessageProtocol = lunchMessageProtocol;
+    this.startPrivateMessageTimer();
   }
 
   @SuppressWarnings("unused")
   @EventHandler
   @Override
   public void messageEvent(final PrivateMessageRecivedEvent event) {
-    try {
-      handleMessage(event.getMessage().getBody(), event.getMessage().getFrom());
-    } catch (final IOException | ParseException e) {
-      logger.error(e.getMessage());
-    }
+    privateMessageRecivedEvents.add(event);
   }
 
   private void handleMessage(final String message, final String from) throws ParseException, IOException {
@@ -140,4 +142,32 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
       }
     }
   }
+
+  private void startPrivateMessageTimer() {
+    final Timer timer = new Timer("PrivateMessageTimer");
+    final TimerTask timerTask = new TimerTask() {
+
+      @Override
+      public void run() {
+
+        try {
+          if (privateMessageRecivedEvents.size() > 0) {
+            final PrivateMessageRecivedEvent privateMessageRecivedEvent = privateMessageRecivedEvents.getLast();
+            if (privateMessageRecivedEvent != null) {
+              logger.debug("Handle Privatemessage: " + privateMessageRecivedEvent.getMessage().getBody());
+              handleMessage(privateMessageRecivedEvent.getMessage().getBody(), privateMessageRecivedEvent.getMessage().getFrom());
+              privateMessageRecivedEvents.remove(privateMessageRecivedEvent);
+            }
+          }
+        } catch (ParseException e) {
+          logger.error("ParseException: " + e.getMessage());
+        } catch (IOException e) {
+          logger.error("IOException: " + e.getMessage());
+        }
+      }
+    };
+    timer.scheduleAtFixedRate(timerTask, 0, 1000);
+    logger.debug("Lunchtimer started");
+  }
+
 }
