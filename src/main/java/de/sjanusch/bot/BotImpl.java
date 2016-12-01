@@ -1,25 +1,18 @@
 package de.sjanusch.bot;
 
-import java.io.IOException;
-import java.util.Collection;
-
-import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smackx.muc.HostedRoom;
-import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.inject.Inject;
-
 import de.sjanusch.configuration.BotConfiguration;
 import de.sjanusch.eventsystem.EventSystem;
 import de.sjanusch.listener.LunchMessageRecieveListener;
 import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
-import de.sjanusch.model.hipchat.Room;
-import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
 import de.sjanusch.networking.ChatClient;
 import de.sjanusch.networking.Connection;
 import de.sjanusch.networking.exceptions.LoginException;
+import org.jivesoftware.smack.XMPPException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class BotImpl implements Bot {
 

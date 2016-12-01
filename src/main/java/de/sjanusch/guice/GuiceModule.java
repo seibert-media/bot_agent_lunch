@@ -1,7 +1,6 @@
 package de.sjanusch.guice;
 
 import com.google.inject.AbstractModule;
-import de.benjaminborbe.bot.agent.MessageHandler;
 import de.sjanusch.bot.Bot;
 import de.sjanusch.bot.BotImpl;
 import de.sjanusch.configuration.BotConfiguration;
@@ -32,7 +31,6 @@ import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
 import de.sjanusch.listener.LunchPrivateMessageRecieveListenerImpl;
 import de.sjanusch.listener.PrivateMessageRecieverBase;
 import de.sjanusch.listener.PrivateMessageRecieverBaseImpl;
-import de.sjanusch.message_handler.LunchMessageHandler;
 import de.sjanusch.networking.ChatClient;
 import de.sjanusch.networking.ChatClientImpl;
 import de.sjanusch.networking.Connection;
@@ -68,6 +66,5 @@ public class GuiceModule extends AbstractModule {
     bind(EventSystem.class).to(EventSystemImpl.class).asEagerSingleton();
     bind(Connection.class).to(ConnectionImpl.class).asEagerSingleton();
     bind(LunchMessageProtocol.class).to(LunchMessageProtocolImpl.class).asEagerSingleton();
-    bind(MessageHandler.class).to(LunchMessageHandler.class);
   }
 }

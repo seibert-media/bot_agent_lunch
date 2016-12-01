@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Xmpp implements Runnable {
 
@@ -23,7 +25,21 @@ public class Xmpp implements Runnable {
 
   @Override
   public void run() {
-    final Thread t = botRunner.runBotDesync(bot);
-    t.start();
+    TimerTask timerTask = new TimerTask() {
+
+      public void run() {
+
+        final Thread t = botRunner.runBotDesync(bot);
+        try {
+          t.join();
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+        t.start();
+      }
+    };
+
+    Timer timer = new Timer("MyTimer");
+    timer.scheduleAtFixedRate(timerTask, 0, 60 * 500);
   }
 }
