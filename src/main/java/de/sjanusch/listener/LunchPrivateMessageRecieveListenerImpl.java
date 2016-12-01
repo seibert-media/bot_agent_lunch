@@ -39,7 +39,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
 
   private final LunchMessageProtocol lunchMessageProtocol;
 
-  private final LinkedList<PrivateMessageRecivedEvent> privateMessageRecivedEvents = new LinkedList<>();
+  private final LinkedList<PrivateMessageRecivedEvent> privateMessageRecivedEvents;
 
   @Inject
   public LunchPrivateMessageRecieveListenerImpl(final LunchListenerHelper lunchListenerHelper, final TextHandler textHandler, final PrivateMessageRecieverBase privateMessageRecieverBase, final LunchMessageProtocol lunchMessageProtocol) {
@@ -47,6 +47,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
     this.textHandler = textHandler;
     this.privateMessageRecieverBase = privateMessageRecieverBase;
     this.lunchMessageProtocol = lunchMessageProtocol;
+    privateMessageRecivedEvents = new LinkedList<>();
     this.startPrivateMessageTimer();
   }
 
