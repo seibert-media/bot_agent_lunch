@@ -18,10 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by Sandro Janusch
@@ -42,8 +39,6 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
 
   private final PrivateMessageRecieverBase privateMessageRecieverBase;
 
-  private final LinkedList<MessageRecivedEvent> messageRecivedEvents;
-
   @Inject
   public LunchMessageRecieveListenerImpl(final LunchListenerHelper lunchListenerHelper, final TextHandler textHandler, final LunchMessageProtocol lunchMessageProtocol, final Bot bot, final PrivateMessageRecieverBase privateMessageRecieverBase) {
     this.lunchListenerHelper = lunchListenerHelper;
@@ -51,8 +46,6 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
     this.lunchMessageProtocol = lunchMessageProtocol;
     this.bot = bot;
     this.privateMessageRecieverBase = privateMessageRecieverBase;
-    messageRecivedEvents = new LinkedList<>();
-    this.startMessageTimer();
   }
 
   @SuppressWarnings("unused")
@@ -60,7 +53,13 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
   @Override
   public void messageEvent(final MessageRecivedEvent event) {
     if (!privateMessageRecieverBase.isMessageFromBot(event.from())) {
-      messageRecivedEvents.add(event);
+      try {
+        handleMessage(event.getMessage(), event.from());
+      } catch (ParseException e) {
+        logger.error("ParseException: " + e.getMessage());
+      } catch (IOException e) {
+        logger.error("IOException: " + e.getMessage());
+      }
     }
   }
 
@@ -128,32 +127,5 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
         privateMessageRecieverBase.sendNotificationError(textHandler.getOverviewErrorText(), actualUser);
       }
     }
-  }
-
-  private void startMessageTimer() {
-    final Timer timer = new Timer("MessageTimer");
-    final TimerTask timerTask = new TimerTask() {
-
-      @Override
-      public void run() {
-
-        try {
-          if (messageRecivedEvents.size() > 0) {
-            final MessageRecivedEvent messageRecivedEvent = messageRecivedEvents.getLast();
-            if (messageRecivedEvent != null) {
-              logger.debug("Handle Standardmessage: " + messageRecivedEvent.getMessage().getBody());
-              handleMessage(messageRecivedEvent.getMessage(), messageRecivedEvent.from());
-              messageRecivedEvents.remove(messageRecivedEvent);
-            }
-          }
-        } catch (ParseException e) {
-          logger.error("ParseException: " + e.getMessage());
-        } catch (IOException e) {
-          logger.error("IOException: " + e.getMessage());
-        }
-      }
-    };
-    timer.scheduleAtFixedRate(timerTask, 0, 1000);
-    logger.debug("MessageTimer started");
   }
 }

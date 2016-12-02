@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by Sandro Janusch
@@ -43,11 +46,17 @@ public class ChatClientImpl implements ChatClient {
 
   private MultiUserChat chat;
 
+  private final LinkedList<MessageRecivedEvent> messageRecivedEvents = new LinkedList<>();
+
+  private final LinkedList<PrivateMessageRecivedEvent> privateMessageRecivedEvents = new LinkedList<>();
+
   @Inject
   public ChatClientImpl(final ChatConnectionConfiguration chatConnectionConfiguration, final EventSystem eventSystem, final Bot bot) {
     this.chatConnectionConfiguration = chatConnectionConfiguration;
     this.eventSystem = eventSystem;
     this.bot = bot;
+    this.startMessageRecivedEventTimer();
+    this.startPrivateMessageRecivedEventTimer();
   }
 
   @Override
@@ -81,8 +90,7 @@ public class ChatClientImpl implements ChatClient {
             final Message m = new Message();
             m.setBody(toMessage(paramPacket));
             m.setFrom(paramPacket.getFrom().split("\\/")[1]);
-            final MessageRecivedEvent event = new MessageRecivedEvent(obj, m);
-            eventSystem.callEvent(event);
+            messageRecivedEvents.add(new MessageRecivedEvent(obj, m));
           }
         });
         return true;
@@ -112,8 +120,7 @@ public class ChatClientImpl implements ChatClient {
               final Message m = new Message();
               m.setBody(message.getBody());
               m.setFrom(username);
-              final PrivateMessageRecivedEvent event = new PrivateMessageRecivedEvent(m);
-              eventSystem.callEvent(event);
+              privateMessageRecivedEvents.add(new PrivateMessageRecivedEvent(m));
             }
           });
           logger.debug("Private Chat with " + userId + " created");
@@ -124,7 +131,7 @@ public class ChatClientImpl implements ChatClient {
 
   private String extractUserId(final Occupant occupant) {
     final String[] values = occupant.getJid().split("/");
-    if(values.length > 0){
+    if (values.length > 0) {
       return values[0];
     }
     return null;
@@ -162,6 +169,59 @@ public class ChatClientImpl implements ChatClient {
     } catch (final Exception e) {
       return "";
     }
+  }
+
+  private void startMessageRecivedEventTimer() {
+    final Timer timer = new Timer("MessageTimer");
+    final TimerTask timerTask = new TimerTask() {
+
+      @Override
+      public void run() {
+
+        if (messageRecivedEvents.size() > 0) {
+          final MessageRecivedEvent messageRecivedEvent = messageRecivedEvents.getLast();
+          if (messageRecivedEvent != null && checkMessageValues(messageRecivedEvent.getMessage())) {
+            logger.debug("Handle Chatmessage: " + messageRecivedEvent.getMessage().getBody());
+            eventSystem.callEvent(messageRecivedEvent);
+            messageRecivedEvents.remove(messageRecivedEvent);
+          }
+        }
+      }
+
+    };
+    timer.scheduleAtFixedRate(timerTask, 0, 1000);
+    logger.debug("MessageTimer started");
+  }
+
+  private void startPrivateMessageRecivedEventTimer() {
+    final Timer timer = new Timer("PrivateMessageTimer");
+    final TimerTask timerTask = new TimerTask() {
+
+      @Override
+      public void run() {
+
+        if (privateMessageRecivedEvents.size() > 0) {
+          final PrivateMessageRecivedEvent privateMessageRecivedEvent = privateMessageRecivedEvents.getLast();
+          if (privateMessageRecivedEvent != null && checkMessageValues(privateMessageRecivedEvent.getMessage())) {
+            logger.debug("Handle Privatemessage: " + privateMessageRecivedEvent.getMessage().getBody());
+            eventSystem.callEvent(privateMessageRecivedEvent);
+            privateMessageRecivedEvents.remove(privateMessageRecivedEvent);
+          }
+        }
+      }
+
+    };
+    timer.scheduleAtFixedRate(timerTask, 0, 1000);
+    logger.debug("PrivateMessageTimer started");
+  }
+
+  private boolean checkMessageValues(final Message message) {
+    if (message != null) {
+      if (message.getBody() != null) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

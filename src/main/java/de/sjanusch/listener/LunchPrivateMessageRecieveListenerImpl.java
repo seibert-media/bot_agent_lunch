@@ -12,15 +12,13 @@ import de.sjanusch.model.Weekdays;
 import de.sjanusch.model.superlunch.Lunch;
 import de.sjanusch.protocol.LunchMessageProtocol;
 import de.sjanusch.texte.TextHandler;
+import org.jivesoftware.smack.packet.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by Sandro Janusch
@@ -39,31 +37,33 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
 
   private final LunchMessageProtocol lunchMessageProtocol;
 
-  private final LinkedList<PrivateMessageRecivedEvent> privateMessageRecivedEvents;
-
   @Inject
   public LunchPrivateMessageRecieveListenerImpl(final LunchListenerHelper lunchListenerHelper, final TextHandler textHandler, final PrivateMessageRecieverBase privateMessageRecieverBase, final LunchMessageProtocol lunchMessageProtocol) {
     this.lunchListenerHelper = lunchListenerHelper;
     this.textHandler = textHandler;
     this.privateMessageRecieverBase = privateMessageRecieverBase;
     this.lunchMessageProtocol = lunchMessageProtocol;
-    privateMessageRecivedEvents = new LinkedList<>();
-    this.startPrivateMessageTimer();
   }
 
   @SuppressWarnings("unused")
   @EventHandler
   @Override
   public void messageEvent(final PrivateMessageRecivedEvent event) {
-    privateMessageRecivedEvents.add(event);
+    try {
+      handleMessage(event.getMessage(), event.getMessage().getFrom());
+    } catch (ParseException e) {
+      logger.error("ParseException: " + e.getMessage());
+    } catch (IOException e) {
+      logger.error("IOException: " + e.getMessage());
+    }
   }
 
-  private void handleMessage(final String message, final String from) throws ParseException, IOException {
+  private void handleMessage(final Message message, final String from) throws ParseException, IOException {
     if (message == null) {
       logger.debug("No Message to Handle: " + message);
       return;
     }
-    final String incomeMessage = message.toLowerCase().trim();
+    final String incomeMessage = message.getBody().trim();
     final String actualUser = lunchListenerHelper.convertNames(from);
     final LunchFlow lunchFlow = lunchMessageProtocol.getCurrentFlowForUser(actualUser);
 
@@ -143,32 +143,4 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
       }
     }
   }
-
-  private void startPrivateMessageTimer() {
-    final Timer timer = new Timer("PrivateMessageTimer");
-    final TimerTask timerTask = new TimerTask() {
-
-      @Override
-      public void run() {
-
-        try {
-          if (privateMessageRecivedEvents.size() > 0) {
-            final PrivateMessageRecivedEvent privateMessageRecivedEvent = privateMessageRecivedEvents.getLast();
-            if (privateMessageRecivedEvent != null) {
-              logger.debug("Handle Privatemessage: " + privateMessageRecivedEvent.getMessage().getBody());
-              handleMessage(privateMessageRecivedEvent.getMessage().getBody(), privateMessageRecivedEvent.getMessage().getFrom());
-              privateMessageRecivedEvents.remove(privateMessageRecivedEvent);
-            }
-          }
-        } catch (ParseException e) {
-          logger.error("ParseException: " + e.getMessage());
-        } catch (IOException e) {
-          logger.error("IOException: " + e.getMessage());
-        }
-      }
-    };
-    timer.scheduleAtFixedRate(timerTask, 0, 1000);
-    logger.debug("PrivateMessageTimer started");
-  }
-
 }
