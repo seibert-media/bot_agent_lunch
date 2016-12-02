@@ -1,13 +1,13 @@
 package de.sjanusch.eventsystem;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EventSystemImpl implements EventSystem {
 
@@ -23,8 +23,9 @@ public class EventSystemImpl implements EventSystem {
     for (final RegisteredListener listen : listeners) {
       try {
         listen.execute(event);
+        logger.debug("Execute Event: " + event.getEventName());
       } catch (final Exception e) {
-        logger.warn(e.getClass().getName(), e);
+        logger.error("callEvent:" + e.getClass().getName(), e);
       }
     }
   }
@@ -35,7 +36,7 @@ public class EventSystemImpl implements EventSystem {
       try {
         getEventListeners(getRegistrationClass(entry.getKey())).registerAll(entry.getValue());
       } catch (final IllegalAccessException e) {
-        logger.warn(e.getClass().getName(), e);
+        logger.error("registerEvents:" + e.getClass().getName(), e);
       }
     }
   }
@@ -46,7 +47,7 @@ public class EventSystemImpl implements EventSystem {
       method.setAccessible(true);
       return (EventList) method.invoke(null);
     } catch (final Exception e) {
-      logger.warn(e.getClass().getName(), e);
+      logger.error("getEventListeners:" + e.getClass().getName(), e);
       return null;
     }
   }
@@ -57,7 +58,7 @@ public class EventSystemImpl implements EventSystem {
       return clazz;
     } catch (final NoSuchMethodException e) {
       if (clazz.getSuperclass() != null && !clazz.getSuperclass().equals(Event.class)
-          && Event.class.isAssignableFrom(clazz.getSuperclass())) {
+        && Event.class.isAssignableFrom(clazz.getSuperclass())) {
         return getRegistrationClass(clazz.getSuperclass().asSubclass(Event.class));
       } else {
         throw new IllegalAccessException("Unable to find event list for event " + clazz.getName());
