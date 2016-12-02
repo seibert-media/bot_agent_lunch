@@ -55,8 +55,7 @@ public class ChatClientImpl implements ChatClient {
     this.chatConnectionConfiguration = chatConnectionConfiguration;
     this.eventSystem = eventSystem;
     this.bot = bot;
-    this.startMessageRecivedEventTimer();
-    this.startPrivateMessageRecivedEventTimer();
+    this.startEventQueue();
   }
 
   @Override
@@ -171,8 +170,8 @@ public class ChatClientImpl implements ChatClient {
     }
   }
 
-  private void startMessageRecivedEventTimer() {
-    final Timer timer = new Timer("MessageTimer");
+  private void startEventQueue() {
+    final Timer timer = new Timer("EventQueue");
     final TimerTask timerTask = new TimerTask() {
 
       @Override
@@ -186,20 +185,6 @@ public class ChatClientImpl implements ChatClient {
             messageRecivedEvents.remove(messageRecivedEvent);
           }
         }
-      }
-
-    };
-    timer.scheduleAtFixedRate(timerTask, 0, 1000);
-    logger.debug("MessageTimer started");
-  }
-
-  private void startPrivateMessageRecivedEventTimer() {
-    final Timer timer = new Timer("PrivateMessageTimer");
-    final TimerTask timerTask = new TimerTask() {
-
-      @Override
-      public void run() {
-
         if (privateMessageRecivedEvents.size() > 0) {
           final PrivateMessageRecivedEvent privateMessageRecivedEvent = privateMessageRecivedEvents.getLast();
           if (privateMessageRecivedEvent != null && checkMessageValues(privateMessageRecivedEvent.getMessage())) {
@@ -212,7 +197,7 @@ public class ChatClientImpl implements ChatClient {
 
     };
     timer.scheduleAtFixedRate(timerTask, 0, 1000);
-    logger.debug("PrivateMessageTimer started");
+    logger.debug("EventQueue started");
   }
 
   private boolean checkMessageValues(final Message message) {
