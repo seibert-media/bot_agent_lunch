@@ -56,6 +56,7 @@ public class ChatClientImpl implements ChatClient {
     this.eventSystem = eventSystem;
     this.bot = bot;
     this.startEventQueue();
+    this.startPrivateEventQueue();
   }
 
   @Override
@@ -185,6 +186,20 @@ public class ChatClientImpl implements ChatClient {
             messageRecivedEvents.remove(messageRecivedEvent);
           }
         }
+      }
+
+    };
+    timer.scheduleAtFixedRate(timerTask, 0, 1000);
+    logger.debug("EventQueue started");
+  }
+
+  private void startPrivateEventQueue() {
+    final Timer timer = new Timer("PrivatEventQueue");
+    final TimerTask timerTask = new TimerTask() {
+
+      @Override
+      public void run() {
+
         if (privateMessageRecivedEvents.size() > 0) {
           final PrivateMessageRecivedEvent privateMessageRecivedEvent = privateMessageRecivedEvents.getLast();
           if (privateMessageRecivedEvent != null && checkMessageValues(privateMessageRecivedEvent.getMessage())) {
@@ -197,12 +212,12 @@ public class ChatClientImpl implements ChatClient {
 
     };
     timer.scheduleAtFixedRate(timerTask, 0, 1000);
-    logger.debug("EventQueue started");
+    logger.debug("PrivatEventQueue started");
   }
 
   private boolean checkMessageValues(final Message message) {
     if (message != null) {
-      if (message.getBody() != null) {
+      if (message.getBody() != null && !message.getBody().equals("")) {
         return true;
       }
     }
