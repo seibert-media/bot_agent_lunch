@@ -1,5 +1,6 @@
 package de.sjanusch.configuration;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 /**
@@ -9,6 +10,7 @@ public class BotConfigurationImpl implements BotConfiguration {
 
   private final ConfigurationLoader configurationLoader;
 
+  @Inject
   public BotConfigurationImpl() {
     this.configurationLoader = new ConfigurationLoader("bot.properties");
   }

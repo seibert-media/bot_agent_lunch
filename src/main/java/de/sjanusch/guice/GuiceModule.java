@@ -13,6 +13,8 @@ import de.sjanusch.configuration.LunchConfiguration;
 import de.sjanusch.configuration.LunchConfigurationImpl;
 import de.sjanusch.configuration.TexteConfiguration;
 import de.sjanusch.configuration.TexteConfigurationImpl;
+import de.sjanusch.configuration.UsersConfiguration;
+import de.sjanusch.configuration.UsersConfigurationImpl;
 import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
 import de.sjanusch.confluence.handler.SuperlunchRequestHandlerImpl;
 import de.sjanusch.confluence.rest.SuperlunchRestClient;
@@ -63,6 +65,8 @@ public class GuiceModule extends AbstractModule {
     bind(ChatClient.class).to(ChatClientImpl.class);
     bind(LunchPrivateMessageRecieveListener.class).to(LunchPrivateMessageRecieveListenerImpl.class);
     bind(LunchListenerHelper.class).to(LunchListenerHelperImpl.class);
+    bind(UsersConfiguration.class).to(UsersConfigurationImpl.class);
+
     bind(EventSystem.class).to(EventSystemImpl.class).asEagerSingleton();
     bind(Connection.class).to(ConnectionImpl.class).asEagerSingleton();
     bind(LunchMessageProtocol.class).to(LunchMessageProtocolImpl.class).asEagerSingleton();

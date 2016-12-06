@@ -2,6 +2,7 @@ package de.sjanusch.hipchat.rest;
 
 import com.google.inject.Inject;
 import de.sjanusch.configuration.HipchatConfiguration;
+import de.sjanusch.configuration.UsersConfiguration;
 import de.sjanusch.model.hipchat.Error;
 import de.sjanusch.model.hipchat.HipchatMessage;
 import de.sjanusch.model.hipchat.HipchatRestError;
@@ -30,15 +31,14 @@ public class HipchatRestClientImpl implements HipchatRestClient {
 
   public static final Logger logger = LoggerFactory.getLogger(HipchatRestClientImpl.class);
 
-  public static final String EMAIL_POSTFIX = "@seibert-media.net";
-
-  public static final String EMAIL_POSTFIX_FALLBACK = "@seibert-media.de";
-
   private final HipchatConfiguration hipchatConfiguration;
 
+  private final UsersConfiguration usersConfiguration;
+
   @Inject
-  public HipchatRestClientImpl(final HipchatConfiguration hipchatConfiguration) {
+  public HipchatRestClientImpl(final HipchatConfiguration hipchatConfiguration, final UsersConfiguration usersConfiguration) {
     this.hipchatConfiguration = hipchatConfiguration;
+    this.usersConfiguration = usersConfiguration;
   }
 
   private Client buildClient() throws NoSuchAlgorithmException, KeyManagementException, IOException {
@@ -163,11 +163,8 @@ public class HipchatRestClientImpl implements HipchatRestClient {
     return hipchatConfiguration.getHipchatRestApi();
   }
 
-  private String getHipChatUserMail(final String userNickName) {
-    if (userNickName.equals("jseibert")) {
-      return "/user/" + userNickName + EMAIL_POSTFIX_FALLBACK + "/message";
-    }
-    return "/user/" + userNickName + EMAIL_POSTFIX + "/message";
+  private String getHipChatUserMail(final String userNickName) throws IOException {
+    return "/user/" + usersConfiguration.castUser(userNickName) + "/message";
   }
 
   private final class HostnameVerifierAllowAll implements HostnameVerifier {

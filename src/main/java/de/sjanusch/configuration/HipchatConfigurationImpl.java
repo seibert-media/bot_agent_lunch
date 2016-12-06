@@ -1,5 +1,6 @@
 package de.sjanusch.configuration;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 /**
@@ -9,6 +10,7 @@ public class HipchatConfigurationImpl implements HipchatConfiguration {
 
   private final ConfigurationLoader configurationLoader;
 
+  @Inject
   public HipchatConfigurationImpl() {
     this.configurationLoader = new ConfigurationLoader("hipchat.properties");
   }

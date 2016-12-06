@@ -1,5 +1,6 @@
 package de.sjanusch.configuration;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
@@ -10,6 +11,7 @@ public class TexteConfigurationImpl implements TexteConfiguration {
 
   private final ConfigurationLoader configurationLoader;
 
+  @Inject
   public TexteConfigurationImpl() {
     this.configurationLoader = new ConfigurationLoader("texte.properties");
   }
