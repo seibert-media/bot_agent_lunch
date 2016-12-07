@@ -63,7 +63,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
       logger.debug("No Message to Handle: " + message);
       return;
     }
-    final String incomeMessage = message.getBody().trim();
+    final String incomeMessage = message.getBody().toLowerCase().trim();
     final String actualUser = lunchListenerHelper.convertNames(from);
     final LunchFlow lunchFlow = lunchMessageProtocol.getCurrentFlowForUser(actualUser);
 
