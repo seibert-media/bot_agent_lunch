@@ -2,6 +2,7 @@ package de.sjanusch.configuration;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Created by Sandro Janusch Date: 17.05.16 Time: 11:15
@@ -31,8 +32,12 @@ public class HipchatConfigurationImpl implements HipchatConfiguration {
   }
 
   @Override
-  public String getHipchatRestApiRoomId() throws IOException {
-    return this.configurationLoader.getPropertyStringValue("hipchat_rest_api_room_id");
+  public String getHipchatRestApiRoomId(final String roomId) throws IOException {
+    final Properties properties = configurationLoader.getProperties();
+    if (properties.containsKey(roomId)) {
+      return this.configurationLoader.getPropertyStringValue(roomId);
+    }
+    return null;
   }
 
 }

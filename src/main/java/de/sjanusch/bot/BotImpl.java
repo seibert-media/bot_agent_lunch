@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 public class BotImpl implements Bot {
 
@@ -50,14 +51,15 @@ public class BotImpl implements Bot {
     try {
       connection.connect();
       boolean loggedIn = false;
-      boolean joined = false;
       if (connection.isConnected()) {
         loggedIn = chatClient.login(connection.getXmpp(), this.getUsername(), this.getPassword());
         if (loggedIn) {
-          joined = chatClient.joinChat(connection.getXmpp(), this.getBotroom(), this.getNickname(), this.getPassword());
+          for (String botroom : this.getBotroom()) {
+            final boolean joined = chatClient.joinChat(connection.getXmpp(), botroom, this.getNickname(), this.getPassword());
+            logger.debug(this.getNickname() + " loggedin: " + loggedIn + " and joined: " + joined + " in Room " + botroom);
+          }
         }
       }
-      logger.debug(this.getNickname() + " loggedin: " + loggedIn + " and joined: " + joined + " in Room " + this.getBotroom());
     } catch (final XMPPException | LoginException | IOException e) {
       logger.warn(e.getClass().getName(), e);
       try {
@@ -74,11 +76,6 @@ public class BotImpl implements Bot {
   }
 
   @Override
-  public String getBotroom() throws IOException {
-    return botConfiguration.getBotChatRoom();
-  }
-
-  @Override
   public String getNickname() throws IOException {
     return botConfiguration.getBotNickname();
   }
@@ -91,5 +88,9 @@ public class BotImpl implements Bot {
   @Override
   public String getUsername() throws IOException {
     return botConfiguration.getBotUsername();
+  }
+
+  private List<String> getBotroom() throws IOException {
+    return botConfiguration.getBotChatRoom();
   }
 }

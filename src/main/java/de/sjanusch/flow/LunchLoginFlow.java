@@ -26,12 +26,15 @@ public class LunchLoginFlow implements LunchFlow {
 
   private final SuperlunchRequestHandler superlunchRequestHandler;
 
+  private final String roomId;
+
   public LunchLoginFlow(final PrivateMessageRecieverBase privateMessageRecieverBase, final TextHandler textHandler,
-                        final SuperlunchRequestHandler superlunchRequestHandler, final Weekdays weekday) {
+                        final SuperlunchRequestHandler superlunchRequestHandler, final Weekdays weekday, final String roomId) {
     this.textHandler = textHandler;
     this.privateMessageRecieverBase = privateMessageRecieverBase;
     this.weekday = weekday;
     this.superlunchRequestHandler = superlunchRequestHandler;
+    this.roomId = roomId;
   }
 
   @Override
@@ -39,19 +42,19 @@ public class LunchLoginFlow implements LunchFlow {
 
     if (actualZustand == null) {
       this.actualZustand = LunchMessageZustand.ANMELDEN;
-      privateMessageRecieverBase.sendMessageText(actualZustand.getText(), user);
+      privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
       return actualZustand;
     }
 
     if (actualZustand.equals(LunchMessageZustand.ANMELDEN)) {
       if (incomeMessage.contains("ja")) {
         actualZustand = LunchMessageZustand.ANMELDEN_JA;
-        privateMessageRecieverBase.sendMessageText(actualZustand.getText(), user);
+        privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
       } else if (incomeMessage.contains("nein")) {
         actualZustand = LunchMessageZustand.ANMELDEN_NEIN;
-        privateMessageRecieverBase.sendMessageText(actualZustand.getText(), user);
+        privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
       } else {
-        privateMessageRecieverBase.sendMessageText(ANTWORT_FEHLER, user);
+        privateMessageRecieverBase.sendPrivateMessageText(ANTWORT_FEHLER, user);
       }
       return actualZustand;
     }
@@ -60,12 +63,16 @@ public class LunchLoginFlow implements LunchFlow {
       final String id = this.extractId(incomeMessage);
       if (id != null && this.signIn(user, id)) {
         actualZustand = LunchMessageZustand.ANMELDUNG_ERFOLGREICH;
-        privateMessageRecieverBase.sendNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), user);
-        privateMessageRecieverBase.sendMessageText(textHandler.getRandomText(""), user);
-        privateMessageRecieverBase.sendMessageTextToRoom(user + " hat sich " + weekday.getText() + " zum Essen angemeldet");
+        privateMessageRecieverBase.sendPrivateNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), user);
+        privateMessageRecieverBase.sendPrivateMessageText(textHandler.getRandomText(""), user);
+        if (this.roomId != null && this.roomId != "") {
+          privateMessageRecieverBase.sendMessageTextToRoom(user + " hat sich " + weekday.getText() + " zum Essen angemeldet", this.roomId);
+        } else {
+          privateMessageRecieverBase.sendPrivateMessageText("Du hast dich " + weekday.getText() + " zum Essen angemeldet", user);
+        }
       } else {
         actualZustand = LunchMessageZustand.ANMELDUNG_FEHLGESCHLAGEN;
-        privateMessageRecieverBase.sendNotificationError(actualZustand.getText(), user);
+        privateMessageRecieverBase.sendPrivateNotificationError(actualZustand.getText(), user);
       }
       return actualZustand;
     }

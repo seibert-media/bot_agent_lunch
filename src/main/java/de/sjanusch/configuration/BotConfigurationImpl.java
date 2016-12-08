@@ -2,6 +2,7 @@ package de.sjanusch.configuration;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by Sandro Janusch Date: 17.05.16 Time: 11:15
@@ -36,12 +37,8 @@ public class BotConfigurationImpl implements BotConfiguration {
   }
 
   @Override
-  public String getBotChatRoom() throws IOException {
-    final String room = System.getenv("BOT_CHAT_ROOM");
-    if (room != null && !room.isEmpty()) {
-      return room;
-    }
-    return this.configurationLoader.getPropertyStringValue("bot_chat_room");
+  public List<String> getBotChatRoom() throws IOException {
+    return this.configurationLoader.getPropertyStringListValue("bot_chat_room");
   }
 
 }

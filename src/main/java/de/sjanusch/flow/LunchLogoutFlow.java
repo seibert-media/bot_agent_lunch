@@ -28,20 +28,23 @@ public class LunchLogoutFlow implements LunchFlow {
 
   private final Weekdays weekday;
 
+  private final String roomId;
+
   public LunchLogoutFlow(final PrivateMessageRecieverBase privateMessageRecieverBase, final TextHandler textHandler,
-                         final SuperlunchRequestHandler superlunchRequestHandler, final int signedInNumber, final Weekdays weekday) {
+                         final SuperlunchRequestHandler superlunchRequestHandler, final int signedInNumber, final Weekdays weekday, final String roomId) {
     this.textHandler = textHandler;
     this.privateMessageRecieverBase = privateMessageRecieverBase;
     this.superlunchRequestHandler = superlunchRequestHandler;
     this.signedInNumber = signedInNumber;
     this.weekday = weekday;
+    this.roomId = roomId;
   }
 
   @Override
   public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final String user) {
     if (actualZustand == null) {
       this.actualZustand = LunchMessageZustand.ABMELDEN;
-      privateMessageRecieverBase.sendMessageText(actualZustand.getText(), user);
+      privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
       return actualZustand;
     }
 
@@ -49,18 +52,22 @@ public class LunchLogoutFlow implements LunchFlow {
       if (incomeMessage.contains("ja")) {
         if (signedInNumber != 0 && this.signOut(user, String.valueOf(signedInNumber))) {
           actualZustand = LunchMessageZustand.ABMELDEN_ERFOLGREICH;
-          privateMessageRecieverBase.sendNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), user);
-          privateMessageRecieverBase.sendMessageText(textHandler.getRandomText(""), user);
-          privateMessageRecieverBase.sendMessageTextToRoom(user + " hat sich " + weekday.getText() + " vom Essen abgemeldet");
+          privateMessageRecieverBase.sendPrivateNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), user);
+          privateMessageRecieverBase.sendPrivateMessageText(textHandler.getRandomText(""), user);
+          if (this.roomId != null && this.roomId != "") {
+            privateMessageRecieverBase.sendMessageTextToRoom(user + " hat sich " + weekday.getText() + " vom Essen abgemeldet", this.roomId);
+          } else {
+            privateMessageRecieverBase.sendPrivateMessageText("Du hast dich " + weekday.getText() + " vom Essen abgemeldet", user);
+          }
         } else {
           actualZustand = LunchMessageZustand.ABMELDEN_FEHLGESCHLAGEN;
-          privateMessageRecieverBase.sendNotificationError(actualZustand.getText(), user);
+          privateMessageRecieverBase.sendPrivateNotificationError(actualZustand.getText(), user);
         }
       } else if (incomeMessage.contains("nein")) {
         actualZustand = LunchMessageZustand.ABMELDEN_NEIN;
-        privateMessageRecieverBase.sendMessageText(actualZustand.getText(), user);
+        privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
       } else {
-        privateMessageRecieverBase.sendMessageText(ANTWORT_FEHLER, user);
+        privateMessageRecieverBase.sendPrivateMessageText(ANTWORT_FEHLER, user);
       }
       return actualZustand;
     }

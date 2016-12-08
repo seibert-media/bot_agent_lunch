@@ -108,7 +108,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
     }
 
     if (textHandler.containsHelpCommand(incomeMessage)) {
-      privateMessageRecieverBase.sendNotification(textHandler.getHelpText(), actualUser);
+      privateMessageRecieverBase.sendPrivateNotification(textHandler.getHelpText(), actualUser);
       return;
     }
   }
@@ -117,7 +117,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
     final Weekdays weekday = Weekdays.getEnumForText(incomeMessage);
     if (weekday.isWeekend()) {
       final String text = "<b>Am " + weekday.getText() + " gibt es kein Mittagessen!</b>";
-      privateMessageRecieverBase.sendNotificationError(text, actualUser);
+      privateMessageRecieverBase.sendPrivateNotificationError(text, actualUser);
     } else {
       final List<Lunch> lunchList = lunchListenerHelper.getLunchlist(weekday);
       if (lunchList.size() > 0) {
@@ -125,21 +125,21 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
         stringBuilder.append("<b>Mittagessen " + weekday.getText() + "</b><br>");
         lunchListenerHelper.setSignedInNumber(0);
         stringBuilder.append(lunchListenerHelper.createLunchOverview(lunchList, actualUser));
-        privateMessageRecieverBase.sendNotification(stringBuilder.toString(), actualUser);
+        privateMessageRecieverBase.sendPrivateNotification(stringBuilder.toString(), actualUser);
         final SuperlunchRequestHandler superlunchRequestHandler = lunchListenerHelper.getSuperlunchRequestHandler();
         if (!lunchListenerHelper.isLunchesClosed() && lunchListenerHelper.getSignedInNumber() == 0 && login) {
-          final LunchFlow lunchLoginFlow = new LunchLoginFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, weekday);
+          final LunchFlow lunchLoginFlow = new LunchLoginFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, weekday, null);
           lunchLoginFlow.modifyFlowForUser(incomeMessage, actualUser);
           lunchMessageProtocol.addFlowForUser(actualUser, lunchLoginFlow);
         }
         if (!lunchListenerHelper.isLunchesClosed() && (lunchListenerHelper.getSignedInNumber() != 0 || !login)) {
           final LunchFlow lunchLogoutFlow = new LunchLogoutFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler,
-            lunchListenerHelper.getSignedInNumber(), weekday);
+            lunchListenerHelper.getSignedInNumber(), weekday, null);
           lunchLogoutFlow.modifyFlowForUser(incomeMessage, actualUser);
           lunchMessageProtocol.addFlowForUser(actualUser, lunchLogoutFlow);
         }
       } else {
-        privateMessageRecieverBase.sendNotificationError(textHandler.getOverviewErrorText(), actualUser);
+        privateMessageRecieverBase.sendPrivateNotificationError(textHandler.getOverviewErrorText(), actualUser);
       }
     }
   }

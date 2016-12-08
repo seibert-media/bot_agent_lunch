@@ -9,8 +9,6 @@ public interface Bot extends RunnableBot {
   @Override
   void run();
 
-  String getBotroom() throws IOException;
-
   String getNickname() throws IOException;
 
   String getPassword() throws IOException;
