@@ -26,6 +26,5 @@ public class Xmpp implements Runnable {
     logger.debug("Lunchbot started");
     final Thread t = botRunner.runBotDesync(bot);
     t.start();
-    logger.debug("Lunchbot finished");
   }
 }
