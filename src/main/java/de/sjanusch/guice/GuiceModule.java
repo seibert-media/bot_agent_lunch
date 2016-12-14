@@ -11,6 +11,8 @@ import de.sjanusch.configuration.HipchatConfiguration;
 import de.sjanusch.configuration.HipchatConfigurationImpl;
 import de.sjanusch.configuration.LunchConfiguration;
 import de.sjanusch.configuration.LunchConfigurationImpl;
+import de.sjanusch.configuration.NSQConfiguration;
+import de.sjanusch.configuration.NSQConfigurationImpl;
 import de.sjanusch.configuration.TexteConfiguration;
 import de.sjanusch.configuration.TexteConfigurationImpl;
 import de.sjanusch.configuration.UsersConfiguration;
@@ -43,6 +45,8 @@ import de.sjanusch.runner.BotRunner;
 import de.sjanusch.runner.BotRunnerImpl;
 import de.sjanusch.texte.TextHandler;
 import de.sjanusch.texte.TextHandlerImpl;
+import de.sjanusch.utils.MessageHelper;
+import de.sjanusch.utils.MessageHelperImpl;
 
 public class GuiceModule extends AbstractModule {
 
@@ -66,6 +70,8 @@ public class GuiceModule extends AbstractModule {
     bind(LunchPrivateMessageRecieveListener.class).to(LunchPrivateMessageRecieveListenerImpl.class);
     bind(LunchListenerHelper.class).to(LunchListenerHelperImpl.class);
     bind(UsersConfiguration.class).to(UsersConfigurationImpl.class);
+    bind(NSQConfiguration.class).to(NSQConfigurationImpl.class);
+    bind(MessageHelper.class).to(MessageHelperImpl.class);
 
     bind(EventSystem.class).to(EventSystemImpl.class).asEagerSingleton();
     bind(Connection.class).to(ConnectionImpl.class).asEagerSingleton();

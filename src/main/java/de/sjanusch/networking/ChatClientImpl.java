@@ -1,13 +1,17 @@
 package de.sjanusch.networking;
 
+import com.github.brainlag.nsq.NSQProducer;
+import com.github.brainlag.nsq.exceptions.NSQException;
 import com.google.inject.Inject;
 import de.sjanusch.bot.Bot;
 import de.sjanusch.configuration.ChatConnectionConfiguration;
+import de.sjanusch.configuration.NSQConfiguration;
 import de.sjanusch.eventsystem.EventSystem;
 import de.sjanusch.eventsystem.events.model.MessageRecivedEvent;
 import de.sjanusch.eventsystem.events.model.PrivateMessageRecivedEvent;
 import de.sjanusch.model.hipchat.Room;
 import de.sjanusch.networking.exceptions.LoginException;
+import de.sjanusch.utils.MessageHelper;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.PacketListener;
@@ -24,9 +28,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by Sandro Janusch
@@ -46,30 +48,35 @@ public class ChatClientImpl implements ChatClient {
 
   private MultiUserChat chat;
 
-  private final LinkedList<MessageRecivedEvent> messageRecivedEvents = new LinkedList<>();
+  private final NSQConfiguration nsqConfiguration;
 
-  private final LinkedList<PrivateMessageRecivedEvent> privateMessageRecivedEvents = new LinkedList<>();
+  private final MessageHelper messageHelper;
+
+  private NSQProducer producer = null;
 
   @Inject
-  public ChatClientImpl(final ChatConnectionConfiguration chatConnectionConfiguration, final EventSystem eventSystem, final Bot bot) {
+  public ChatClientImpl(final ChatConnectionConfiguration chatConnectionConfiguration, final EventSystem eventSystem, final Bot bot, final NSQConfiguration nsqConfiguration, final MessageHelper messageHelper) {
     this.chatConnectionConfiguration = chatConnectionConfiguration;
     this.eventSystem = eventSystem;
     this.bot = bot;
-    this.startEventQueue();
-    this.startPrivateEventQueue();
+    this.nsqConfiguration = nsqConfiguration;
+    this.messageHelper = messageHelper;
   }
 
   @Override
-  public boolean login(final XMPPConnection xmpp, final String username, final String password) throws LoginException {
+  public boolean login(final XMPPConnection xmpp, final String username, final String password) throws LoginException, IOException {
     if (!username.contains("hipchat.com")) {
       logger.error("The username being used does not look like a Jabber ID. Are you sure this is the correct username?");
       return false;
     }
     try {
       xmpp.login(username, password);
+      producer = new NSQProducer().addAddress(this.nsqConfiguration.getNSQAdress(), this.nsqConfiguration.getNSQAdressPort()).start();
       return true;
     } catch (final XMPPException exception) {
       throw new LoginException("There was an error logging in! Are you using the correct username/password?", exception);
+    } catch (IOException e) {
+      throw new IOException("IOException", e);
     }
   }
 
@@ -90,7 +97,17 @@ public class ChatClientImpl implements ChatClient {
             final Message m = new Message();
             m.setBody(toMessage(paramPacket));
             m.setFrom(paramPacket.getFrom().split("\\/")[1]);
-            messageRecivedEvents.add(new MessageRecivedEvent(obj, m));
+            MessageRecivedEvent messageRecivedEvent = new MessageRecivedEvent(obj, m);
+            try {
+              producer.produce("PublicChat", (messageHelper.convertNames(messageRecivedEvent.from().toLowerCase().trim())
+                + "@" + messageRecivedEvent.getRoom().getXMPPName() + "@"
+                + messageRecivedEvent.getMessage().getBody()).getBytes());
+            } catch (NSQException e) {
+              logger.error("NSQException " + e.getMessage());
+            } catch (TimeoutException e) {
+              logger.error("TimeoutException " + e.getMessage());
+            }
+
           }
         });
         return true;
@@ -120,7 +137,14 @@ public class ChatClientImpl implements ChatClient {
               final Message m = new Message();
               m.setBody(message.getBody());
               m.setFrom(username);
-              privateMessageRecivedEvents.add(new PrivateMessageRecivedEvent(m));
+              final PrivateMessageRecivedEvent privateMessageRecivedEvents = new PrivateMessageRecivedEvent(m);
+              try {
+                producer.produce("PrivateChat", privateMessageRecivedEvents.getMessage().getBody().getBytes());
+              } catch (NSQException e) {
+                logger.error("NSQException " + e.getMessage());
+              } catch (TimeoutException e) {
+                logger.error("TimeoutException " + e.getMessage());
+              }
             }
           });
           logger.debug("Private Chat with " + userId + " created");
@@ -169,59 +193,6 @@ public class ChatClientImpl implements ChatClient {
     } catch (final Exception e) {
       return "";
     }
-  }
-
-  private void startEventQueue() {
-    final Timer timer = new Timer("EventQueue");
-    final TimerTask timerTask = new TimerTask() {
-
-      @Override
-      public void run() {
-
-        if (messageRecivedEvents.size() > 0) {
-          final MessageRecivedEvent messageRecivedEvent = messageRecivedEvents.getLast();
-          if (messageRecivedEvent != null && checkMessageValues(messageRecivedEvent.getMessage())) {
-            logger.debug("Handle Chatmessage: " + messageRecivedEvent.getMessage().getBody());
-            eventSystem.callEvent(messageRecivedEvent);
-            messageRecivedEvents.remove(messageRecivedEvent);
-          }
-        }
-      }
-
-    };
-    timer.scheduleAtFixedRate(timerTask, 0, 1000);
-    logger.debug("EventQueue started");
-  }
-
-  private void startPrivateEventQueue() {
-    final Timer timer = new Timer("PrivatEventQueue");
-    final TimerTask timerTask = new TimerTask() {
-
-      @Override
-      public void run() {
-
-        if (privateMessageRecivedEvents.size() > 0) {
-          final PrivateMessageRecivedEvent privateMessageRecivedEvent = privateMessageRecivedEvents.getLast();
-          if (privateMessageRecivedEvent != null && checkMessageValues(privateMessageRecivedEvent.getMessage())) {
-            logger.debug("Handle Privatemessage: " + privateMessageRecivedEvent.getMessage().getBody());
-            eventSystem.callEvent(privateMessageRecivedEvent);
-            privateMessageRecivedEvents.remove(privateMessageRecivedEvent);
-          }
-        }
-      }
-
-    };
-    timer.scheduleAtFixedRate(timerTask, 0, 1000);
-    logger.debug("PrivatEventQueue started");
-  }
-
-  private boolean checkMessageValues(final Message message) {
-    if (message != null) {
-      if (message.getBody() != null && !message.getBody().equals("")) {
-        return true;
-      }
-    }
-    return false;
   }
 
 }
