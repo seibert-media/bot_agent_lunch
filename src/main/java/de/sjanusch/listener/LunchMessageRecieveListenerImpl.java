@@ -45,7 +45,7 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
     this.privateMessageRecieverBase = privateMessageRecieverBase;
   }
 
-  public void handleMessage(final String message, final String from, final String roomId) throws ParseException, IOException {
+  public boolean handleMessage(final String message, final String from, final String roomId) throws ParseException, IOException {
     final String incomeMessage = message.toLowerCase().trim();
     final String actualUser = lunchListenerHelper.convertNames(from);
     final LunchFlow lunchFlow = lunchMessageProtocol.getCurrentFlowForUser(actualUser);
@@ -54,30 +54,31 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
 
     if (lunchFlow == null && textHandler.containsLunchLoginText(incomeMessage) || textHandler.conatainsLunchLoginCommands(incomeMessage)) {
       this.handleMittagessenInfoMessage(incomeMessage, actualUser, from, true, roomId);
-      return;
+      return true;
     }
 
     if (lunchFlow == null && textHandler.containsLunchLogoutText(incomeMessage) || textHandler.conatainsLunchLogoutCommands(incomeMessage)) {
       this.handleMittagessenInfoMessage(incomeMessage, actualUser, from, false, roomId);
-      return;
+      return true;
     }
 
     if (lunchFlow != null && lunchFlow.getClass().equals(LunchLoginFlow.class)) {
       lunchMessageProtocol.removeFlowForUser(actualUser);
       lunchListenerHelper.setSignedInNumber(0);
-      return;
+      return true;
     }
 
     if (lunchFlow != null && lunchFlow.getClass().equals(LunchLogoutFlow.class)) {
       lunchMessageProtocol.removeFlowForUser(actualUser);
       lunchListenerHelper.setSignedInNumber(0);
-      return;
+      return true;
     }
 
     if (textHandler.containsHelpCommand(incomeMessage)) {
       privateMessageRecieverBase.sendPrivateNotification(textHandler.getHelpText(), actualUser);
-      return;
+      return true;
     }
+    return false;
   }
 
   private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final String fullName, final boolean login, final String roomId) throws ParseException {

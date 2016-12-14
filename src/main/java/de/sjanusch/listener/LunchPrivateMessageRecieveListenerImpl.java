@@ -42,7 +42,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
     this.lunchMessageProtocol = lunchMessageProtocol;
   }
 
-  public void handleMessage(final String message, final String from) throws ParseException, IOException {
+  public boolean handleMessage(final String message, final String from) throws ParseException, IOException {
     final String incomeMessage = message.toLowerCase().trim();
     final String actualUser = lunchListenerHelper.convertNames(from);
     final LunchFlow lunchFlow = lunchMessageProtocol.getCurrentFlowForUser(actualUser);
@@ -51,12 +51,12 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
 
     if (lunchFlow == null && textHandler.containsLunchLoginText(incomeMessage) || textHandler.conatainsLunchLoginCommands(incomeMessage)) {
       this.handleMittagessenInfoMessage(incomeMessage, actualUser, true);
-      return;
+      return true;
     }
 
     if (lunchFlow == null && textHandler.containsLunchLogoutText(incomeMessage) || textHandler.conatainsLunchLogoutCommands(incomeMessage)) {
       this.handleMittagessenInfoMessage(incomeMessage, actualUser, false);
-      return;
+      return true;
     }
 
     if (lunchFlow != null && lunchFlow.getClass().equals(LunchLoginFlow.class)) {
@@ -67,10 +67,10 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
           || actualZustand.equals(LunchMessageZustand.ANMELDUNG_FEHLGESCHLAGEN)) {
           lunchMessageProtocol.removeFlowForUser(actualUser);
           lunchListenerHelper.setSignedInNumber(0);
-          return;
+          return true;
         }
       }
-      return;
+      return false;
     }
 
     if (lunchFlow != null && lunchFlow.getClass().equals(LunchLogoutFlow.class)) {
@@ -81,16 +81,18 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
           || actualZustand.equals(LunchMessageZustand.ABMELDEN_FEHLGESCHLAGEN)) {
           lunchMessageProtocol.removeFlowForUser(actualUser);
           lunchListenerHelper.setSignedInNumber(0);
-          return;
+          return true;
         }
       }
-      return;
+      return false;
     }
 
     if (textHandler.containsHelpCommand(incomeMessage)) {
       privateMessageRecieverBase.sendPrivateNotification(textHandler.getHelpText(), actualUser);
-      return;
+      return true;
     }
+
+    return false;
   }
 
   private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final boolean login) throws ParseException {

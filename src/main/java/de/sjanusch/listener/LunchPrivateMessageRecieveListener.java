@@ -8,6 +8,6 @@ import java.text.ParseException;
  */
 public interface LunchPrivateMessageRecieveListener {
 
-  void handleMessage(final String message, final String from) throws ParseException, IOException;
+  boolean handleMessage(final String message, final String from) throws ParseException, IOException;
 
 }

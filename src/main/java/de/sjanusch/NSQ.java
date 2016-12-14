@@ -84,15 +84,16 @@ public class NSQ implements Runnable {
         try {
           logger.debug("received public message: " + messageToString(message));
           final NsqPublicMessage nsqPublicMessage = mapper.readValue(messageToString(message), NsqPublicMessage.class);
-          if (nsqPublicMessage.getText() != null) {
-            lunchMessageRecieveListener.handleMessage(nsqPublicMessage.getText(), nsqPublicMessage.getFullName(), nsqPublicMessage.getRoom());
+          if (nsqPublicMessage.getText() != null && nsqPublicMessage.getFullName() != null && nsqPublicMessage.getRoom() != null) {
+            finishMessage(message, lunchMessageRecieveListener.handleMessage(nsqPublicMessage.getText(), nsqPublicMessage.getFullName(), nsqPublicMessage.getRoom()));
+          } else {
+            finishMessage(message, true);
           }
         } catch (ParseException e) {
           logger.error("ParseException: " + e.getMessage());
         } catch (IOException e) {
           logger.error("IOException: " + e.getMessage());
         }
-        message.finished();
       });
       consumer.start();
     } catch (IOException e) {
@@ -108,10 +109,11 @@ public class NSQ implements Runnable {
         try {
           logger.debug("received private message: " + messageToString(message));
           final NsqPrivateMessage nsqPrivateMessage = mapper.readValue(messageToString(message), NsqPrivateMessage.class);
-          if (nsqPrivateMessage.getText() != null) {
-            lunchPrivateMessageRecieveListener.handleMessage(nsqPrivateMessage.getText(), nsqPrivateMessage.getFullName());
+          if (nsqPrivateMessage.getText() != null && nsqPrivateMessage.getFullName() != null) {
+            finishMessage(message, lunchPrivateMessageRecieveListener.handleMessage(nsqPrivateMessage.getText(), nsqPrivateMessage.getFullName()));
+          } else {
+            finishMessage(message, true);
           }
-          message.finished();
         } catch (ParseException e) {
           logger.error("ParseException: " + e.getMessage());
         } catch (IOException e) {
@@ -127,4 +129,13 @@ public class NSQ implements Runnable {
   private String messageToString(final NSQMessage message) {
     return new String(message.getMessage(), StandardCharsets.UTF_8);
   }
+
+  private void finishMessage(final NSQMessage message, final boolean result) {
+    if (result) {
+      message.finished();
+    } else {
+      message.requeue();
+    }
+  }
 }
+

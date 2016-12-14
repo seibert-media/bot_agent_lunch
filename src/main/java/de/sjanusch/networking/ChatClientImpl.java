@@ -82,11 +82,14 @@ public class ChatClientImpl implements ChatClient {
             m.setBody(toMessage(paramPacket));
             m.setFrom(paramPacket.getFrom().split("\\/")[1]);
             try {
-              final byte[] serializedObject = serializeObject(new NsqPublicMessage(m.getFrom(), m.getBody(), chatRoom.getXMPPName()));
-              if (serializedObject != null) {
-                final NSQProducer producer = new NSQProducer();
-                producer.addAddress(nsqConfiguration.getNSQAdress(), nsqConfiguration.getNSQAdressPort()).start();
-                producer.produce("PublicChat", serializedObject);
+              NsqPublicMessage nsqPublicMessage = new NsqPublicMessage(m.getFrom(), m.getBody(), chatRoom.getXMPPName());
+              if (nsqPublicMessage.getText() != null && nsqPublicMessage.getFullName() != null && nsqPublicMessage.getRoom() != null) {
+                final byte[] serializedObject = serializeObject(nsqPublicMessage);
+                if (serializedObject != null) {
+                  final NSQProducer producer = new NSQProducer();
+                  producer.addAddress(nsqConfiguration.getNSQAdress(), nsqConfiguration.getNSQAdressPort()).start();
+                  producer.produce("PublicChat", serializedObject);
+                }
               }
             } catch (NSQException e) {
               logger.error("NSQException " + e.getMessage());
@@ -125,11 +128,14 @@ public class ChatClientImpl implements ChatClient {
               m.setBody(message.getBody());
               m.setFrom(username);
               try {
-                final byte[] serializedObject = serializeObject(new NsqPrivateMessage(username, m.getBody()));
-                if (serializedObject != null) {
-                  final NSQProducer producer = new NSQProducer();
-                  producer.addAddress(nsqConfiguration.getNSQAdress(), nsqConfiguration.getNSQAdressPort()).start();
-                  producer.produce("PrivateChat", serializedObject);
+                NsqPrivateMessage nsqPrivateMessage = new NsqPrivateMessage(username, m.getBody());
+                if (nsqPrivateMessage.getText() != null && nsqPrivateMessage.getFullName() != null) {
+                  final byte[] serializedObject = serializeObject(nsqPrivateMessage);
+                  if (serializedObject != null) {
+                    final NSQProducer producer = new NSQProducer();
+                    producer.addAddress(nsqConfiguration.getNSQAdress(), nsqConfiguration.getNSQAdressPort()).start();
+                    producer.produce("PrivateChat", serializedObject);
+                  }
                 }
               } catch (NSQException e) {
                 logger.error("NSQException " + e.getMessage());
