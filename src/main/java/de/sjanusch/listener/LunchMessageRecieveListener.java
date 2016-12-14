@@ -1,13 +1,13 @@
 package de.sjanusch.listener;
 
-import de.sjanusch.eventsystem.Listener;
-import de.sjanusch.eventsystem.events.model.MessageRecivedEvent;
+import java.io.IOException;
+import java.text.ParseException;
 
 /**
  * Created by Sandro Janusch Date: 18.05.16 Time: 20:32
  */
-public interface LunchMessageRecieveListener extends Listener {
+public interface LunchMessageRecieveListener {
 
-  void messageEvent(final MessageRecivedEvent event);
+  void handleMessage(final String message, final String from, final String roomId) throws ParseException, IOException;
 
 }

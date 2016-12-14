@@ -2,6 +2,7 @@ package de.sjanusch.networking;
 
 import de.sjanusch.networking.exceptions.LoginException;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import java.io.IOException;
 
@@ -12,9 +13,10 @@ import java.io.IOException;
  */
 public interface ChatClient {
 
-  boolean joinChat(final XMPPConnection xmpp, final String room, final String user, final String password);
+  MultiUserChat joinChat(final XMPPConnection xmpp, final String room, final String user, final String password);
 
   boolean login(final XMPPConnection xmpp, String username, String password) throws LoginException, IOException;
 
-  void startPrivateChat(String username);
+  void startPrivateChat(final String username, MultiUserChat chat);
+
 }

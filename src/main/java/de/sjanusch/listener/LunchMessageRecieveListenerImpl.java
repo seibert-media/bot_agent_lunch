@@ -3,8 +3,6 @@ package de.sjanusch.listener;
 import com.google.inject.Inject;
 import de.sjanusch.bot.Bot;
 import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
-import de.sjanusch.eventsystem.EventHandler;
-import de.sjanusch.eventsystem.events.model.MessageRecivedEvent;
 import de.sjanusch.flow.LunchFlow;
 import de.sjanusch.flow.LunchLoginFlow;
 import de.sjanusch.flow.LunchLogoutFlow;
@@ -12,7 +10,6 @@ import de.sjanusch.model.Weekdays;
 import de.sjanusch.model.superlunch.Lunch;
 import de.sjanusch.protocol.LunchMessageProtocol;
 import de.sjanusch.texte.TextHandler;
-import org.jivesoftware.smack.packet.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,23 +45,8 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
     this.privateMessageRecieverBase = privateMessageRecieverBase;
   }
 
-  @SuppressWarnings("unused")
-  @EventHandler
-  @Override
-  public void messageEvent(final MessageRecivedEvent event) {
-    if (!privateMessageRecieverBase.isMessageFromBot(event.from())) {
-      try {
-        handleMessage(event.getMessage(), event.from(), event.getRoom().getXMPPName());
-      } catch (ParseException e) {
-        logger.error("ParseException: " + e.getMessage());
-      } catch (IOException e) {
-        logger.error("IOException: " + e.getMessage());
-      }
-    }
-  }
-
-  private void handleMessage(final Message message, final String from, final String roomId) throws ParseException, IOException {
-    final String incomeMessage = message.getBody().toLowerCase().trim();
+  public void handleMessage(final String message, final String from, final String roomId) throws ParseException, IOException {
+    final String incomeMessage = message.toLowerCase().trim();
     final String actualUser = lunchListenerHelper.convertNames(from);
     final LunchFlow lunchFlow = lunchMessageProtocol.getCurrentFlowForUser(actualUser);
 

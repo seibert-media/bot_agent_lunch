@@ -1,22 +1,16 @@
 package de.sjanusch.model.hipchat;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
+import com.google.inject.Inject;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.RoomInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-
-import de.sjanusch.bot.Bot;
-import de.sjanusch.eventsystem.EventSystem;
-import de.sjanusch.eventsystem.events.model.UserJoinedRoomEvent;
-import de.sjanusch.eventsystem.events.model.UserLeftRoomEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public class Room {
 
@@ -44,14 +38,9 @@ public class Room {
 
   private boolean halt;
 
-  private final Bot bot;
-
-  private final EventSystem eventSystem;
 
   @Inject
-  public Room(final Bot bot, final EventSystem eventSystem) {
-    this.bot = bot;
-    this.eventSystem = eventSystem;
+  public Room() {
   }
 
   public void setChat(final MultiUserChat chat) {
@@ -188,8 +177,7 @@ public class Room {
                 user = HipchatUser.createInstance(nick.split("\\/")[1], api_cache);
               users.add(nick);
               lastcount = getUserCount();
-              final UserJoinedRoomEvent event = new UserJoinedRoomEvent(Room.this, user, nick);
-              eventSystem.callEvent(event);
+              logger.debug("JoinLookout");
             }
           }
 
@@ -200,8 +188,6 @@ public class Room {
                 user = HipchatUser.createInstance(nick.split("\\/")[1], api_cache);
               toremove.add(nick);
               lastcount = getUserCount();
-              final UserLeftRoomEvent event = new UserLeftRoomEvent(Room.this, user, nick);
-              eventSystem.callEvent(event);
             }
           }
 

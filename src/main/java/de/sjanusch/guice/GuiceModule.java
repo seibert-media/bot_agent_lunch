@@ -21,8 +21,6 @@ import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
 import de.sjanusch.confluence.handler.SuperlunchRequestHandlerImpl;
 import de.sjanusch.confluence.rest.SuperlunchRestClient;
 import de.sjanusch.confluence.rest.SuperlunchRestClientImpl;
-import de.sjanusch.eventsystem.EventSystem;
-import de.sjanusch.eventsystem.EventSystemImpl;
 import de.sjanusch.hipchat.handler.HipchatRequestHandler;
 import de.sjanusch.hipchat.handler.HipchatRequestHandlerImpl;
 import de.sjanusch.hipchat.rest.HipchatRestClient;
@@ -52,7 +50,6 @@ public class GuiceModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    bind(Bot.class).to(BotImpl.class);
     bind(BotRunner.class).to(BotRunnerImpl.class);
     bind(SuperlunchRequestHandler.class).to(SuperlunchRequestHandlerImpl.class);
     bind(SuperlunchRestClient.class).to(SuperlunchRestClientImpl.class);
@@ -73,8 +70,8 @@ public class GuiceModule extends AbstractModule {
     bind(NSQConfiguration.class).to(NSQConfigurationImpl.class);
     bind(MessageHelper.class).to(MessageHelperImpl.class);
 
-    bind(EventSystem.class).to(EventSystemImpl.class).asEagerSingleton();
     bind(Connection.class).to(ConnectionImpl.class).asEagerSingleton();
     bind(LunchMessageProtocol.class).to(LunchMessageProtocolImpl.class).asEagerSingleton();
+    bind(Bot.class).to(BotImpl.class).asEagerSingleton();
   }
 }
