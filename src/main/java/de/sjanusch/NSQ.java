@@ -82,12 +82,17 @@ public class NSQ implements Runnable {
       lookup.addLookupAddress(nsqConfiguration.getNSQLookupAdress(), nsqConfiguration.getNSQLookupAdressPort());
       final NSQConsumer consumer = new NSQConsumer(lookup, "PublicChat", botConfiguration.getBotNickname(), (message) -> {
         try {
-          logger.debug("received public message: " + messageToString(message));
-          final NsqPublicMessage nsqPublicMessage = mapper.readValue(messageToString(message), NsqPublicMessage.class);
-          if (nsqPublicMessage.getText() != null && nsqPublicMessage.getFullName() != null && nsqPublicMessage.getRoom() != null) {
-            finishMessage(message, lunchMessageRecieveListener.handleMessage(nsqPublicMessage.getText(), nsqPublicMessage.getFullName(), nsqPublicMessage.getRoom()));
-          } else {
+          if (messageToString(message).equals("ping")) {
+            logger.debug("PublicChat Queue is a life:");
             finishMessage(message, true);
+          } else {
+            logger.debug("received public message: " + messageToString(message));
+            final NsqPublicMessage nsqPublicMessage = mapper.readValue(messageToString(message), NsqPublicMessage.class);
+            if (nsqPublicMessage.getText() != null && nsqPublicMessage.getFullName() != null && nsqPublicMessage.getRoom() != null) {
+              finishMessage(message, lunchMessageRecieveListener.handleMessage(nsqPublicMessage.getText(), nsqPublicMessage.getFullName(), nsqPublicMessage.getRoom()));
+            } else {
+              finishMessage(message, true);
+            }
           }
         } catch (ParseException e) {
           logger.error("ParseException: " + e.getMessage());
@@ -107,12 +112,17 @@ public class NSQ implements Runnable {
       lookup.addLookupAddress(nsqConfiguration.getNSQLookupAdress(), nsqConfiguration.getNSQLookupAdressPort());
       final NSQConsumer consumer = new NSQConsumer(lookup, "PrivateChat", botConfiguration.getBotNickname(), (message) -> {
         try {
-          logger.debug("received private message: " + messageToString(message));
-          final NsqPrivateMessage nsqPrivateMessage = mapper.readValue(messageToString(message), NsqPrivateMessage.class);
-          if (nsqPrivateMessage.getText() != null && nsqPrivateMessage.getFullName() != null) {
-            finishMessage(message, lunchPrivateMessageRecieveListener.handleMessage(nsqPrivateMessage.getText(), nsqPrivateMessage.getFullName()));
-          } else {
+          if (messageToString(message).equals("ping")) {
+            logger.debug("PrivateChat Queue is a life:");
             finishMessage(message, true);
+          } else {
+            logger.debug("received private message: " + messageToString(message));
+            final NsqPrivateMessage nsqPrivateMessage = mapper.readValue(messageToString(message), NsqPrivateMessage.class);
+            if (nsqPrivateMessage.getText() != null && nsqPrivateMessage.getFullName() != null) {
+              finishMessage(message, lunchPrivateMessageRecieveListener.handleMessage(nsqPrivateMessage.getText(), nsqPrivateMessage.getFullName()));
+            } else {
+              finishMessage(message, true);
+            }
           }
         } catch (ParseException e) {
           logger.error("ParseException: " + e.getMessage());

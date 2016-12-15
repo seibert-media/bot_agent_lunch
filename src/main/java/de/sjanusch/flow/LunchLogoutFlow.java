@@ -7,6 +7,9 @@ import de.sjanusch.texte.TextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Calendar;
+import java.util.TimeZone;
+
 /**
  * Created by Sandro Janusch Date: 23.05.16 Time: 20:07
  */
@@ -30,6 +33,8 @@ public class LunchLogoutFlow implements LunchFlow {
 
   private final String roomId;
 
+  private Calendar cal;
+
   public LunchLogoutFlow(final PrivateMessageRecieverBase privateMessageRecieverBase, final TextHandler textHandler,
                          final SuperlunchRequestHandler superlunchRequestHandler, final int signedInNumber, final Weekdays weekday, final String roomId) {
     this.textHandler = textHandler;
@@ -38,6 +43,7 @@ public class LunchLogoutFlow implements LunchFlow {
     this.signedInNumber = signedInNumber;
     this.weekday = weekday;
     this.roomId = roomId;
+    this.cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
   }
 
   @Override
@@ -72,6 +78,17 @@ public class LunchLogoutFlow implements LunchFlow {
       return actualZustand;
     }
     return null;
+  }
+
+  @Override
+  public void flowReminder(final String user) {
+    privateMessageRecieverBase.sendPrivateMessageText("Hallo, hast du mich vergessen?", user);
+    privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
+  }
+
+  @Override
+  public Calendar getCal() {
+    return cal;
   }
 
   private boolean signOut(final String actualUser, final String id) {

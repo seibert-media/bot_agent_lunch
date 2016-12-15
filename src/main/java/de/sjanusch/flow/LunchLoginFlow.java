@@ -7,6 +7,9 @@ import de.sjanusch.texte.TextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Calendar;
+import java.util.TimeZone;
+
 /**
  * Created by Sandro Janusch Date: 19.05.16 Time: 10:25
  */
@@ -28,6 +31,8 @@ public class LunchLoginFlow implements LunchFlow {
 
   private final String roomId;
 
+  private Calendar cal;
+
   public LunchLoginFlow(final PrivateMessageRecieverBase privateMessageRecieverBase, final TextHandler textHandler,
                         final SuperlunchRequestHandler superlunchRequestHandler, final Weekdays weekday, final String roomId) {
     this.textHandler = textHandler;
@@ -35,6 +40,7 @@ public class LunchLoginFlow implements LunchFlow {
     this.weekday = weekday;
     this.superlunchRequestHandler = superlunchRequestHandler;
     this.roomId = roomId;
+    this.cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
   }
 
   @Override
@@ -80,6 +86,12 @@ public class LunchLoginFlow implements LunchFlow {
     return null;
   }
 
+  @Override
+  public void flowReminder(final String user) {
+    privateMessageRecieverBase.sendPrivateMessageText("Hallo, hast du mich vergessen?", user);
+    privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
+  }
+
   private boolean signIn(final String actualUser, final String id) {
     return superlunchRequestHandler.signInForLunch(id, actualUser);
   }
@@ -97,4 +109,8 @@ public class LunchLoginFlow implements LunchFlow {
     return null;
   }
 
+  @Override
+  public Calendar getCal() {
+    return cal;
+  }
 }
