@@ -7,6 +7,7 @@ import java.io.IOException;
  */
 public interface UsersConfiguration {
 
-  String castUser(final String userName) throws IOException;
+  String castHipchatUser(final String userName) throws IOException;
 
+  String castConfluenceUser(final String userName) throws IOException;
 }

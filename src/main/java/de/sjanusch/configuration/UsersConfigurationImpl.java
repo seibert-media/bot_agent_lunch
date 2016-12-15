@@ -17,12 +17,23 @@ public class UsersConfigurationImpl implements UsersConfiguration {
   }
 
   @Override
-  public String castUser(final String userName) throws IOException {
+  public String castHipchatUser(final String userName) throws IOException {
+    final String apiUserCombo = "hipchat." + userName;
     final Properties properties = configurationLoader.getProperties();
-    if (properties.containsKey(userName)) {
-      return this.configurationLoader.getPropertyStringValue(userName);
+    if (properties.containsKey(apiUserCombo)) {
+      return this.configurationLoader.getPropertyStringValue(apiUserCombo);
     }
     return userName + this.getEmailPostfix();
+  }
+
+  @Override
+  public String castConfluenceUser(final String userName) throws IOException {
+    final String apiUserCombo = "confluence." + userName;
+    final Properties properties = configurationLoader.getProperties();
+    if (properties.containsKey(apiUserCombo)) {
+      return this.configurationLoader.getPropertyStringValue(apiUserCombo);
+    }
+    return userName;
   }
 
   private String getEmailPostfix() throws IOException {

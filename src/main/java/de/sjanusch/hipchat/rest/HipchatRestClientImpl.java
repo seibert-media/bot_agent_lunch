@@ -164,7 +164,7 @@ public class HipchatRestClientImpl implements HipchatRestClient {
   }
 
   private String getHipChatUserMail(final String userNickName) throws IOException {
-    return "/user/" + usersConfiguration.castUser(userNickName) + "/message";
+    return "/user/" + usersConfiguration.castHipchatUser(userNickName) + "/message";
   }
 
   private final class HostnameVerifierAllowAll implements HostnameVerifier {
