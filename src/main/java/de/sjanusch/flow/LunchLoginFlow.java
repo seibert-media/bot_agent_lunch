@@ -53,6 +53,7 @@ public class LunchLoginFlow implements LunchFlow {
       } else if (incomeMessage.contains("nein")) {
         actualZustand = LunchMessageZustand.ANMELDEN_NEIN;
         privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
+        privateMessageRecieverBase.sendMessageTextToRoom(user + " hat sich " + weekday.getText() + " nicht zum Essen angemeldet", this.roomId);
       } else {
         privateMessageRecieverBase.sendPrivateMessageText(ANTWORT_FEHLER, user);
       }
