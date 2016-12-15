@@ -50,7 +50,11 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
     final String actualUser = lunchListenerHelper.convertNames(from);
     final LunchFlow lunchFlow = lunchMessageProtocol.getCurrentFlowForUser(actualUser);
 
-    logger.debug("Handle Message from " + actualUser + ": " + incomeMessage);
+    if (privateMessageRecieverBase.isMessageFromBot(actualUser)) {
+      return true;
+    }
+
+    logger.debug("Handle Public Message from " + actualUser + ": " + incomeMessage);
 
     if (lunchFlow == null && textHandler.containsLunchLoginText(incomeMessage) || textHandler.conatainsLunchLoginCommands(incomeMessage)) {
       this.handleMittagessenInfoMessage(incomeMessage, actualUser, from, true, roomId);
@@ -78,7 +82,7 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
       privateMessageRecieverBase.sendPrivateNotification(textHandler.getHelpText(), actualUser);
       return true;
     }
-    return false;
+    return true;
   }
 
   private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final String fullName, final boolean login, final String roomId) throws ParseException {
