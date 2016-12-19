@@ -73,6 +73,6 @@ public class IsALifeTimer implements Runnable {
         }
       }
     };
-    timer.scheduleAtFixedRate(timerTask, 0, 10 * 60 * 1000);
+    timer.scheduleAtFixedRate(timerTask, 0, 5 * 60 * 1000);
   }
 }
