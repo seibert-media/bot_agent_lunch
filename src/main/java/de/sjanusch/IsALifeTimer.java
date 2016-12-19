@@ -30,7 +30,7 @@ public class IsALifeTimer implements Runnable {
 
   @Override
   public void run() {
-    final Thread isALifeTimerThread = createIsALifeTimerThread();
+    final Thread isALifeTimerThread = this.createIsALifeTimerThread();
     try {
       isALifeTimerThread.join();
     } catch (InterruptedException e) {

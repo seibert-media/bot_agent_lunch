@@ -53,7 +53,7 @@ public class NSQ implements Runnable {
   }
 
   private void runNsqPublic() {
-    final Thread nsqPublic = nsqPublic();
+    final Thread nsqPublic = this.nsqPublic();
     try {
       nsqPublic.join();
     } catch (InterruptedException e) {
@@ -64,7 +64,7 @@ public class NSQ implements Runnable {
   }
 
   private void runNsqPrivate() {
-    final Thread nsqPrivate = nsqPrivate();
+    final Thread nsqPrivate = this.nsqPrivate();
     try {
       nsqPrivate.join();
     } catch (InterruptedException e) {
@@ -103,7 +103,7 @@ public class NSQ implements Runnable {
       final NSQConsumer consumer = new NSQConsumer(lookup, "PublicChat", botConfiguration.getBotNickname(), (message) -> {
         try {
           if (messageToString(message).equals("ping")) {
-            logger.debug("PublicChat Queue is a life:");
+            logger.debug("PublicChat Queue is a life");
             finishMessage(message, true);
           } else {
             logger.debug("received public message: " + messageToString(message));
