@@ -100,13 +100,13 @@ public class NSQ implements Runnable {
     try {
       final NSQLookup lookup = new DefaultNSQLookup();
       lookup.addLookupAddress(nsqConfiguration.getNSQLookupAdress(), nsqConfiguration.getNSQLookupAdressPort());
-      final NSQConsumer consumer = new NSQConsumer(lookup, "PublicChat", botConfiguration.getBotNickname(), (message) -> {
+      final NSQConsumer consumer = new NSQConsumer(lookup, nsqConfiguration.getNsqPublicTopicName(), botConfiguration.getBotNickname(), (message) -> {
         try {
           if (messageToString(message).equals("ping")) {
-            logger.debug("PublicChat Queue is a life");
+            logger.debug(nsqConfiguration.getNsqPublicTopicName() + " Queue is a life");
             finishMessage(message, true);
           } else {
-            logger.debug("received public message: " + messageToString(message));
+            logger.debug("received message: " + nsqConfiguration.getNsqPublicTopicName() + ": " + messageToString(message));
             final NsqPublicMessage nsqPublicMessage = mapper.readValue(messageToString(message), NsqPublicMessage.class);
             if (nsqPublicMessage.getText() != null && nsqPublicMessage.getFullName() != null && nsqPublicMessage.getRoom() != null) {
               finishMessage(message, lunchMessageRecieveListener.handleMessage(nsqPublicMessage.getText(), nsqPublicMessage.getFullName(), nsqPublicMessage.getRoom()));
@@ -130,13 +130,13 @@ public class NSQ implements Runnable {
     try {
       final NSQLookup lookup = new DefaultNSQLookup();
       lookup.addLookupAddress(nsqConfiguration.getNSQLookupAdress(), nsqConfiguration.getNSQLookupAdressPort());
-      final NSQConsumer consumer = new NSQConsumer(lookup, "PrivateChat", botConfiguration.getBotNickname(), (message) -> {
+      final NSQConsumer consumer = new NSQConsumer(lookup, nsqConfiguration.getNsqPrivateTopicName(), botConfiguration.getBotNickname(), (message) -> {
         try {
           if (messageToString(message).equals("ping")) {
-            logger.debug("PrivateChat Queue is a life:");
+            logger.debug(nsqConfiguration.getNsqPrivateTopicName() + " Queue is a life:");
             finishMessage(message, true);
           } else {
-            logger.debug("received private message: " + messageToString(message));
+            logger.debug("received message " + nsqConfiguration.getNsqPrivateTopicName() + ": " + messageToString(message));
             final NsqPrivateMessage nsqPrivateMessage = mapper.readValue(messageToString(message), NsqPrivateMessage.class);
             if (nsqPrivateMessage.getText() != null && nsqPrivateMessage.getFullName() != null) {
               finishMessage(message, lunchPrivateMessageRecieveListener.handleMessage(nsqPrivateMessage.getText(), nsqPrivateMessage.getFullName()));

@@ -88,7 +88,7 @@ public class ChatClientImpl implements ChatClient {
                 if (serializedObject != null) {
                   final NSQProducer producer = new NSQProducer();
                   producer.addAddress(nsqConfiguration.getNSQAdress(), nsqConfiguration.getNSQAdressPort()).start();
-                  producer.produce("PublicChat", serializedObject);
+                  producer.produce(nsqConfiguration.getNsqPublicTopicName(), serializedObject);
                 }
               }
             } catch (NSQException e) {
@@ -134,7 +134,7 @@ public class ChatClientImpl implements ChatClient {
                   if (serializedObject != null) {
                     final NSQProducer producer = new NSQProducer();
                     producer.addAddress(nsqConfiguration.getNSQAdress(), nsqConfiguration.getNSQAdressPort()).start();
-                    producer.produce("PrivateChat", serializedObject);
+                    producer.produce(nsqConfiguration.getNsqPrivateTopicName(), serializedObject);
                   }
                 }
               } catch (NSQException e) {

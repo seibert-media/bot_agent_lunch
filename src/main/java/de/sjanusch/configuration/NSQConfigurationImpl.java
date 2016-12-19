@@ -1,5 +1,6 @@
 package de.sjanusch.configuration;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 /**
@@ -10,6 +11,13 @@ import java.io.IOException;
 
 public class NSQConfigurationImpl implements NSQConfiguration {
 
+  private final ConfigurationLoader configurationLoader;
+
+  @Inject
+  public NSQConfigurationImpl() {
+    this.configurationLoader = new ConfigurationLoader("nsq.properties");
+  }
+
   @Override
   public String getNSQLookupAdress() throws IOException {
     final String env = System.getenv("NSQ_LOOKUPD_ADDRESS");
@@ -17,7 +25,7 @@ public class NSQConfigurationImpl implements NSQConfiguration {
       final String[] lookupAdressArray = this.splitEnvVariable(System.getenv("NSQ_LOOKUPD_ADDRESS"));
       return lookupAdressArray[0];
     }
-    return "localhost";
+    return this.configurationLoader.getPropertyStringValue("nsq.lookupadress");
   }
 
   @Override
@@ -27,7 +35,7 @@ public class NSQConfigurationImpl implements NSQConfiguration {
       final String[] lookupAdressArray = this.splitEnvVariable(System.getenv("NSQ_LOOKUPD_ADDRESS"));
       return Integer.valueOf(lookupAdressArray[1]);
     }
-    return 4161;
+    return Integer.valueOf(this.configurationLoader.getPropertyStringValue("nsq.lookupadressport"));
   }
 
   @Override
@@ -37,7 +45,7 @@ public class NSQConfigurationImpl implements NSQConfiguration {
       final String[] adressArray = this.splitEnvVariable(System.getenv("NSQD_ADDRESS"));
       return adressArray[0];
     }
-    return "localhost";
+    return this.configurationLoader.getPropertyStringValue("nsq.adress");
   }
 
   @Override
@@ -47,7 +55,21 @@ public class NSQConfigurationImpl implements NSQConfiguration {
       final String[] adressArray = this.splitEnvVariable(System.getenv("NSQD_ADDRESS"));
       return Integer.valueOf(adressArray[1]);
     }
-    return 4150;
+    return Integer.valueOf(this.configurationLoader.getPropertyStringValue("nsq.adressport"));
+  }
+
+  @Override
+  public String getNsqPrivateTopicName() throws IOException {
+    return "private" + this.getNsqTopicName();
+  }
+
+  @Override
+  public String getNsqPublicTopicName() throws IOException {
+    return "public" + this.getNsqTopicName();
+  }
+
+  private String getNsqTopicName() throws IOException {
+    return this.configurationLoader.getPropertyStringValue("nsq.topicName");
   }
 
   private String[] splitEnvVariable(final String string) {
