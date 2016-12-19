@@ -48,10 +48,30 @@ public class NSQ implements Runnable {
 
   @Override
   public void run() {
-    Thread nsqPublic = nsqPublic();
-    Thread nsqPrivate = nsqPrivate();
+    this.runNsqPublic();
+    this.runNsqPrivate();
+  }
+
+  private void runNsqPublic() {
+    final Thread nsqPublic = nsqPublic();
+    try {
+      nsqPublic.join();
+    } catch (InterruptedException e) {
+      logger.error("InterruptedException: " + e.getMessage());
+    }
     nsqPublic.start();
+    logger.debug("NSQ Public started");
+  }
+
+  private void runNsqPrivate() {
+    final Thread nsqPrivate = nsqPrivate();
+    try {
+      nsqPrivate.join();
+    } catch (InterruptedException e) {
+      logger.error("InterruptedException: " + e.getMessage());
+    }
     nsqPrivate.start();
+    logger.debug("NSQ Private started");
   }
 
   private Thread nsqPublic() {

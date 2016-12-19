@@ -27,7 +27,13 @@ public class LunchMessageReminder implements Runnable {
   @Override
   public void run() {
     final Thread lunchReminder = lunchReminder();
+    try {
+      lunchReminder.join();
+    } catch (InterruptedException e) {
+      logger.error("InterruptedException: " + e.getMessage());
+    }
     lunchReminder.start();
+    logger.debug("Lunchbot Reminder started");
   }
 
   private Thread lunchReminder() {
@@ -36,7 +42,6 @@ public class LunchMessageReminder implements Runnable {
       @Override
       public void run() {
         startLunchReminder();
-        logger.debug("Lunchtimer started");
       }
     };
     return thread;

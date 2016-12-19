@@ -31,7 +31,13 @@ public class IsALifeTimer implements Runnable {
   @Override
   public void run() {
     final Thread isALifeTimerThread = createIsALifeTimerThread();
+    try {
+      isALifeTimerThread.join();
+    } catch (InterruptedException e) {
+      logger.error("InterruptedException: " + e.getMessage());
+    }
     isALifeTimerThread.start();
+    logger.debug("Is alife Service started");
   }
 
   private Thread createIsALifeTimerThread() {
@@ -40,7 +46,6 @@ public class IsALifeTimer implements Runnable {
       @Override
       public void run() {
         startIsALifeTimer();
-        logger.debug("IsALifeTimer started");
       }
     };
     return thread;

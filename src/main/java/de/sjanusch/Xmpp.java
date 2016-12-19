@@ -32,6 +32,5 @@ public class Xmpp implements Runnable {
     t.start();
     logger.debug("Lunchbot started");
   }
-
 }
 
