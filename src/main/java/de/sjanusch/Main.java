@@ -14,8 +14,8 @@ public class Main {
     final IsALifeTimer isALifeTimer = injector.getInstance(IsALifeTimer.class);
     xmpp.run();
     nsq.run();
-    lunchMessageReminder.run();
     isALifeTimer.run();
+    lunchMessageReminder.run();
   }
 
 }
