@@ -2,10 +2,11 @@ package de.sjanusch.hipchat.rest;
 
 import com.google.inject.Inject;
 import de.sjanusch.configuration.HipchatConfiguration;
-import de.sjanusch.configuration.UsersConfiguration;
 import de.sjanusch.model.hipchat.Error;
 import de.sjanusch.model.hipchat.HipchatMessage;
 import de.sjanusch.model.hipchat.HipchatRestError;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
@@ -33,12 +34,9 @@ public class HipchatRestClientImpl implements HipchatRestClient {
 
   private final HipchatConfiguration hipchatConfiguration;
 
-  private final UsersConfiguration usersConfiguration;
-
   @Inject
-  public HipchatRestClientImpl(final HipchatConfiguration hipchatConfiguration, final UsersConfiguration usersConfiguration) {
+  public HipchatRestClientImpl(final HipchatConfiguration hipchatConfiguration) {
     this.hipchatConfiguration = hipchatConfiguration;
-    this.usersConfiguration = usersConfiguration;
   }
 
   private Client buildClient() throws NoSuchAlgorithmException, KeyManagementException, IOException {
@@ -86,66 +84,61 @@ public class HipchatRestClientImpl implements HipchatRestClient {
   }
 
   @Override
-  public void hipchatRestApiUser(final String userId) {
+  public boolean hipchatRestApiUser(final String userId) {
     try {
       final String path = "/user/" + userId;
-      this.hipchatRestApiGetUser(buildClient().target(this.getHipchatRestApi()).path(path));
+      return this.hipchatRestApiGetUser(buildClient().target(this.getHipchatRestApi()).path(path));
     } catch (NoSuchAlgorithmException | IOException | KeyManagementException e) {
       logger.warn(e.getClass().getName(), e);
     }
+    return false;
   }
 
-  private void hipchatRestApiGetUser(final WebTarget target) throws IOException {
+  private boolean hipchatRestApiGetUser(final WebTarget target) throws IOException {
     logger.debug("Requesting  '" + target.getUri() + "' by GET ");
     try {
       final Response response = target.request(MediaType.APPLICATION_JSON_TYPE)
-        .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyUser())
-        .get();
-      final String jsonResponse = response.readEntity(String.class);
-
-      logger.debug("Requesting  '");
+        .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyUser()).get();
+      if (response.getStatus() == 200) {
+        return true;
+      }
+      return false;
     } catch (final ProcessingException e) {
       logger.error("Unexpected return code from calling", e);
     }
+    return false;
   }
-
 
   private void hipchatRestApiNotification(final WebTarget target, final HipchatMessage chatMessage) throws IOException {
     logger.debug("Requesting  '" + target.getUri() + "' by POST ");
-    try {
-      final ObjectMapper mapper = new ObjectMapper();
-      final Response response = target.request(MediaType.APPLICATION_JSON_TYPE)
-        .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyNotification())
-        .post(Entity.entity(mapper.writeValueAsString(chatMessage), MediaType.APPLICATION_JSON_TYPE));
-      this.handleResponse(response, chatMessage);
-    } catch (final ProcessingException e) {
-      logger.error("Unexpected return code from calling", e);
-    }
+    this.doPostRequest(target, chatMessage, hipchatConfiguration.getHipchatRestApiKeyNotification());
   }
 
   private void hipchatRestApiMessage(final WebTarget target, final HipchatMessage chatMessage) throws IOException {
     logger.debug("Requesting  '" + target.getUri() + "' by POST ");
-    try {
-      final ObjectMapper mapper = new ObjectMapper();
-      final Response response = target.request(MediaType.APPLICATION_JSON_TYPE)
-        .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyMessage())
-        .post(Entity.entity(mapper.writeValueAsString(chatMessage), MediaType.APPLICATION_JSON_TYPE));
-      this.handleResponse(response, chatMessage);
-    } catch (final ProcessingException e) {
-      logger.error("Unexpected return code from calling", e);
-    }
+    this.doPostRequest(target, chatMessage, hipchatConfiguration.getHipchatRestApiKeyMessage());
   }
 
   private void hipchatRestApiPrivateMessage(final WebTarget target, final HipchatMessage chatMessage) throws IOException {
     logger.debug("Requesting  '{}' by POST - message: {}", target.getUri(), chatMessage.getMessage());
+    this.doPostRequest(target, chatMessage, hipchatConfiguration.getHipchatRestApiKeyMessage());
+  }
+
+  private void doPostRequest(final WebTarget target, final HipchatMessage chatMessage, final String apiKey) {
     try {
       final ObjectMapper mapper = new ObjectMapper();
       final Response response = target.request(MediaType.APPLICATION_JSON_TYPE)
-        .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyMessage())
+        .header("Authorization", "Bearer " + apiKey)
         .post(Entity.entity(mapper.writeValueAsString(chatMessage), MediaType.APPLICATION_JSON_TYPE));
       this.handleResponse(response, chatMessage);
     } catch (final ProcessingException e) {
-      logger.error("Unexpected return code from calling", e);
+      logger.error("ProcessingException", e);
+    } catch (JsonGenerationException e) {
+      logger.error("JsonGenerationException", e);
+    } catch (JsonMappingException e) {
+      logger.error("JsonMappingException", e);
+    } catch (IOException e) {
+      logger.error("IOException", e);
     }
   }
 

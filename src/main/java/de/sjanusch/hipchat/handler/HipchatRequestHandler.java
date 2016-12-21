@@ -15,5 +15,5 @@ public interface HipchatRequestHandler {
 
   void sendPrivateMessage(final HipchatMessage chatMessage, final String userNickName);
 
-  void hipchatUserExist(final String userId);
+  boolean hipchatUserExist(final String userId);
 }

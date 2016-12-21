@@ -1,6 +1,7 @@
 package de.sjanusch.networking;
 
 import com.google.inject.Inject;
+import de.sjanusch.configuration.BotConfiguration;
 import de.sjanusch.hipchat.handler.HipchatRequestHandler;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by Sandro Janusch
@@ -27,9 +29,12 @@ public class ChatClientHelper {
 
   private final HipchatRequestHandler hipchatRequestHandler;
 
+  private final BotConfiguration botConfiguration;
+
   @Inject
-  public ChatClientHelper(final HipchatRequestHandler hipchatRequestHandler) {
+  public ChatClientHelper(final HipchatRequestHandler hipchatRequestHandler, final BotConfiguration botConfiguration) {
     this.hipchatRequestHandler = hipchatRequestHandler;
+    this.botConfiguration = botConfiguration;
   }
 
   public boolean isPacketForBot(final Packet packet, final String username) {
@@ -37,11 +42,31 @@ public class ChatClientHelper {
     final String from = packet.getFrom().split("\\/")[0];
     final String to = packet.getTo().split("\\/")[0];
     if (to.equals(username) && !from.equals(username) && from != null && message != null && !message.isEmpty()) {
-      if (this.chatUserExists(this.extractHipchatUserId(from))) {
-        return true;
-      }
+      return true;
     }
     return false;
+  }
+
+  public boolean isPacketFromRoom(final Packet packet) {
+    try {
+      final String room = this.extractRoomId(packet);
+      if (room != null) {
+        final List<String> rooms = botConfiguration.getBotChatRoom();
+        return rooms.contains(room);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return false;
+  }
+
+  public String extractRoomId(final Packet packet) {
+    final String from = packet.getFrom().split("\\/")[0];
+    final String[] room = from.split("@");
+    if (room.length > 0) {
+      return room[0];
+    }
+    return null;
   }
 
   public String extractUserId(final Occupant occupant) {
@@ -96,9 +121,9 @@ public class ChatClientHelper {
     return null;
   }
 
-  private boolean chatUserExists(final String username) {
+  public boolean chatUserExists(final String username) {
     if (username != null && !username.isEmpty()) {
-      hipchatRequestHandler.hipchatUserExist(username);
+      return hipchatRequestHandler.hipchatUserExist(username);
     }
     return false;
   }

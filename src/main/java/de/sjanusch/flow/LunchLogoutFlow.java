@@ -60,11 +60,7 @@ public class LunchLogoutFlow implements LunchFlow {
           actualZustand = LunchMessageZustand.ABMELDEN_ERFOLGREICH;
           privateMessageRecieverBase.sendPrivateNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), user);
           privateMessageRecieverBase.sendPrivateMessageText(textHandler.getRandomText(""), user);
-          if (this.roomId != null && this.roomId != "") {
-            privateMessageRecieverBase.sendMessageTextToRoom(user + " hat sich " + weekday.getText() + " vom Essen abgemeldet", this.roomId);
-          } else {
-            privateMessageRecieverBase.sendPrivateMessageText("Du hast dich " + weekday.getText() + " vom Essen abgemeldet", user);
-          }
+          privateMessageRecieverBase.sendPrivateMessageText("Du hast dich " + weekday.getText() + " vom Essen abgemeldet", user);
         } else {
           actualZustand = LunchMessageZustand.ABMELDEN_FEHLGESCHLAGEN;
           privateMessageRecieverBase.sendPrivateNotificationError(actualZustand.getText(), user);

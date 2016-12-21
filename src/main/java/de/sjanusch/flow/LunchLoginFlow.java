@@ -59,7 +59,6 @@ public class LunchLoginFlow implements LunchFlow {
       } else if (incomeMessage.contains("nein")) {
         actualZustand = LunchMessageZustand.ANMELDEN_NEIN;
         privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
-        privateMessageRecieverBase.sendMessageTextToRoom(user + " hat sich " + weekday.getText() + " nicht zum Essen angemeldet", this.roomId);
       } else {
         privateMessageRecieverBase.sendPrivateMessageText(ANTWORT_FEHLER, user);
       }
@@ -72,11 +71,7 @@ public class LunchLoginFlow implements LunchFlow {
         actualZustand = LunchMessageZustand.ANMELDUNG_ERFOLGREICH;
         privateMessageRecieverBase.sendPrivateNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), user);
         privateMessageRecieverBase.sendPrivateMessageText(textHandler.getRandomText(""), user);
-        if (this.roomId != null && this.roomId != "") {
-          privateMessageRecieverBase.sendMessageTextToRoom(user + " hat sich " + weekday.getText() + " zum Essen angemeldet", this.roomId);
-        } else {
-          privateMessageRecieverBase.sendPrivateMessageText("Du hast dich " + weekday.getText() + " zum Essen angemeldet", user);
-        }
+        privateMessageRecieverBase.sendPrivateMessageText("Du hast dich " + weekday.getText() + " zum Essen angemeldet", user);
       } else {
         actualZustand = LunchMessageZustand.ANMELDUNG_FEHLGESCHLAGEN;
         privateMessageRecieverBase.sendPrivateNotificationError(actualZustand.getText(), user);

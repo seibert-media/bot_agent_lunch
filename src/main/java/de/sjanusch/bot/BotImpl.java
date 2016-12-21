@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 public class BotImpl implements Bot {
@@ -23,7 +24,7 @@ public class BotImpl implements Bot {
 
   private final ChatClient chatClient;
 
-  private MultiUserChat chat;
+  private List<MultiUserChat> chats = new LinkedList<>();
 
   @Inject
   public BotImpl(final Connection connection, final BotConfiguration botConfiguration, final ChatClient chatClient) {
@@ -40,7 +41,13 @@ public class BotImpl implements Bot {
       if (connection.isConnected()) {
         loggedIn = chatClient.login(connection.getXmpp(), this.getUsername(), this.getPassword());
         if (loggedIn) {
-
+          for (String botroom : this.getBotroom()) {
+            MultiUserChat chat = chatClient.joinChat(connection.getXmpp(), botroom, this.getNickname(), this.getPassword());
+            if (chat != null) {
+              logger.debug(this.getNickname() + " loggedin: " + loggedIn + " and joined in Room " + botroom);
+              chats.add(chat);
+            }
+          }
         }
       }
     } catch (final XMPPException | LoginException | IOException e) {

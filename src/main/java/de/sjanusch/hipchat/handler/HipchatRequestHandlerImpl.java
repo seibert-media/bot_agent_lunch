@@ -38,8 +38,8 @@ public class HipchatRequestHandlerImpl implements HipchatRequestHandler {
   }
 
   @Override
-  public void hipchatUserExist(final String userId) {
-    hipchatRestClient.hipchatRestApiUser(userId);
+  public boolean hipchatUserExist(final String userId) {
+    return hipchatRestClient.hipchatRestApiUser(userId);
   }
 
 }

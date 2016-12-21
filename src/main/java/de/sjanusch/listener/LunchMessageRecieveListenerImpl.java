@@ -41,11 +41,12 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
 
     logger.debug("Handle Public Message from " + actualUser + ": " + incomeMessage);
 
-    if (textHandler.containsLunchLoginText(incomeMessage) || textHandler.conatainsLunchLoginCommands(incomeMessage)) {
+    if (incomeMessage.equals("/essen")) {
       this.handleMittagessenInfoMessage(roomId);
       return true;
     }
 
+    /*
     if (textHandler.containsLunchLogoutText(incomeMessage) || textHandler.conatainsLunchLogoutCommands(incomeMessage)) {
       this.handleMittagessenInfoMessage(roomId);
       return true;
@@ -55,10 +56,11 @@ public class LunchMessageRecieveListenerImpl implements LunchMessageRecieveListe
       privateMessageRecieverBase.sendPrivateNotification(textHandler.getHelpText(), actualUser);
       return true;
     }
+    */
     return true;
   }
 
   private void handleMittagessenInfoMessage(final String roomId) throws ParseException {
-    privateMessageRecieverBase.sendMessageTextToRoom("Halllo ", roomId);
+    privateMessageRecieverBase.sendMessageTextToRoom("Mittagessenanmeldung nur noch per PM!", roomId);
   }
 }
