@@ -32,6 +32,11 @@ public class HipchatConfigurationImpl implements HipchatConfiguration {
   }
 
   @Override
+  public String getHipchatRestApiKeyUser() throws IOException {
+    return this.configurationLoader.getPropertyStringValue("hipchat_rest_api_key_user");
+  }
+
+  @Override
   public String getHipchatRestApiRoomId(final String roomId) throws IOException {
     final Properties properties = configurationLoader.getProperties();
     if (properties.containsKey(roomId)) {

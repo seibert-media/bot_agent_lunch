@@ -15,4 +15,6 @@ public interface HipchatConfiguration {
 
   String getHipchatRestApiRoomId(final String roomId) throws IOException;
 
+  String getHipchatRestApiKeyUser() throws IOException;
+
 }

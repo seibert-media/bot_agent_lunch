@@ -15,4 +15,6 @@ public interface HipchatRestClient {
 
   void hipchatRestApiSendPrivateMessage(final HipchatMessage chatMessage, final String userNickName);
 
+  void hipchatRestApiUser(final String userId);
+
 }

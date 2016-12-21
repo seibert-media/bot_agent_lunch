@@ -85,6 +85,31 @@ public class HipchatRestClientImpl implements HipchatRestClient {
     }
   }
 
+  @Override
+  public void hipchatRestApiUser(final String userId) {
+    try {
+      final String path = "/user/" + userId;
+      this.hipchatRestApiGetUser(buildClient().target(this.getHipchatRestApi()).path(path));
+    } catch (NoSuchAlgorithmException | IOException | KeyManagementException e) {
+      logger.warn(e.getClass().getName(), e);
+    }
+  }
+
+  private void hipchatRestApiGetUser(final WebTarget target) throws IOException {
+    logger.debug("Requesting  '" + target.getUri() + "' by GET ");
+    try {
+      final Response response = target.request(MediaType.APPLICATION_JSON_TYPE)
+        .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyUser())
+        .get();
+      final String jsonResponse = response.readEntity(String.class);
+
+      logger.debug("Requesting  '");
+    } catch (final ProcessingException e) {
+      logger.error("Unexpected return code from calling", e);
+    }
+  }
+
+
   private void hipchatRestApiNotification(final WebTarget target, final HipchatMessage chatMessage) throws IOException {
     logger.debug("Requesting  '" + target.getUri() + "' by POST ");
     try {
@@ -163,8 +188,8 @@ public class HipchatRestClientImpl implements HipchatRestClient {
     return hipchatConfiguration.getHipchatRestApi();
   }
 
-  private String getHipChatUserMail(final String userNickName) throws IOException {
-    return "/user/" + usersConfiguration.castHipchatUser(userNickName) + "/message";
+  private String getHipChatUserMail(final String userId) throws IOException {
+    return "/user/" + userId + "/message";
   }
 
   private final class HostnameVerifierAllowAll implements HostnameVerifier {

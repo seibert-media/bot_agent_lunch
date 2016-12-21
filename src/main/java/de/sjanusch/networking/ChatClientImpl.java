@@ -9,25 +9,17 @@ import de.sjanusch.model.hipchat.Room;
 import de.sjanusch.model.nsq.NsqPrivateMessage;
 import de.sjanusch.model.nsq.NsqPublicMessage;
 import de.sjanusch.networking.exceptions.LoginException;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.muc.Occupant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -44,10 +36,13 @@ public class ChatClientImpl implements ChatClient {
 
   private final NSQConfiguration nsqConfiguration;
 
+  private final ChatClientHelper chatClientHelper;
+
   @Inject
-  public ChatClientImpl(final ChatConnectionConfiguration chatConnectionConfiguration, final NSQConfiguration nsqConfiguration) {
+  public ChatClientImpl(final ChatConnectionConfiguration chatConnectionConfiguration, final NSQConfiguration nsqConfiguration, final ChatClientHelper chatClientHelper) {
     this.chatConnectionConfiguration = chatConnectionConfiguration;
     this.nsqConfiguration = nsqConfiguration;
+    this.chatClientHelper = chatClientHelper;
   }
 
   @Override
@@ -58,6 +53,7 @@ public class ChatClientImpl implements ChatClient {
     }
     try {
       xmpp.login(username, password);
+      xmpp.addPacketListener(new ChatPacketListener(), new ChatPacketFilter(username));
       return true;
     } catch (final XMPPException exception) {
       throw new LoginException("There was an error logging in! Are you using the correct username/password?", exception);
@@ -79,12 +75,12 @@ public class ChatClientImpl implements ChatClient {
           @Override
           public void processPacket(final Packet paramPacket) {
             final Message m = new Message();
-            m.setBody(toMessage(paramPacket));
+            m.setBody(chatClientHelper.toMessage(paramPacket));
             m.setFrom(paramPacket.getFrom().split("\\/")[1]);
             try {
               NsqPublicMessage nsqPublicMessage = new NsqPublicMessage(m.getFrom(), m.getBody(), chatRoom.getXMPPName());
               if (nsqPublicMessage.getText() != null && nsqPublicMessage.getFullName() != null && nsqPublicMessage.getRoom() != null) {
-                final byte[] serializedObject = serializeObject(nsqPublicMessage);
+                final byte[] serializedObject = chatClientHelper.serializeObject(nsqPublicMessage);
                 if (serializedObject != null) {
                   final NSQProducer producer = new NSQProducer();
                   producer.addAddress(nsqConfiguration.getNSQAdress(), nsqConfiguration.getNSQAdressPort()).start();
@@ -112,6 +108,7 @@ public class ChatClientImpl implements ChatClient {
     return null;
   }
 
+  /*
   @Override
   public void startPrivateChat(final String username, final MultiUserChat chat) {
     final Iterator<String> occupantIterator = chat.getOccupants();
@@ -127,23 +124,7 @@ public class ChatClientImpl implements ChatClient {
               final Message m = new Message();
               m.setBody(message.getBody());
               m.setFrom(username);
-              try {
-                NsqPrivateMessage nsqPrivateMessage = new NsqPrivateMessage(username, m.getBody());
-                if (nsqPrivateMessage.getText() != null && nsqPrivateMessage.getFullName() != null) {
-                  final byte[] serializedObject = serializeObject(nsqPrivateMessage);
-                  if (serializedObject != null) {
-                    final NSQProducer producer = new NSQProducer();
-                    producer.addAddress(nsqConfiguration.getNSQAdress(), nsqConfiguration.getNSQAdressPort()).start();
-                    producer.produce(nsqConfiguration.getNsqPrivateTopicName(), serializedObject);
-                  }
-                }
-              } catch (NSQException e) {
-                logger.error("NSQException " + e.getMessage());
-              } catch (TimeoutException e) {
-                logger.error("TimeoutException " + e.getMessage());
-              } catch (IOException e) {
-                logger.error("IOException " + e.getMessage());
-              }
+
             }
           });
           logger.debug("Private Chat with " + userId + " created");
@@ -151,13 +132,27 @@ public class ChatClientImpl implements ChatClient {
       }
     }
   }
+  */
 
-  private String extractUserId(final Occupant occupant) {
-    final String[] values = occupant.getJid().split("/");
-    if (values.length > 0) {
-      return values[0];
+  private void startPrivateCommunication(final String userId, final String text) {
+    try {
+      logger.debug("Private Chat with " + userId + " created");
+      NsqPrivateMessage nsqPrivateMessage = new NsqPrivateMessage(userId, text);
+      if (nsqPrivateMessage.getText() != null && nsqPrivateMessage.getFullName() != null) {
+        final byte[] serializedObject = chatClientHelper.serializeObject(nsqPrivateMessage);
+        if (serializedObject != null) {
+          final NSQProducer producer = new NSQProducer();
+          producer.addAddress(nsqConfiguration.getNSQAdress(), nsqConfiguration.getNSQAdressPort()).start();
+          producer.produce(nsqConfiguration.getNsqPrivateTopicName(), serializedObject);
+        }
+      }
+    } catch (NSQException e) {
+      logger.error("NSQException " + e.getMessage());
+    } catch (TimeoutException e) {
+      logger.error("TimeoutException " + e.getMessage());
+    } catch (IOException e) {
+      logger.error("IOException " + e.getMessage());
     }
-    return null;
   }
 
   private Room joinChatRoom(final Room roomObject, final String roomName, final XMPPConnection con, final MultiUserChat chat) {
@@ -176,37 +171,33 @@ public class ChatClientImpl implements ChatClient {
     return room.contains("@") ? room : room + "@" + chatConnectionConfiguration.getConfUrl();
   }
 
-  private String toMessage(final Packet packet) {
-    try {
-      final Field f = packet.getClass().getDeclaredField("bodies");
-      f.setAccessible(true);
-      @SuppressWarnings("rawtypes")
-      final HashSet h = (HashSet) f.get(packet);
-      if (h.size() == 0)
-        return "";
-      for (final Object obj : h) {
-        if (obj instanceof Message.Body)
-          return ((Message.Body) obj).getMessage();
-      }
-      return "";
-    } catch (final Exception e) {
-      return "";
+  private final class ChatPacketListener implements PacketListener {
+
+    @Override
+    public void processPacket(final Packet packet) {
+      final String message = chatClientHelper.toMessage(packet);
+      final String userId = chatClientHelper.extractHipchatUserId(packet.getFrom().split("\\/")[0]);
+      startPrivateCommunication(userId, message);
     }
+
   }
 
-  private byte[] serializeObject(final Object object) {
-    try {
-      final ObjectMapper mapper = new ObjectMapper();
-      final String json = mapper.writeValueAsString(object);
-      return json.getBytes();
-    } catch (JsonGenerationException e) {
-      logger.error("JsonGenerationException " + e.getMessage());
-    } catch (JsonMappingException e) {
-      logger.error("JsonMappingException " + e.getMessage());
-    } catch (IOException e) {
-      logger.error("IOException " + e.getMessage());
+  private final class ChatPacketFilter implements PacketFilter {
+
+    private final String username;
+
+    public ChatPacketFilter(final String username) {
+      this.username = username;
     }
-    return null;
+
+    @Override
+    public boolean accept(final Packet packet) {
+      if (chatClientHelper.isPacketForBot(packet, username)) {
+        return true;
+      }
+      return false;
+    }
+
   }
 
 }

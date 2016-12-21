@@ -17,6 +17,4 @@ public interface ChatClient {
 
   boolean login(final XMPPConnection xmpp, String username, String password) throws LoginException, IOException;
 
-  void startPrivateChat(final String username, MultiUserChat chat);
-
 }

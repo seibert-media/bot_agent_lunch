@@ -40,12 +40,7 @@ public class BotImpl implements Bot {
       if (connection.isConnected()) {
         loggedIn = chatClient.login(connection.getXmpp(), this.getUsername(), this.getPassword());
         if (loggedIn) {
-          for (String botroom : this.getBotroom()) {
-            this.chat = chatClient.joinChat(connection.getXmpp(), botroom, this.getNickname(), this.getPassword());
-            if (chat != null) {
-              logger.debug(this.getNickname() + " loggedin: " + loggedIn + " and joined in Room " + botroom);
-            }
-          }
+
         }
       }
     } catch (final XMPPException | LoginException | IOException e) {
@@ -56,11 +51,6 @@ public class BotImpl implements Bot {
         logger.debug("disconnect failed", e2);
       }
     }
-  }
-
-  @Override
-  public void startPrivateChat(final String username) {
-    chatClient.startPrivateChat(username, this.chat);
   }
 
   @Override

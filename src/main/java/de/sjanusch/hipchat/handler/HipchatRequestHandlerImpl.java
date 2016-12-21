@@ -37,4 +37,9 @@ public class HipchatRequestHandlerImpl implements HipchatRequestHandler {
     hipchatRestClient.hipchatRestApiSendPrivateMessage(chatMessage, userNickName);
   }
 
+  @Override
+  public void hipchatUserExist(final String userId) {
+    hipchatRestClient.hipchatRestApiUser(userId);
+  }
+
 }
