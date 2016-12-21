@@ -110,7 +110,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("<b>Mittagessen " + weekday.getText() + "</b><br>");
         lunchListenerHelper.setSignedInNumber(0);
-        stringBuilder.append(lunchListenerHelper.createLunchOverview(lunchList, hipchatUser.getXmppUserId()));
+        stringBuilder.append(lunchListenerHelper.createLunchOverview(lunchList, hipchatUser.getMention_name()));
         privateMessageRecieverBase.sendPrivateNotification(stringBuilder.toString(), hipchatUser.getXmppUserId());
         final SuperlunchRequestHandler superlunchRequestHandler = lunchListenerHelper.getSuperlunchRequestHandler();
         if (!lunchListenerHelper.isLunchesClosed() && lunchListenerHelper.getSignedInNumber() == 0 && login) {
