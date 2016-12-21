@@ -5,6 +5,7 @@ import de.sjanusch.configuration.HipchatConfiguration;
 import de.sjanusch.model.hipchat.Error;
 import de.sjanusch.model.hipchat.HipchatMessage;
 import de.sjanusch.model.hipchat.HipchatRestError;
+import de.sjanusch.model.hipchat.HipchatUser;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -84,29 +85,35 @@ public class HipchatRestClientImpl implements HipchatRestClient {
   }
 
   @Override
-  public boolean hipchatRestApiUser(final String userId) {
+  public HipchatUser hipchatRestApiUser(final String userId) {
     try {
       final String path = "/user/" + userId;
       return this.hipchatRestApiGetUser(buildClient().target(this.getHipchatRestApi()).path(path));
     } catch (NoSuchAlgorithmException | IOException | KeyManagementException e) {
       logger.warn(e.getClass().getName(), e);
     }
-    return false;
+    return null;
   }
 
-  private boolean hipchatRestApiGetUser(final WebTarget target) throws IOException {
+  private HipchatUser hipchatRestApiGetUser(final WebTarget target) throws IOException {
     logger.debug("Requesting  '" + target.getUri() + "' by GET ");
     try {
       final Response response = target.request(MediaType.APPLICATION_JSON_TYPE)
         .header("Authorization", "Bearer " + hipchatConfiguration.getHipchatRestApiKeyUser()).get();
-      if (response.getStatus() == 200) {
-        return true;
+      switch (response.getStatus()) {
+        default:
+          logger.error("Unexpected return code from calling '" + response.getStatus());
+          logger.error(response.readEntity(String.class));
+          break;
+        case 200:
+          final String jsonResponse = response.readEntity(String.class);
+          final HipchatUser hipchatUser = convertResponseToHipchatUser(jsonResponse);
+          return hipchatUser;
       }
-      return false;
     } catch (final ProcessingException e) {
-      logger.error("Unexpected return code from calling", e);
+      logger.error("Unexpected return code from calling '" + e.getMessage());
     }
-    return false;
+    return null;
   }
 
   private void hipchatRestApiNotification(final WebTarget target, final HipchatMessage chatMessage) throws IOException {
@@ -171,6 +178,16 @@ public class HipchatRestClientImpl implements HipchatRestClient {
     } catch (IOException e) {
       logger.error("parsing hipchat JSON response: " + errorString);
     }
+  }
+
+  private HipchatUser convertResponseToHipchatUser(final String jsonResponse) {
+    final ObjectMapper mapper = new ObjectMapper();
+    try {
+      return mapper.readValue(jsonResponse, HipchatUser.class);
+    } catch (final IOException e) {
+      logger.warn(e.getClass().getName(), e);
+    }
+    return null;
   }
 
   private String getHipchatRoomId(final HipchatMessage chatMessage) throws IOException {

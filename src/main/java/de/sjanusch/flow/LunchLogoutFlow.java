@@ -3,6 +3,7 @@ package de.sjanusch.flow;
 import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
 import de.sjanusch.listener.PrivateMessageRecieverBase;
 import de.sjanusch.model.Weekdays;
+import de.sjanusch.model.hipchat.HipchatUser;
 import de.sjanusch.texte.TextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,45 +32,42 @@ public class LunchLogoutFlow implements LunchFlow {
 
   private final Weekdays weekday;
 
-  private final String roomId;
-
   private Calendar cal;
 
   public LunchLogoutFlow(final PrivateMessageRecieverBase privateMessageRecieverBase, final TextHandler textHandler,
-                         final SuperlunchRequestHandler superlunchRequestHandler, final int signedInNumber, final Weekdays weekday, final String roomId) {
+                         final SuperlunchRequestHandler superlunchRequestHandler, final int signedInNumber, final Weekdays weekday) {
     this.textHandler = textHandler;
     this.privateMessageRecieverBase = privateMessageRecieverBase;
     this.superlunchRequestHandler = superlunchRequestHandler;
     this.signedInNumber = signedInNumber;
     this.weekday = weekday;
-    this.roomId = roomId;
     this.cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
   }
 
   @Override
-  public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final String user) {
+  public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final HipchatUser hipchatUser) {
     if (actualZustand == null) {
       this.actualZustand = LunchMessageZustand.ABMELDEN;
-      privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
+      privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), hipchatUser.getXmppUserId());
       return actualZustand;
     }
 
     if (actualZustand.equals(LunchMessageZustand.ABMELDEN)) {
       if (incomeMessage.contains("ja")) {
-        if (signedInNumber != 0 && this.signOut(user, String.valueOf(signedInNumber))) {
+        if (signedInNumber != 0 && this.signOut(hipchatUser.getMention_name(), String.valueOf(signedInNumber))) {
           actualZustand = LunchMessageZustand.ABMELDEN_ERFOLGREICH;
-          privateMessageRecieverBase.sendPrivateNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), user);
-          privateMessageRecieverBase.sendPrivateMessageText(textHandler.getRandomText(""), user);
-          privateMessageRecieverBase.sendPrivateMessageText("Du hast dich " + weekday.getText() + " vom Essen abgemeldet", user);
+          privateMessageRecieverBase.sendPrivateNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), hipchatUser.getXmppUserId());
+          privateMessageRecieverBase.sendPrivateMessageText(textHandler.getRandomText(""), hipchatUser.getXmppUserId());
+          privateMessageRecieverBase.sendPrivateMessageText("Du hast dich " + weekday.getText() + " vom Essen abgemeldet", hipchatUser.getXmppUserId());
         } else {
           actualZustand = LunchMessageZustand.ABMELDEN_FEHLGESCHLAGEN;
-          privateMessageRecieverBase.sendPrivateNotificationError(actualZustand.getText(), user);
+          privateMessageRecieverBase.sendPrivateNotificationError(actualZustand.getText(), hipchatUser.getXmppUserId());
         }
       } else if (incomeMessage.contains("nein")) {
         actualZustand = LunchMessageZustand.ABMELDEN_NEIN;
-        privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
+        privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), hipchatUser.getXmppUserId());
       } else {
-        privateMessageRecieverBase.sendPrivateMessageText(ANTWORT_FEHLER, user);
+        privateMessageRecieverBase.sendPrivateMessageText(ANTWORT_FEHLER, hipchatUser.getXmppUserId());
       }
       return actualZustand;
     }

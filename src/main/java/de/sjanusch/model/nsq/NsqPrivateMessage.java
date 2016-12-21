@@ -1,5 +1,6 @@
 package de.sjanusch.model.nsq;
 
+import de.sjanusch.model.hipchat.HipchatUser;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
@@ -11,24 +12,16 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class NsqPrivateMessage {
 
-  private String fullName;
-
   private String text;
+
+  private HipchatUser hipchatUser;
 
   public NsqPrivateMessage() {
   }
 
-  public NsqPrivateMessage(final String fullName, final String text) {
-    this.fullName = fullName;
+  public NsqPrivateMessage(final String text, HipchatUser hipchatUser) {
     this.text = text;
-  }
-
-  public String getFullName() {
-    return fullName;
-  }
-
-  public void setFullName(final String fullName) {
-    this.fullName = fullName;
+    this.hipchatUser = hipchatUser;
   }
 
   public String getText() {
@@ -37,5 +30,13 @@ public class NsqPrivateMessage {
 
   public void setText(final String text) {
     this.text = text;
+  }
+
+  public HipchatUser getHipchatUser() {
+    return hipchatUser;
+  }
+
+  public void setHipchatUser(final HipchatUser hipchatUser) {
+    this.hipchatUser = hipchatUser;
   }
 }

@@ -3,6 +3,7 @@ package de.sjanusch.flow;
 import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
 import de.sjanusch.listener.PrivateMessageRecieverBase;
 import de.sjanusch.model.Weekdays;
+import de.sjanusch.model.hipchat.HipchatUser;
 import de.sjanusch.texte.TextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,52 +30,50 @@ public class LunchLoginFlow implements LunchFlow {
 
   private final SuperlunchRequestHandler superlunchRequestHandler;
 
-  private final String roomId;
 
   private Calendar cal;
 
   public LunchLoginFlow(final PrivateMessageRecieverBase privateMessageRecieverBase, final TextHandler textHandler,
-                        final SuperlunchRequestHandler superlunchRequestHandler, final Weekdays weekday, final String roomId) {
+                        final SuperlunchRequestHandler superlunchRequestHandler, final Weekdays weekday) {
     this.textHandler = textHandler;
     this.privateMessageRecieverBase = privateMessageRecieverBase;
     this.weekday = weekday;
     this.superlunchRequestHandler = superlunchRequestHandler;
-    this.roomId = roomId;
     this.cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
   }
 
   @Override
-  public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final String user) {
+  public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final HipchatUser hipchatUser) {
 
     if (actualZustand == null) {
       this.actualZustand = LunchMessageZustand.ANMELDEN;
-      privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
+      privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), hipchatUser.getXmppUserId());
       return actualZustand;
     }
 
     if (actualZustand.equals(LunchMessageZustand.ANMELDEN)) {
       if (incomeMessage.contains("ja")) {
         actualZustand = LunchMessageZustand.ANMELDEN_JA;
-        privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
+        privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), hipchatUser.getXmppUserId());
       } else if (incomeMessage.contains("nein")) {
         actualZustand = LunchMessageZustand.ANMELDEN_NEIN;
-        privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
+        privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), hipchatUser.getXmppUserId());
       } else {
-        privateMessageRecieverBase.sendPrivateMessageText(ANTWORT_FEHLER, user);
+        privateMessageRecieverBase.sendPrivateMessageText(ANTWORT_FEHLER, hipchatUser.getXmppUserId());
       }
       return actualZustand;
     }
 
     if (actualZustand.equals(LunchMessageZustand.ANMELDEN_JA)) {
       final String id = this.extractId(incomeMessage);
-      if (id != null && this.signIn(user, id)) {
+      if (id != null && this.signIn(hipchatUser.getMention_name(), id)) {
         actualZustand = LunchMessageZustand.ANMELDUNG_ERFOLGREICH;
-        privateMessageRecieverBase.sendPrivateNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), user);
-        privateMessageRecieverBase.sendPrivateMessageText(textHandler.getRandomText(""), user);
-        privateMessageRecieverBase.sendPrivateMessageText("Du hast dich " + weekday.getText() + " zum Essen angemeldet", user);
+        privateMessageRecieverBase.sendPrivateNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), hipchatUser.getXmppUserId());
+        privateMessageRecieverBase.sendPrivateMessageText(textHandler.getRandomText(""), hipchatUser.getXmppUserId());
+        privateMessageRecieverBase.sendPrivateMessageText("Du hast dich " + weekday.getText() + " zum Essen angemeldet", hipchatUser.getXmppUserId());
       } else {
         actualZustand = LunchMessageZustand.ANMELDUNG_FEHLGESCHLAGEN;
-        privateMessageRecieverBase.sendPrivateNotificationError(actualZustand.getText(), user);
+        privateMessageRecieverBase.sendPrivateNotificationError(actualZustand.getText(), hipchatUser.getXmppUserId());
       }
       return actualZustand;
     }

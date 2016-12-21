@@ -48,7 +48,7 @@ public class NSQ implements Runnable {
 
   @Override
   public void run() {
-    this.runNsqPublic();
+    //this.runNsqPublic();
     this.runNsqPrivate();
   }
 
@@ -138,8 +138,8 @@ public class NSQ implements Runnable {
           } else {
             logger.debug("received message " + nsqConfiguration.getNsqPrivateTopicName() + ": " + messageToString(message));
             final NsqPrivateMessage nsqPrivateMessage = mapper.readValue(messageToString(message), NsqPrivateMessage.class);
-            if (nsqPrivateMessage.getText() != null && nsqPrivateMessage.getFullName() != null) {
-              finishMessage(message, lunchPrivateMessageRecieveListener.handleMessage(nsqPrivateMessage.getText(), nsqPrivateMessage.getFullName()));
+            if (nsqPrivateMessage.getText() != null && nsqPrivateMessage.getHipchatUser() != null) {
+              finishMessage(message, lunchPrivateMessageRecieveListener.handleMessage(nsqPrivateMessage.getText(), nsqPrivateMessage.getHipchatUser()));
             } else {
               finishMessage(message, true);
             }

@@ -3,6 +3,7 @@ package de.sjanusch.networking;
 import com.google.inject.Inject;
 import de.sjanusch.configuration.BotConfiguration;
 import de.sjanusch.hipchat.handler.HipchatRequestHandler;
+import de.sjanusch.model.hipchat.HipchatUser;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -121,11 +122,11 @@ public class ChatClientHelper {
     return null;
   }
 
-  public boolean chatUserExists(final String username) {
+  public HipchatUser chatUserExists(final String username) {
     if (username != null && !username.isEmpty()) {
       return hipchatRequestHandler.hipchatUserExist(username);
     }
-    return false;
+    return null;
   }
 
 }

@@ -1,5 +1,7 @@
 package de.sjanusch.listener;
 
+import de.sjanusch.model.hipchat.HipchatUser;
+
 import java.io.IOException;
 import java.text.ParseException;
 
@@ -8,6 +10,6 @@ import java.text.ParseException;
  */
 public interface LunchPrivateMessageRecieveListener {
 
-  boolean handleMessage(final String message, final String from) throws ParseException, IOException;
+  boolean handleMessage(final String message, final HipchatUser hipchatUser) throws ParseException, IOException;
 
 }

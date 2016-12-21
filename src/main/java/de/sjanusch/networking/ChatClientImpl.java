@@ -5,6 +5,7 @@ import com.github.brainlag.nsq.exceptions.NSQException;
 import com.google.inject.Inject;
 import de.sjanusch.configuration.ChatConnectionConfiguration;
 import de.sjanusch.configuration.NSQConfiguration;
+import de.sjanusch.model.hipchat.HipchatUser;
 import de.sjanusch.model.nsq.NsqPrivateMessage;
 import de.sjanusch.model.nsq.NsqPublicMessage;
 import de.sjanusch.networking.exceptions.LoginException;
@@ -66,6 +67,13 @@ public class ChatClientImpl implements ChatClient {
     try {
       final MultiUserChat chat = new MultiUserChat(xmpp, room + "@" + chatConnectionConfiguration.getConfUrl());
       chat.join(user, password);
+      chat.addMessageListener(new PacketListener() {
+
+        @Override
+        public void processPacket(final Packet paramPacket) {
+          //startPublicCommunication(paramPacket.getFrom().split("\\/")[1], chatClientHelper.toMessage(paramPacket), room);
+        }
+      });
       return chat;
     } catch (XMPPException e) {
       e.printStackTrace();
@@ -95,11 +103,11 @@ public class ChatClientImpl implements ChatClient {
     }
   }
 
-  private void startPrivateCommunication(final String userId, final String text) {
+  private void startPrivateCommunication(final String text, final HipchatUser hipchatUser) {
     try {
-      logger.debug("Private Chat with " + userId + " created");
-      NsqPrivateMessage nsqPrivateMessage = new NsqPrivateMessage(userId, text);
-      if (nsqPrivateMessage.getText() != null && nsqPrivateMessage.getFullName() != null) {
+      logger.debug("Private Chat with " + hipchatUser.getMention_name() + " created");
+      NsqPrivateMessage nsqPrivateMessage = new NsqPrivateMessage(text, hipchatUser);
+      if (nsqPrivateMessage.getText() != null && nsqPrivateMessage.getHipchatUser() != null) {
         final byte[] serializedObject = chatClientHelper.serializeObject(nsqPrivateMessage);
         if (serializedObject != null) {
           final NSQProducer producer = new NSQProducer();
@@ -124,11 +132,11 @@ public class ChatClientImpl implements ChatClient {
       final String a = packet.toXML();
       final String userId = chatClientHelper.extractHipchatUserId(packet.getFrom().split("\\/")[0]);
       if (!chatClientHelper.isPacketFromRoom(packet)) {
-        if (chatClientHelper.chatUserExists(userId)) {
-          startPrivateCommunication(userId, message);
+        final HipchatUser hipchatUser = chatClientHelper.chatUserExists(userId);
+        if (hipchatUser != null) {
+          hipchatUser.setXmppUserId(userId);
+          startPrivateCommunication(message, hipchatUser);
         }
-      } else {
-        //startPublicCommunication(userId, message, chatClientHelper.extractRoomId(packet));
       }
     }
   }

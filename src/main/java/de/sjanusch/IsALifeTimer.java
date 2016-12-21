@@ -62,7 +62,7 @@ public class IsALifeTimer implements Runnable {
           final NSQProducer producer = new NSQProducer();
           producer.addAddress(nsqConfiguration.getNSQAdress(), nsqConfiguration.getNSQAdressPort()).start();
           logger.debug("Ping " + nsqConfiguration.getNsqPublicTopicName() + " & " + nsqConfiguration.getNsqPrivateTopicName());
-          producer.produce(nsqConfiguration.getNsqPublicTopicName(), ping.getBytes());
+          //producer.produce(nsqConfiguration.getNsqPublicTopicName(), ping.getBytes());
           producer.produce(nsqConfiguration.getNsqPrivateTopicName(), ping.getBytes());
         } catch (NSQException e) {
           logger.error("NSQException " + e.getMessage());

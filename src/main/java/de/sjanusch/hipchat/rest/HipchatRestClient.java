@@ -1,6 +1,7 @@
 package de.sjanusch.hipchat.rest;
 
 import de.sjanusch.model.hipchat.HipchatMessage;
+import de.sjanusch.model.hipchat.HipchatUser;
 
 /**
  * Created by Sandro Janusch
@@ -15,6 +16,6 @@ public interface HipchatRestClient {
 
   void hipchatRestApiSendPrivateMessage(final HipchatMessage chatMessage, final String userNickName);
 
-  boolean hipchatRestApiUser(final String userId);
+  HipchatUser hipchatRestApiUser(final String userId);
 
 }

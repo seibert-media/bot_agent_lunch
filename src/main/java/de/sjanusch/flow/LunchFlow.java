@@ -1,5 +1,7 @@
 package de.sjanusch.flow;
 
+import de.sjanusch.model.hipchat.HipchatUser;
+
 import java.util.Calendar;
 
 /**
@@ -7,7 +9,7 @@ import java.util.Calendar;
  */
 public interface LunchFlow {
 
-  LunchMessageZustand modifyFlowForUser(final String incomeMessage, final String user);
+  LunchMessageZustand modifyFlowForUser(final String incomeMessage, final HipchatUser hipchatUser);
 
   void flowReminder(final String user);
 
