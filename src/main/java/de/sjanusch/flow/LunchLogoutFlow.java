@@ -58,7 +58,6 @@ public class LunchLogoutFlow implements LunchFlow {
           actualZustand = LunchMessageZustand.ABMELDEN_ERFOLGREICH;
           privateMessageRecieverBase.sendPrivateNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), hipchatUser.getXmppUserId());
           privateMessageRecieverBase.sendPrivateMessageText(textHandler.getRandomText(""), hipchatUser.getXmppUserId());
-          privateMessageRecieverBase.sendPrivateMessageText("Du hast dich " + weekday.getText() + " vom Essen abgemeldet", hipchatUser.getXmppUserId());
         } else {
           actualZustand = LunchMessageZustand.ABMELDEN_FEHLGESCHLAGEN;
           privateMessageRecieverBase.sendPrivateNotificationError(actualZustand.getText(), hipchatUser.getXmppUserId());

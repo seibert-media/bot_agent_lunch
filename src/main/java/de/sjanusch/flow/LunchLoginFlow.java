@@ -70,7 +70,6 @@ public class LunchLoginFlow implements LunchFlow {
         actualZustand = LunchMessageZustand.ANMELDUNG_ERFOLGREICH;
         privateMessageRecieverBase.sendPrivateNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), hipchatUser.getXmppUserId());
         privateMessageRecieverBase.sendPrivateMessageText(textHandler.getRandomText(""), hipchatUser.getXmppUserId());
-        privateMessageRecieverBase.sendPrivateMessageText("Du hast dich " + weekday.getText() + " zum Essen angemeldet", hipchatUser.getXmppUserId());
       } else {
         actualZustand = LunchMessageZustand.ANMELDUNG_FEHLGESCHLAGEN;
         privateMessageRecieverBase.sendPrivateNotificationError(actualZustand.getText(), hipchatUser.getXmppUserId());
