@@ -7,10 +7,8 @@ import com.github.brainlag.nsq.lookup.NSQLookup;
 import com.google.inject.Inject;
 import de.sjanusch.configuration.BotConfiguration;
 import de.sjanusch.configuration.NSQConfiguration;
-import de.sjanusch.listener.LunchMessageRecieveListener;
 import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
 import de.sjanusch.model.nsq.NsqPrivateMessage;
-import de.sjanusch.model.nsq.NsqPublicMessage;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,60 +30,34 @@ public class NSQ implements Runnable {
 
   private final BotConfiguration botConfiguration;
 
-  private final LunchMessageRecieveListener lunchMessageRecieveListener;
-
   private final LunchPrivateMessageRecieveListener lunchPrivateMessageRecieveListener;
 
   private final ObjectMapper mapper = new ObjectMapper();
 
   @Inject
-  public NSQ(final NSQConfiguration nsqConfiguration, final BotConfiguration botConfiguration, final LunchMessageRecieveListener lunchMessageRecieveListener, final LunchPrivateMessageRecieveListener lunchPrivateMessageRecieveListener) {
+  public NSQ(final NSQConfiguration nsqConfiguration, final BotConfiguration botConfiguration, final LunchPrivateMessageRecieveListener lunchPrivateMessageRecieveListener) {
     this.nsqConfiguration = nsqConfiguration;
     this.botConfiguration = botConfiguration;
-    this.lunchMessageRecieveListener = lunchMessageRecieveListener;
     this.lunchPrivateMessageRecieveListener = lunchPrivateMessageRecieveListener;
   }
 
   @Override
   public void run() {
-    //this.runNsqPublic();
-    this.runNsqPrivate();
+    this.runNsqLunch();
   }
 
-  private void runNsqPublic() {
-    final Thread nsqPublic = this.nsqPublic();
+  private void runNsqLunch() {
+    final Thread nsqLunch = this.createNsqThread();
     try {
-      nsqPublic.join();
+      nsqLunch.join();
     } catch (InterruptedException e) {
       logger.error("InterruptedException: " + e.getMessage());
     }
-    nsqPublic.start();
-    logger.debug("NSQ Public started");
+    nsqLunch.start();
+    logger.debug("NSQ Lunch started");
   }
 
-  private void runNsqPrivate() {
-    final Thread nsqPrivate = this.nsqPrivate();
-    try {
-      nsqPrivate.join();
-    } catch (InterruptedException e) {
-      logger.error("InterruptedException: " + e.getMessage());
-    }
-    nsqPrivate.start();
-    logger.debug("NSQ Private started");
-  }
-
-  private Thread nsqPublic() {
-    Thread threadNsq = new Thread() {
-
-      @Override
-      public void run() {
-        startNsqLookupPublic();
-      }
-    };
-    return threadNsq;
-  }
-
-  private Thread nsqPrivate() {
+  private Thread createNsqThread() {
     Thread threadNsq = new Thread() {
 
       @Override
@@ -96,47 +68,17 @@ public class NSQ implements Runnable {
     return threadNsq;
   }
 
-  private void startNsqLookupPublic() {
-    try {
-      final NSQLookup lookup = new DefaultNSQLookup();
-      lookup.addLookupAddress(nsqConfiguration.getNSQLookupAdress(), nsqConfiguration.getNSQLookupAdressPort());
-      final NSQConsumer consumer = new NSQConsumer(lookup, nsqConfiguration.getNsqPublicTopicName(), botConfiguration.getBotNickname(), (message) -> {
-        try {
-          if (messageToString(message).equals("ping")) {
-            logger.debug(nsqConfiguration.getNsqPublicTopicName() + " Queue is a life");
-            finishMessage(message, true);
-          } else {
-            logger.debug("received message: " + nsqConfiguration.getNsqPublicTopicName() + ": " + messageToString(message));
-            final NsqPublicMessage nsqPublicMessage = mapper.readValue(messageToString(message), NsqPublicMessage.class);
-            if (nsqPublicMessage.getText() != null && nsqPublicMessage.getFullName() != null && nsqPublicMessage.getRoom() != null) {
-              finishMessage(message, lunchMessageRecieveListener.handleMessage(nsqPublicMessage.getText(), nsqPublicMessage.getFullName(), nsqPublicMessage.getRoom()));
-            } else {
-              finishMessage(message, true);
-            }
-          }
-        } catch (ParseException e) {
-          logger.error("ParseException: " + e.getMessage());
-        } catch (IOException e) {
-          logger.error("IOException: " + e.getMessage());
-        }
-      });
-      consumer.start();
-    } catch (IOException e) {
-      logger.error("IOException: " + e.getMessage());
-    }
-  }
-
   private void startNsqLookupPrivate() {
     try {
       final NSQLookup lookup = new DefaultNSQLookup();
       lookup.addLookupAddress(nsqConfiguration.getNSQLookupAdress(), nsqConfiguration.getNSQLookupAdressPort());
-      final NSQConsumer consumer = new NSQConsumer(lookup, nsqConfiguration.getNsqPrivateTopicName(), botConfiguration.getBotNickname(), (message) -> {
+      final NSQConsumer consumer = new NSQConsumer(lookup, nsqConfiguration.getNsqTopicName(), botConfiguration.getBotNickname(), (message) -> {
         try {
           if (messageToString(message).equals("ping")) {
-            logger.debug(nsqConfiguration.getNsqPrivateTopicName() + " Queue is a life:");
+            logger.debug(nsqConfiguration.getNsqTopicName() + " Queue is a life");
             finishMessage(message, true);
           } else {
-            logger.debug("received message " + nsqConfiguration.getNsqPrivateTopicName() + ": " + messageToString(message));
+            logger.debug("received message " + nsqConfiguration.getNsqTopicName() + ": " + messageToString(message));
             final NsqPrivateMessage nsqPrivateMessage = mapper.readValue(messageToString(message), NsqPrivateMessage.class);
             if (nsqPrivateMessage.getText() != null && nsqPrivateMessage.getHipchatUser() != null) {
               finishMessage(message, lunchPrivateMessageRecieveListener.handleMessage(nsqPrivateMessage.getText(), nsqPrivateMessage.getHipchatUser()));

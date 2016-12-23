@@ -59,16 +59,7 @@ public class NSQConfigurationImpl implements NSQConfiguration {
   }
 
   @Override
-  public String getNsqPrivateTopicName() throws IOException {
-    return "private" + this.getNsqTopicName();
-  }
-
-  @Override
-  public String getNsqPublicTopicName() throws IOException {
-    return "public" + this.getNsqTopicName();
-  }
-
-  private String getNsqTopicName() throws IOException {
+  public String getNsqTopicName() throws IOException {
     return this.configurationLoader.getPropertyStringValue("nsq.topicName");
   }
 

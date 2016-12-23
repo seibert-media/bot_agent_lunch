@@ -7,7 +7,6 @@ import de.sjanusch.configuration.ChatConnectionConfiguration;
 import de.sjanusch.configuration.NSQConfiguration;
 import de.sjanusch.model.hipchat.HipchatUser;
 import de.sjanusch.model.nsq.NsqPrivateMessage;
-import de.sjanusch.model.nsq.NsqPublicMessage;
 import de.sjanusch.networking.exceptions.LoginException;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
@@ -67,13 +66,6 @@ public class ChatClientImpl implements ChatClient {
     try {
       final MultiUserChat chat = new MultiUserChat(xmpp, room + "@" + chatConnectionConfiguration.getConfUrl());
       chat.join(user, password);
-      chat.addMessageListener(new PacketListener() {
-
-        @Override
-        public void processPacket(final Packet paramPacket) {
-          //startPublicCommunication(paramPacket.getFrom().split("\\/")[1], chatClientHelper.toMessage(paramPacket), room);
-        }
-      });
       return chat;
     } catch (XMPPException e) {
       e.printStackTrace();
@@ -83,27 +75,7 @@ public class ChatClientImpl implements ChatClient {
     return null;
   }
 
-  private void startPublicCommunication(final String userId, final String text, final String room) {
-    try {
-      NsqPublicMessage nsqPublicMessage = new NsqPublicMessage(userId, text, room);
-      if (nsqPublicMessage.getText() != null && nsqPublicMessage.getFullName() != null && nsqPublicMessage.getRoom() != null) {
-        final byte[] serializedObject = chatClientHelper.serializeObject(nsqPublicMessage);
-        if (serializedObject != null) {
-          final NSQProducer producer = new NSQProducer();
-          producer.addAddress(nsqConfiguration.getNSQAdress(), nsqConfiguration.getNSQAdressPort()).start();
-          producer.produce(nsqConfiguration.getNsqPublicTopicName(), serializedObject);
-        }
-      }
-    } catch (NSQException e) {
-      logger.error("NSQException " + e.getMessage());
-    } catch (TimeoutException e) {
-      logger.error("TimeoutException " + e.getMessage());
-    } catch (IOException e) {
-      logger.error("IOException " + e.getMessage());
-    }
-  }
-
-  private void startPrivateCommunication(final String text, final HipchatUser hipchatUser) {
+  private void startPersonalCommunication(final String text, final HipchatUser hipchatUser) {
     try {
       logger.debug("Private Chat with " + hipchatUser.getMention_name() + " created");
       NsqPrivateMessage nsqPrivateMessage = new NsqPrivateMessage(text, hipchatUser);
@@ -112,7 +84,7 @@ public class ChatClientImpl implements ChatClient {
         if (serializedObject != null) {
           final NSQProducer producer = new NSQProducer();
           producer.addAddress(nsqConfiguration.getNSQAdress(), nsqConfiguration.getNSQAdressPort()).start();
-          producer.produce(nsqConfiguration.getNsqPrivateTopicName(), serializedObject);
+          producer.produce(nsqConfiguration.getNsqTopicName(), serializedObject);
         }
       }
     } catch (NSQException e) {
@@ -135,7 +107,7 @@ public class ChatClientImpl implements ChatClient {
         final HipchatUser hipchatUser = chatClientHelper.chatUserExists(userId);
         if (hipchatUser != null) {
           hipchatUser.setXmppUserId(userId);
-          startPrivateCommunication(message, hipchatUser);
+          startPersonalCommunication(message, hipchatUser);
         }
       }
     }
