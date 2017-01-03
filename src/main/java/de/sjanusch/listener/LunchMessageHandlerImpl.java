@@ -23,9 +23,9 @@ import java.util.List;
  * Date: 18.05.16
  * Time: 20:33
  */
-public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessageRecieveListener {
+public class LunchMessageHandlerImpl implements LunchMessageHandler {
 
-  private static final Logger logger = LoggerFactory.getLogger(LunchPrivateMessageRecieveListenerImpl.class);
+  private static final Logger logger = LoggerFactory.getLogger(LunchMessageHandlerImpl.class);
 
   private final LunchListenerHelper lunchListenerHelper;
 
@@ -36,7 +36,7 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
   private final LunchMessageProtocol lunchMessageProtocol;
 
   @Inject
-  public LunchPrivateMessageRecieveListenerImpl(final LunchListenerHelper lunchListenerHelper, final TextHandler textHandler, final PrivateMessageRecieverBase privateMessageRecieverBase, final LunchMessageProtocol lunchMessageProtocol) {
+  public LunchMessageHandlerImpl(final LunchListenerHelper lunchListenerHelper, final TextHandler textHandler, final PrivateMessageRecieverBase privateMessageRecieverBase, final LunchMessageProtocol lunchMessageProtocol) {
     this.lunchListenerHelper = lunchListenerHelper;
     this.textHandler = textHandler;
     this.privateMessageRecieverBase = privateMessageRecieverBase;

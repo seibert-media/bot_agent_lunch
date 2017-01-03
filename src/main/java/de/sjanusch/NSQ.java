@@ -7,7 +7,7 @@ import com.github.brainlag.nsq.lookup.NSQLookup;
 import com.google.inject.Inject;
 import de.sjanusch.configuration.BotConfiguration;
 import de.sjanusch.configuration.NSQConfiguration;
-import de.sjanusch.listener.LunchPrivateMessageRecieveListener;
+import de.sjanusch.listener.LunchMessageHandler;
 import de.sjanusch.model.nsq.NsqPrivateMessage;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -30,15 +30,15 @@ public class NSQ implements Runnable {
 
   private final BotConfiguration botConfiguration;
 
-  private final LunchPrivateMessageRecieveListener lunchPrivateMessageRecieveListener;
+  private final LunchMessageHandler lunchMessageHandler;
 
   private final ObjectMapper mapper = new ObjectMapper();
 
   @Inject
-  public NSQ(final NSQConfiguration nsqConfiguration, final BotConfiguration botConfiguration, final LunchPrivateMessageRecieveListener lunchPrivateMessageRecieveListener) {
+  public NSQ(final NSQConfiguration nsqConfiguration, final BotConfiguration botConfiguration, final LunchMessageHandler lunchMessageHandler) {
     this.nsqConfiguration = nsqConfiguration;
     this.botConfiguration = botConfiguration;
-    this.lunchPrivateMessageRecieveListener = lunchPrivateMessageRecieveListener;
+    this.lunchMessageHandler = lunchMessageHandler;
   }
 
   @Override
@@ -81,7 +81,7 @@ public class NSQ implements Runnable {
             logger.debug("received message " + nsqConfiguration.getNsqTopicName() + ": " + messageToString(message));
             final NsqPrivateMessage nsqPrivateMessage = mapper.readValue(messageToString(message), NsqPrivateMessage.class);
             if (nsqPrivateMessage.getText() != null && nsqPrivateMessage.getHipchatUser() != null) {
-              finishMessage(message, lunchPrivateMessageRecieveListener.handleMessage(nsqPrivateMessage.getText(), nsqPrivateMessage.getHipchatUser()));
+              finishMessage(message, lunchMessageHandler.handleMessage(nsqPrivateMessage.getText(), nsqPrivateMessage.getHipchatUser()));
             } else {
               finishMessage(message, true);
             }

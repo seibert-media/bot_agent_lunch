@@ -8,7 +8,7 @@ import java.text.ParseException;
 /**
  * Created by Sandro Janusch Date: 18.05.16 Time: 20:32
  */
-public interface LunchPrivateMessageRecieveListener {
+public interface LunchMessageHandler {
 
   boolean handleMessage(final String message, final HipchatUser hipchatUser) throws ParseException, IOException;
 
