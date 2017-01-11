@@ -56,6 +56,6 @@ public class LunchMessageReminder implements Runnable {
         lunchMessageProtocol.remindUser();
       }
     };
-    timer.scheduleAtFixedRate(timerTask, 0, 5 * 60 * 1000);
+    timer.scheduleAtFixedRate(timerTask, 1000, 5 * 60 * 1000);
   }
 }
