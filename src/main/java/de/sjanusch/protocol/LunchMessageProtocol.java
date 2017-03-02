@@ -13,4 +13,5 @@ public interface LunchMessageProtocol {
 
   LunchFlow getCurrentFlowForUser(final String username);
 
+  void remindUser();
 }

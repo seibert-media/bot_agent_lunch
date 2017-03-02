@@ -1,5 +1,6 @@
 package de.sjanusch.configuration;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 /**
@@ -9,6 +10,7 @@ public class ChatConnectionConfigurationImpl implements ChatConnectionConfigurat
 
   private final ConfigurationLoader configurationLoader;
 
+  @Inject
   public ChatConnectionConfigurationImpl() {
     this.configurationLoader = new ConfigurationLoader("connection.properties");
   }

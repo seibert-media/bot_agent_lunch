@@ -2,13 +2,12 @@ package de.sjanusch.listener;
 
 import com.google.inject.Inject;
 import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
-import de.sjanusch.eventsystem.EventHandler;
-import de.sjanusch.eventsystem.events.model.PrivateMessageRecivedEvent;
 import de.sjanusch.flow.LunchFlow;
 import de.sjanusch.flow.LunchLoginFlow;
 import de.sjanusch.flow.LunchLogoutFlow;
 import de.sjanusch.flow.LunchMessageZustand;
 import de.sjanusch.model.Weekdays;
+import de.sjanusch.model.hipchat.HipchatUser;
 import de.sjanusch.model.superlunch.Lunch;
 import de.sjanusch.protocol.LunchMessageProtocol;
 import de.sjanusch.texte.TextHandler;
@@ -24,9 +23,9 @@ import java.util.List;
  * Date: 18.05.16
  * Time: 20:33
  */
-public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessageRecieveListener {
+public class LunchMessageHandlerImpl implements LunchMessageHandler {
 
-  private static final Logger logger = LoggerFactory.getLogger(LunchPrivateMessageRecieveListenerImpl.class);
+  private static final Logger logger = LoggerFactory.getLogger(LunchMessageHandlerImpl.class);
 
   private final LunchListenerHelper lunchListenerHelper;
 
@@ -37,104 +36,96 @@ public class LunchPrivateMessageRecieveListenerImpl implements LunchPrivateMessa
   private final LunchMessageProtocol lunchMessageProtocol;
 
   @Inject
-  public LunchPrivateMessageRecieveListenerImpl(final LunchListenerHelper lunchListenerHelper, final TextHandler textHandler, final PrivateMessageRecieverBase privateMessageRecieverBase, final LunchMessageProtocol lunchMessageProtocol) {
+  public LunchMessageHandlerImpl(final LunchListenerHelper lunchListenerHelper, final TextHandler textHandler, final PrivateMessageRecieverBase privateMessageRecieverBase, final LunchMessageProtocol lunchMessageProtocol) {
     this.lunchListenerHelper = lunchListenerHelper;
     this.textHandler = textHandler;
     this.privateMessageRecieverBase = privateMessageRecieverBase;
     this.lunchMessageProtocol = lunchMessageProtocol;
   }
 
-  @SuppressWarnings("unused")
-  @EventHandler
-  @Override
-  public void messageEvent(final PrivateMessageRecivedEvent event) {
-    try {
-      handleMessage(event.getMessage().getBody(), event.getMessage().getFrom());
-    } catch (final IOException | ParseException e) {
-      logger.error(e.getMessage());
-    }
-  }
-
-  private void handleMessage(final String message, final String from) throws ParseException, IOException {
-    if (message == null) {
-      logger.debug("No Message to Handle: " + message);
-      return;
-    }
+  public boolean handleMessage(final String message, final HipchatUser hipchatUser) throws ParseException, IOException {
     final String incomeMessage = message.toLowerCase().trim();
-    final String actualUser = lunchListenerHelper.convertNames(from);
-    final LunchFlow lunchFlow = lunchMessageProtocol.getCurrentFlowForUser(actualUser);
+    final LunchFlow lunchFlow = lunchMessageProtocol.getCurrentFlowForUser(hipchatUser.getXmppUserId());
 
-    logger.debug("Handle Message from " + actualUser + ": " + incomeMessage);
+    if (privateMessageRecieverBase.isMessageFromBot(hipchatUser.getMention_name())) {
+      return true;
+    }
+
+    logger.debug("Handle Private Message from " + hipchatUser.getMention_name() + ": " + incomeMessage);
 
     if (lunchFlow == null && textHandler.containsLunchLoginText(incomeMessage) || textHandler.conatainsLunchLoginCommands(incomeMessage)) {
-      this.handleMittagessenInfoMessage(incomeMessage, actualUser, true);
-      return;
+      this.handleMittagessenInfoMessage(incomeMessage, hipchatUser, true);
+      return true;
     }
 
     if (lunchFlow == null && textHandler.containsLunchLogoutText(incomeMessage) || textHandler.conatainsLunchLogoutCommands(incomeMessage)) {
-      this.handleMittagessenInfoMessage(incomeMessage, actualUser, false);
-      return;
+      this.handleMittagessenInfoMessage(incomeMessage, hipchatUser, false);
+      return true;
     }
 
     if (lunchFlow != null && lunchFlow.getClass().equals(LunchLoginFlow.class)) {
-      final LunchMessageZustand actualZustand = lunchFlow.modifyFlowForUser(incomeMessage, actualUser);
+      final LunchMessageZustand actualZustand = lunchFlow.modifyFlowForUser(incomeMessage, hipchatUser);
       if (actualZustand != null) {
         if (actualZustand.equals(LunchMessageZustand.ANMELDUNG_ERFOLGREICH)
           || actualZustand.equals(LunchMessageZustand.ANMELDEN_NEIN)
           || actualZustand.equals(LunchMessageZustand.ANMELDUNG_FEHLGESCHLAGEN)) {
-          lunchMessageProtocol.removeFlowForUser(actualUser);
-          return;
+          lunchMessageProtocol.removeFlowForUser(hipchatUser.getXmppUserId());
+          lunchListenerHelper.setSignedInNumber(0);
+          return true;
         }
       }
-      return;
+      return true;
     }
 
     if (lunchFlow != null && lunchFlow.getClass().equals(LunchLogoutFlow.class)) {
-      final LunchMessageZustand actualZustand = lunchFlow.modifyFlowForUser(incomeMessage, actualUser);
+      final LunchMessageZustand actualZustand = lunchFlow.modifyFlowForUser(incomeMessage, hipchatUser);
       if (actualZustand != null) {
         if (actualZustand.equals(LunchMessageZustand.ABMELDEN_ERFOLGREICH)
           || actualZustand.equals(LunchMessageZustand.ABMELDEN_NEIN)
           || actualZustand.equals(LunchMessageZustand.ABMELDEN_FEHLGESCHLAGEN)) {
-          lunchMessageProtocol.removeFlowForUser(actualUser);
+          lunchMessageProtocol.removeFlowForUser(hipchatUser.getXmppUserId());
           lunchListenerHelper.setSignedInNumber(0);
-          return;
+          return true;
         }
       }
-      return;
+      return true;
     }
 
     if (textHandler.containsHelpCommand(incomeMessage)) {
-      privateMessageRecieverBase.sendNotification(textHandler.getHelpText(), actualUser);
-      return;
+      privateMessageRecieverBase.sendPrivateNotification(textHandler.getHelpText(), hipchatUser.getXmppUserId());
+      return true;
     }
+
+    return true;
   }
 
-  private void handleMittagessenInfoMessage(final String incomeMessage, final String actualUser, final boolean login) throws ParseException {
+  private void handleMittagessenInfoMessage(final String incomeMessage, final HipchatUser hipchatUser, final boolean login) throws ParseException {
     final Weekdays weekday = Weekdays.getEnumForText(incomeMessage);
     if (weekday.isWeekend()) {
       final String text = "<b>Am " + weekday.getText() + " gibt es kein Mittagessen!</b>";
-      privateMessageRecieverBase.sendNotificationError(text, actualUser);
+      privateMessageRecieverBase.sendPrivateNotificationError(text, hipchatUser.getXmppUserId());
     } else {
       final List<Lunch> lunchList = lunchListenerHelper.getLunchlist(weekday);
       if (lunchList.size() > 0) {
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("<b>Mittagessen " + weekday.getText() + "</b><br>");
-        stringBuilder.append(lunchListenerHelper.createLunchOverview(lunchList, actualUser));
-        privateMessageRecieverBase.sendNotification(stringBuilder.toString(), actualUser);
+        lunchListenerHelper.setSignedInNumber(0);
+        stringBuilder.append(lunchListenerHelper.createLunchOverview(lunchList, hipchatUser.getMention_name()));
+        privateMessageRecieverBase.sendPrivateNotification(stringBuilder.toString(), hipchatUser.getXmppUserId());
         final SuperlunchRequestHandler superlunchRequestHandler = lunchListenerHelper.getSuperlunchRequestHandler();
         if (!lunchListenerHelper.isLunchesClosed() && lunchListenerHelper.getSignedInNumber() == 0 && login) {
           final LunchFlow lunchLoginFlow = new LunchLoginFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler, weekday);
-          lunchLoginFlow.modifyFlowForUser(incomeMessage, actualUser);
-          lunchMessageProtocol.addFlowForUser(actualUser, lunchLoginFlow);
+          lunchLoginFlow.modifyFlowForUser(incomeMessage, hipchatUser);
+          lunchMessageProtocol.addFlowForUser(hipchatUser.getXmppUserId(), lunchLoginFlow);
         }
         if (!lunchListenerHelper.isLunchesClosed() && (lunchListenerHelper.getSignedInNumber() != 0 || !login)) {
           final LunchFlow lunchLogoutFlow = new LunchLogoutFlow(privateMessageRecieverBase, textHandler, superlunchRequestHandler,
             lunchListenerHelper.getSignedInNumber(), weekday);
-          lunchLogoutFlow.modifyFlowForUser(incomeMessage, actualUser);
-          lunchMessageProtocol.addFlowForUser(actualUser, lunchLogoutFlow);
+          lunchLogoutFlow.modifyFlowForUser(incomeMessage, hipchatUser);
+          lunchMessageProtocol.addFlowForUser(hipchatUser.getXmppUserId(), lunchLogoutFlow);
         }
       } else {
-        privateMessageRecieverBase.sendNotificationError(textHandler.getOverviewErrorText(), actualUser);
+        privateMessageRecieverBase.sendPrivateNotificationError(textHandler.getOverviewErrorText(), hipchatUser.getXmppUserId());
       }
     }
   }

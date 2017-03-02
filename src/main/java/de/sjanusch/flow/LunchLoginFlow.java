@@ -3,9 +3,13 @@ package de.sjanusch.flow;
 import de.sjanusch.confluence.handler.SuperlunchRequestHandler;
 import de.sjanusch.listener.PrivateMessageRecieverBase;
 import de.sjanusch.model.Weekdays;
+import de.sjanusch.model.hipchat.HipchatUser;
 import de.sjanusch.texte.TextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  * Created by Sandro Janusch Date: 19.05.16 Time: 10:25
@@ -26,50 +30,59 @@ public class LunchLoginFlow implements LunchFlow {
 
   private final SuperlunchRequestHandler superlunchRequestHandler;
 
+
+  private Calendar cal;
+
   public LunchLoginFlow(final PrivateMessageRecieverBase privateMessageRecieverBase, final TextHandler textHandler,
                         final SuperlunchRequestHandler superlunchRequestHandler, final Weekdays weekday) {
     this.textHandler = textHandler;
     this.privateMessageRecieverBase = privateMessageRecieverBase;
     this.weekday = weekday;
     this.superlunchRequestHandler = superlunchRequestHandler;
+    this.cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
   }
 
   @Override
-  public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final String user) {
+  public LunchMessageZustand modifyFlowForUser(final String incomeMessage, final HipchatUser hipchatUser) {
 
     if (actualZustand == null) {
       this.actualZustand = LunchMessageZustand.ANMELDEN;
-      privateMessageRecieverBase.sendMessageText(actualZustand.getText(), user);
+      privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), hipchatUser.getXmppUserId());
       return actualZustand;
     }
 
     if (actualZustand.equals(LunchMessageZustand.ANMELDEN)) {
       if (incomeMessage.contains("ja")) {
         actualZustand = LunchMessageZustand.ANMELDEN_JA;
-        privateMessageRecieverBase.sendMessageText(actualZustand.getText(), user);
+        privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), hipchatUser.getXmppUserId());
       } else if (incomeMessage.contains("nein")) {
         actualZustand = LunchMessageZustand.ANMELDEN_NEIN;
-        privateMessageRecieverBase.sendMessageText(actualZustand.getText(), user);
+        privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), hipchatUser.getXmppUserId());
       } else {
-        privateMessageRecieverBase.sendMessageText(ANTWORT_FEHLER, user);
+        privateMessageRecieverBase.sendPrivateMessageText(ANTWORT_FEHLER, hipchatUser.getXmppUserId());
       }
       return actualZustand;
     }
 
     if (actualZustand.equals(LunchMessageZustand.ANMELDEN_JA)) {
       final String id = this.extractId(incomeMessage);
-      if (id != null && this.signIn(user, id)) {
+      if (id != null && this.signIn(hipchatUser.getMention_name(), id)) {
         actualZustand = LunchMessageZustand.ANMELDUNG_ERFOLGREICH;
-        privateMessageRecieverBase.sendNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), user);
-        privateMessageRecieverBase.sendMessageText(textHandler.getRandomText(""), user);
-        privateMessageRecieverBase.sendMessageTextToRoom(user + " hat sich " + weekday.getText() + " zum Essen angemeldet");
+        privateMessageRecieverBase.sendPrivateNotificationSucess(actualZustand.getText() + " " + textHandler.getThankYouText(), hipchatUser.getXmppUserId());
+        privateMessageRecieverBase.sendPrivateMessageText(textHandler.getRandomText(""), hipchatUser.getXmppUserId());
       } else {
         actualZustand = LunchMessageZustand.ANMELDUNG_FEHLGESCHLAGEN;
-        privateMessageRecieverBase.sendNotificationError(actualZustand.getText(), user);
+        privateMessageRecieverBase.sendPrivateNotificationError(actualZustand.getText(), hipchatUser.getXmppUserId());
       }
       return actualZustand;
     }
     return null;
+  }
+
+  @Override
+  public void flowReminder(final String user) {
+    privateMessageRecieverBase.sendPrivateMessageText("Hallo, hast du mich vergessen?", user);
+    privateMessageRecieverBase.sendPrivateMessageText(actualZustand.getText(), user);
   }
 
   private boolean signIn(final String actualUser, final String id) {
@@ -89,4 +102,8 @@ public class LunchLoginFlow implements LunchFlow {
     return null;
   }
 
+  @Override
+  public Calendar getCal() {
+    return cal;
+  }
 }

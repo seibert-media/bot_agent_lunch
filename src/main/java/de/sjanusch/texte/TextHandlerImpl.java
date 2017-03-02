@@ -189,7 +189,7 @@ public class TextHandlerImpl implements TextHandler {
   public String getOverviewErrorText() {
     final StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append("Mittagessen Übersicht noch nicht verfügbar!\n");
-    stringBuilder.append("https://confluence.rp.seibert-media.net/dashboard.action");
+    stringBuilder.append("https://confluence.apps.seibert-media.net/dashboard.action");
     return stringBuilder.toString();
   }
 

@@ -1,11 +1,13 @@
 package de.sjanusch.configuration;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 public class LunchConfigurationImpl implements LunchConfiguration {
 
   private final ConfigurationLoader configurationLoader;
 
+  @Inject
   public LunchConfigurationImpl() {
     this.configurationLoader = new ConfigurationLoader("superlunch.properties");
   }

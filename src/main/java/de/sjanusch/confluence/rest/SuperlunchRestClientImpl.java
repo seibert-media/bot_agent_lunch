@@ -2,11 +2,11 @@ package de.sjanusch.confluence.rest;
 
 import com.google.inject.Inject;
 import de.sjanusch.configuration.LunchConfiguration;
+import de.sjanusch.configuration.UsersConfiguration;
 import de.sjanusch.model.superlunch.Lunch;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.HttpBasicAuthFilter;
-import org.glassfish.jersey.jackson.JacksonFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,21 +35,23 @@ public class SuperlunchRestClientImpl implements SuperlunchRestClient {
 
   private final LunchConfiguration lunchConfiguration;
 
+  private final UsersConfiguration usersConfiguration;
+
   @Inject
-  public SuperlunchRestClientImpl(final LunchConfiguration lunchConfiguration) {
+  public SuperlunchRestClientImpl(final LunchConfiguration lunchConfiguration, final UsersConfiguration usersConfiguration) {
     this.lunchConfiguration = lunchConfiguration;
+    this.usersConfiguration = usersConfiguration;
   }
 
   private Client buildClient() throws NoSuchAlgorithmException, KeyManagementException, IOException {
-    final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManagerAllowAll() };
+    final TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManagerAllowAll()};
     final SSLContext sc = SSLContext.getInstance("SSL");
     sc.init(null, trustAllCerts, new java.security.SecureRandom());
     final Client client = ClientBuilder.newBuilder()
-        .register(new HttpBasicAuthFilter(lunchConfiguration.getLunchUsername(), lunchConfiguration.getLunchUserPassword()))
-        .register(JacksonFeature.class)
-        .hostnameVerifier(new HostnameVerifierAllowAll())
-        .sslContext(sc)
-        .build();
+      .register(new HttpBasicAuthFilter(lunchConfiguration.getLunchUsername(), lunchConfiguration.getLunchUserPassword()))
+      .hostnameVerifier(new HostnameVerifierAllowAll())
+      .sslContext(sc)
+      .build();
     client.property(ClientProperties.CONNECT_TIMEOUT, lunchConfiguration.getRestApiConnectTimeout());
     client.property(ClientProperties.READ_TIMEOUT, lunchConfiguration.getRestApiReadTimeout());
     return client;
@@ -68,7 +70,7 @@ public class SuperlunchRestClientImpl implements SuperlunchRestClient {
   @Override
   public boolean superlunchRestApiSignIn(final String id, final String username) {
     try {
-      final String path = "/" + id + "/join/" + username;
+      final String path = "/" + id + "/join/" + this.getConfluenceUser(username);
       return superlunchRestApiPost(buildClient().target(lunchConfiguration.getRestApi()).path(lunchConfiguration.getRestApiPath() + path));
     } catch (final NoSuchAlgorithmException | IOException | KeyManagementException e) {
       logger.error(e.getMessage());
@@ -79,9 +81,9 @@ public class SuperlunchRestClientImpl implements SuperlunchRestClient {
   @Override
   public boolean superlunchRestApiSignOut(final String id, final String username) {
     try {
-      final String path = "/" + id + "/join/" + username;
+      final String path = "/" + id + "/join/" + this.getConfluenceUser(username);
       return superlunchRestApiDelete(
-          buildClient().target(lunchConfiguration.getRestApi()).path(lunchConfiguration.getRestApiPath() + path));
+        buildClient().target(lunchConfiguration.getRestApi()).path(lunchConfiguration.getRestApiPath() + path));
     } catch (final NoSuchAlgorithmException | IOException | KeyManagementException e) {
       logger.error(e.getMessage());
     }
@@ -154,6 +156,10 @@ public class SuperlunchRestClientImpl implements SuperlunchRestClient {
       logger.warn(e.getClass().getName(), e);
     }
     return null;
+  }
+
+  private String getConfluenceUser(final String userNickName) throws IOException {
+    return usersConfiguration.castConfluenceUser(userNickName);
   }
 
   private final class HostnameVerifierAllowAll implements HostnameVerifier {

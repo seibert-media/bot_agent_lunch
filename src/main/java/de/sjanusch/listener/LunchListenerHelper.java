@@ -15,8 +15,6 @@ public interface LunchListenerHelper {
 
   List<Lunch> getLunchlist(final Weekdays day);
 
-  String convertNames(final String from);
-
   String createLunchOverview(final List<Lunch> lunchList, final String actualUser);
 
   boolean isLunchesClosed();

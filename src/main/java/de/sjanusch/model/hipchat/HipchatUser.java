@@ -1,131 +1,79 @@
 package de.sjanusch.model.hipchat;
 
-import java.util.HashMap;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
-
-import de.sjanusch.utils.WebUtils;
-
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonIgnoreProperties(value = {"links", "created", "email", "group", "is_group_admin", "is_guest", "last_active", "photo_url", "presence", "roles", "timezone", "title", "_deleted"})
 public class HipchatUser {
 
-  private static final Logger logger = LoggerFactory.getLogger(HipchatUser.class);
-
-  private int user_id;
-
-  private String name;
+  private int id;
 
   private String mention_name;
 
-  private String email;
+  private String name;
 
-  private String title;
+  private String version;
 
-  private String photo_url;
+  private String xmpp_jid;
 
-  private String status;
+  private boolean is_deleted;
 
-  private String status_message;
+  private String xmppUserId;
 
-  private int is_group_admin;
-
-  private int is_deleted;
-
-  private static final HashMap<String, HipchatUser> user_cache = new HashMap<>();
-
-  public static HipchatUser createInstance(final String nick, final String APIKey) {
-    if (!user_cache.containsKey(nick)) {
-      final HipchatUser[] users = getHipchatUsers(APIKey);
-      for (final HipchatUser user : users) {
-        if (!user_cache.containsKey(user.name))
-          user_cache.put(user.name, user);
-      }
-      if (!user_cache.containsKey(nick))
-        return null;
-      else
-        return user_cache.get(nick);
-    } else
-      user_cache.get(nick);
-    return null;
+  public int getId() {
+    return id;
   }
 
-  public static HipchatUser createInstance(final int ID, final String APIKey) {
-    final HipchatUser[] users = getHipchatUsers(APIKey);
-    for (final HipchatUser user : users) {
-      if (user.user_id == ID)
-        return user;
-    }
-    return null;
+  public void setId(final int id) {
+    this.id = id;
   }
 
-  public static HipchatUser[] getHipchatUsers(final String APIKey) {
-    return getHipchatUserHolder(APIKey).users;
+  public String getMention_name() {
+    return mention_name;
   }
 
-  private static HipchatUserHolder getHipchatUserHolder(final String APIKey) {
-    try {
-      final Gson gson = new Gson();
-      final String JSON = WebUtils.getTextAsString("https://api.hipchat.com/v2/user?format=json&auth_token=" + APIKey);
-      final HipchatUserHolder data = gson.fromJson(JSON, HipchatUserHolder.class);
-      return data;
-    } catch (final Exception e) {
-      logger.warn(e.getClass().getName(), e);
-      final HipchatUserHolder u = new HipchatUserHolder();
-      u.users = new HipchatUser[0];
-      return u;
-    }
-  }
-
-  private HipchatUser() {
-  }
-
-  public int getUserID() {
-    return user_id;
+  public void setMention_name(final String mention_name) {
+    this.mention_name = mention_name;
   }
 
   public String getName() {
     return name;
   }
 
-  public String getMentionName() {
-    return mention_name;
+  public void setName(final String name) {
+    this.name = name;
   }
 
-  public String getEmail() {
-    return email;
+  public String getVersion() {
+    return version;
   }
 
-  public String getTitle() {
-    return title;
+  public void setVersion(final String version) {
+    this.version = version;
   }
 
-  public String getPhotoUrl() {
-    return photo_url;
+  public boolean is_deleted() {
+    return is_deleted;
   }
 
-  public String getStatus() {
-    return status;
+  public void setIs_deleted(final boolean is_deleted) {
+    this.is_deleted = is_deleted;
   }
 
-  public String getStatusMessage() {
-    return status_message;
+  public String getXmpp_jid() {
+    return xmpp_jid;
   }
 
-  public boolean isGroupAdmin() {
-    return is_group_admin == 1;
+  public void setXmpp_jid(final String xmpp_jid) {
+    this.xmpp_jid = xmpp_jid;
   }
 
-  public boolean isDeletedAccount() {
-    return is_deleted == 1;
+  public String getXmppUserId() {
+    return xmppUserId;
   }
 
-  private static class HipchatUserHolder {
-
-    public HipchatUser[] users;
-
-    public HipchatUserHolder() {
-    }
+  public void setXmppUserId(final String xmppUserId) {
+    this.xmppUserId = xmppUserId;
   }
 }
