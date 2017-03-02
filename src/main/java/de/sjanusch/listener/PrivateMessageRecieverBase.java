@@ -5,15 +5,15 @@ package de.sjanusch.listener;
  */
 public interface PrivateMessageRecieverBase {
 
-  void sendMessageText(final String text, final String username);
+  void sendPrivateMessageText(final String text, final String username);
 
-  void sendNotification(final String text, final String username);
+  void sendPrivateNotification(final String text, final String username);
 
-  void sendNotificationError(final String text, final String username);
+  void sendPrivateNotificationError(final String text, final String username);
 
-  void sendNotificationSucess(final String text, final String username);
+  void sendPrivateNotificationSucess(final String text, final String username);
 
-  void sendMessageTextToRoom(final String text);
+  void sendMessageTextToRoom(final String text, final String roomId);
 
   boolean isMessageFromBot(final String from);
 

@@ -24,6 +24,13 @@ public class Xmpp implements Runnable {
   @Override
   public void run() {
     final Thread t = botRunner.runBotDesync(bot);
+    try {
+      t.join();
+    } catch (InterruptedException e) {
+      logger.error("InterruptedException: " + e.getMessage());
+    }
     t.start();
+    logger.debug("Lunchbot started");
   }
 }
+

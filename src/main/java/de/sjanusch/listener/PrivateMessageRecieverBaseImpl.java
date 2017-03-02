@@ -27,21 +27,21 @@ public class PrivateMessageRecieverBaseImpl implements PrivateMessageRecieverBas
   }
 
   @Override
-  public void sendMessageText(final String text, final String username) {
+  public void sendPrivateMessageText(final String text, final String username) {
     if (text != null && username != null) {
       hipchatRequestHandler.sendPrivateMessage(new HipchatMessage(text), username);
     }
   }
 
   @Override
-  public void sendNotification(final String text, final String username) {
+  public void sendPrivateNotification(final String text, final String username) {
     if (text != null && username != null) {
       hipchatRequestHandler.sendPrivateMessage(new HipchatMessage(text, "html"), username);
     }
   }
 
   @Override
-  public void sendNotificationError(final String text, final String username) {
+  public void sendPrivateNotificationError(final String text, final String username) {
     if (text != null && username != null) {
       final HipchatMessage hipchatMessage = new HipchatMessage(text, "html");
       hipchatMessage.setColor("red");
@@ -50,7 +50,7 @@ public class PrivateMessageRecieverBaseImpl implements PrivateMessageRecieverBas
   }
 
   @Override
-  public void sendNotificationSucess(final String text, final String username) {
+  public void sendPrivateNotificationSucess(final String text, final String username) {
     if (text != null && username != null) {
       final HipchatMessage hipchatMessage = new HipchatMessage(text, "html");
       hipchatMessage.setColor("green");
@@ -59,9 +59,9 @@ public class PrivateMessageRecieverBaseImpl implements PrivateMessageRecieverBas
   }
 
   @Override
-  public void sendMessageTextToRoom(final String text) {
+  public void sendMessageTextToRoom(final String text, final String roomId) {
     if (text != null) {
-      hipchatRequestHandler.sendMessage(new HipchatMessage(text));
+      hipchatRequestHandler.sendMessage(new HipchatMessage(roomId, text, "text"));
     }
   }
 

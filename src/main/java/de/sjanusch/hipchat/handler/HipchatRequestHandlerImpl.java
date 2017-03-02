@@ -3,6 +3,7 @@ package de.sjanusch.hipchat.handler;
 import com.google.inject.Inject;
 import de.sjanusch.hipchat.rest.HipchatRestClient;
 import de.sjanusch.model.hipchat.HipchatMessage;
+import de.sjanusch.model.hipchat.HipchatUser;
 import de.sjanusch.networking.Connection;
 
 /**
@@ -35,6 +36,11 @@ public class HipchatRequestHandlerImpl implements HipchatRequestHandler {
   @Override
   public void sendPrivateMessage(final HipchatMessage chatMessage, final String userNickName) {
     hipchatRestClient.hipchatRestApiSendPrivateMessage(chatMessage, userNickName);
+  }
+
+  @Override
+  public HipchatUser hipchatUserExist(final String userId) {
+    return hipchatRestClient.hipchatRestApiUser(userId);
   }
 
 }

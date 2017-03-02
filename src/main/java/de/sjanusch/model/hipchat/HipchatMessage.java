@@ -1,8 +1,14 @@
 package de.sjanusch.model.hipchat;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 /**
  * Created by Sandro Janusch Date: 17.05.16 Time: 20:38
  */
+
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonIgnoreProperties(value = {"hipchatRoomId"})
 public class HipchatMessage {
 
   private String color = "yellow";
@@ -12,6 +18,14 @@ public class HipchatMessage {
   private String message;
 
   private boolean notify = true;
+
+  private String hipchatRoomId;
+
+  public HipchatMessage(final String roomId, final String message, final String typ) {
+    this.message = message;
+    this.message_format = typ;
+    this.hipchatRoomId = roomId;
+  }
 
   public HipchatMessage(final String message, final String typ) {
     this.message = message;
@@ -52,5 +66,9 @@ public class HipchatMessage {
 
   public void setNotify(final boolean notify) {
     this.notify = notify;
+  }
+
+  public String getHipchatRoomId() {
+    return hipchatRoomId;
   }
 }

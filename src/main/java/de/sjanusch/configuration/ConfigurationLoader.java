@@ -34,6 +34,7 @@ public class ConfigurationLoader {
   }
 
   public List<String> getPropertyStringListValue(final String key) throws IOException {
+    checkPropertiesLoaded();
     return Arrays.asList(getPropertyStringArrayValue(key));
   }
 
@@ -43,7 +44,8 @@ public class ConfigurationLoader {
     }
   }
 
-  public Properties getProperties() {
+  public Properties getProperties() throws IOException {
+    checkPropertiesLoaded();
     return properties;
   }
 

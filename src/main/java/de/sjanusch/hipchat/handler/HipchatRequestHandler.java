@@ -1,6 +1,7 @@
 package de.sjanusch.hipchat.handler;
 
 import de.sjanusch.model.hipchat.HipchatMessage;
+import de.sjanusch.model.hipchat.HipchatUser;
 
 /**
  * Created by Sandro Janusch
@@ -14,4 +15,6 @@ public interface HipchatRequestHandler {
   void sendNotification(final HipchatMessage chatMessage);
 
   void sendPrivateMessage(final HipchatMessage chatMessage, final String userNickName);
+
+  HipchatUser hipchatUserExist(final String userId);
 }
